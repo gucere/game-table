@@ -1691,3 +1691,170 @@
 .mem-card:not(:disabled):hover .mem-back {
   filter: brightness(1.12);
 }
+
+/* Kelime Ustası */
+.wt {
+  width: 100%;
+}
+.wt-board {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  gap: 2px;
+  width: min(100%, 600px, calc(100vh - 250px));
+  min-width: 300px;
+  margin: 0 auto;
+  padding: 4px;
+  border-radius: 10px;
+  background: #1f3a2e;
+}
+.wt-sq {
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: #e7e1cf;
+  color: #3a3a3a;
+  font: inherit;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.wt-sq:disabled {
+  cursor: default;
+  opacity: 1;
+  color: #3a3a3a;
+}
+.wt-sq.dl {
+  background: #9fd4e8;
+}
+.wt-sq.tl {
+  background: #3f8fc9;
+  color: #fff;
+}
+.wt-sq.dw {
+  background: #f2b4a8;
+}
+.wt-sq.tw {
+  background: #d9534f;
+  color: #fff;
+}
+.wt-sq.center {
+  font-size: clamp(0.7rem, 2.6vw, 1.2rem);
+  color: #7a2f2a;
+}
+.wt-prem {
+  font-size: clamp(0.42rem, 1.5vw, 0.68rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.wt-tile {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 3px;
+  background: linear-gradient(#f7e7b8, #ebd394);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.18);
+  color: #2b2116;
+}
+.wt-tile.blank {
+  color: #8a5a00;
+  font-style: italic;
+}
+.wt-letter {
+  font-weight: 800;
+  font-size: clamp(0.62rem, 2.4vw, 1.15rem);
+  line-height: 1;
+}
+.wt-val {
+  position: absolute;
+  right: 2px;
+  bottom: 1px;
+  font-size: clamp(0.38rem, 1.2vw, 0.58rem);
+  font-weight: 700;
+}
+.wt-sq.fresh .wt-tile {
+  background: linear-gradient(#ffe48a, #f4c84a);
+}
+.wt-sq.pending .wt-tile {
+  background: linear-gradient(#bfe8c9, #8fd3a5);
+  outline: 2px solid #2a9d8f;
+  outline-offset: -2px;
+}
+.wt-rack {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  min-height: 54px;
+}
+.wt-rack-tile {
+  width: 48px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.wt-rack-tile .wt-tile {
+  border-radius: 6px;
+}
+.wt-rack-tile .wt-letter {
+  font-size: 1.5rem;
+}
+.wt-rack-tile .wt-val {
+  font-size: 0.7rem;
+  right: 4px;
+  bottom: 3px;
+}
+.wt-rack-tile.sel {
+  transform: translateY(-6px);
+}
+.wt-rack-tile.sel .wt-tile {
+  outline: 3px solid #3a86ff;
+}
+.wt-rack-tile.swap .wt-tile {
+  outline: 3px dashed #e63946;
+  opacity: 0.75;
+}
+.wt-rack-tile:disabled {
+  cursor: default;
+  opacity: 1;
+}
+.wt-preview,
+.wt-last {
+  margin: 0;
+  min-height: 1.3em;
+  text-align: center;
+}
+.wt-blank-pick {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  width: min(92vw, 420px);
+  padding: 1rem;
+  border-radius: 16px;
+  background: var(--surface, #1c2230);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: center;
+}
+.wt-blank-letters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+.wt-blank-letters .btn {
+  min-width: 2.2rem;
+}

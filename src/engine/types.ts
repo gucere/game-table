@@ -89,7 +89,7 @@ export interface GameDef<S = any, M = any, V = any> {
   move(state: S, seat: Seat, move: M, ctx: GameCtx): S | string;
   result(state: S): GameResult | null;
   /** Bots only get their own view, so they cannot cheat */
-  bot?(view: V, seat: Seat, ctx: BotCtx): M;
+  bot?(view: V, seat: Seat, ctx: BotCtx): M | null;
   /** Pause before a bot moves (ms), e.g. longer right after a trick completes */
   botDelay?(state: S): number;
   /** For hidden-info games: false when the current view has no secrets (skip the pass screen) */

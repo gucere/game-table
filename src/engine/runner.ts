@@ -1,6 +1,7 @@
 import { defaultOptions, type GameCtx, type GameDef, type GameOptions, type GameResult, type PlayerInfo, type Seat } from './types';
 
 const BOT_DELAY_MS = 650;
+const BOT_RETRY_MS = 600;
 
 /**
  * Holds the authoritative game state, runs the bots and game timers.
@@ -115,6 +116,11 @@ export class GameRunner {
           move = this.game.bot!(this.view(seat), seat, { random: this.random, level: p.level ?? 'normal' });
         } catch (e) {
           console.error('Bot crashed', e);
+          return;
+        }
+        // null = the bot isn't ready yet (e.g. a word list still loading): ask again shortly
+        if (move === null) {
+          setTimeout(() => this.scheduleBots(), BOT_RETRY_MS);
           return;
         }
         const err = this.submit(seat, move);

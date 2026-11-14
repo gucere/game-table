@@ -38,6 +38,7 @@ Free, open-source classic games that run entirely in the browser.
 | 51 | 2–4 | ✅ | Card rummy on the 101 Okey engine: two decks + two wild jokers, open with 51 points or 5 pairs |
 | Okey | 4 | ✅ | Tally scoring (start at 6/10/20 points); optional çanak (pot) |
 | Konken | 2–4 | ✅ | Okey with two card decks and wild jokers; players who don't finish write down their leftover cards |
+| Kelime Ustası | 2–4 | ✅ | Original crossword tile game (TR/EN) with its own bonus-square layout, letter counts and values; blanks, swaps, a 50-point bonus for using all seven tiles. Bots search every legal move (Appel–Jacobson). Words are checked against Turkish Wiktionary headwords ([atmanat/random-wordlist-tr](https://github.com/atmanat/random-wordlist-tr), Apache-2.0; dictionary forms only) and the public-domain ENABLE list, loaded only when the game opens |
 | 101 Okey | 4 | ✅ | Open with 101 points or 5 pairs; penalties and doubling |
 | Eşli 101 | 4 | ✅ | 101 Okey in partnerships: team totals, lowest wins |
 | Backgammon (Tavla) | 2 | ✅ | Single game or match to 3/5; mars = 2 points |

@@ -66,6 +66,7 @@ export const GAME_NAMES: Record<string, { en: string; tr: string }> = {
   'uzay-savunmasi': { en: 'Space Defense', tr: 'Uzay Savunması' },
   'bilgi-yarisi': { en: 'Trivia Race', tr: 'Bilgi Yarışı' },
   hafiza: { en: 'Memory Pairs', tr: 'Hafıza' },
+  'kelime-ustasi': { en: 'Word Builder', tr: 'Kelime Ustası' },
 };
 
 export { GAME_TEXT_TR } from './games-tr';

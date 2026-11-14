@@ -288,4 +288,9 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
     rules:
       'Bütün kartlar kapalı başlar ve her resimden iki tane vardır. Sıra sende iki kart çevir. Aynıysa çift senindir ve tekrar oynarsın; değilse kartlar kapanır ve sıra diğer oyuncuya geçer. Bütün çiftler bulununca en çok çifti olan kazanır. Tek başına oynarken masayı olabildiğince az denemede temizlemeye çalış.',
   },
+  'kelime-ustasi': {
+    tagline: 'Yedi taşınla bulmaca gibi kelimeler kur. Bonus kareler, boş taşlar, büyük hamleler.',
+    rules:
+      'Herkesin yedi harf taşı var. Sıra sende taşları tek bir satıra ya da sütuna, tahtadakilerle bulmaca gibi kelime oluşturacak şekilde koy; oluşan her yeni kelime listede olmalı. İlk kelime ortadaki ★ karesinden geçer. Oluşturduğun her kelimenin harf puanlarını topla: renkli kareler harfi (2H, 3H) ya da bütün kelimeyi (2K, 3K) ikiye ya da üçe katlar, ama yalnızca ilk kapatıldıklarında. Yedi taşın hepsini birden kullanmak 50 puan ekler. İki boş taş istediğin harf olur ve 0 puan sayılır. Sonra torbadan taş tamamla. Oynamak yerine taş değiştirebilir (torbada en az yedi taş varken) ya da pas geçebilirsin. Torba boşken biri son taşını kullanınca oyun biter (o kişi diğerlerinin elinde kalan taşların puanını kazanır, diğerleri kendi taşlarının puanını kaybeder) ya da üç tur boyunca kimse puan almazsa biter. Türkçede yalnızca sözlük biçimleri geçerlidir, ek almış kelimeler sayılmaz.',
+  },
 };

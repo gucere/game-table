@@ -133,7 +133,8 @@ describe('Coin flip', () => {
 
 describe('every game', () => {
   const levels: BotLevel[] = ['easy', 'normal', 'hard'];
-  for (const g of (GAMES as GameDef[]).filter((x) => x.bot)) {
+  // Kelime Ustası loads its word list asynchronously; wordtiles.test.ts plays it with bots instead
+  for (const g of (GAMES as GameDef[]).filter((x) => x.bot && x.id !== 'kelime-ustasi')) {
     // Chess bots search deeply; play the quick level so the test stays fast
     const lv: BotLevel[] = g.id === 'satranc' ? ['easy'] : levels;
     it(`${g.name}: bots can finish a game without illegal moves`, () => {
@@ -669,7 +670,7 @@ describe('Poker', () => {
           s = g.onTimer!(s, ctx as never);
           continue;
         }
-        const m = g.bot!(g.view(s, act[0]), act[0], { random, level: (['easy', 'normal', 'hard'] as const)[step % 3] });
+        const m = g.bot!(g.view(s, act[0]), act[0], { random, level: (['easy', 'normal', 'hard'] as const)[step % 3] })!;
         const r = g.move(s, act[0], m, ctx as never);
         if (typeof r === 'string') throw new Error(`${r} ${JSON.stringify(m)}`);
         s = r;
