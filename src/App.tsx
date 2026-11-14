@@ -97,6 +97,15 @@ export function App() {
         </nav>
       </header>
       <main className="page">{content}</main>
+      <footer className="site-footer">
+        <p>{tr('Made for fun, not for profit. Free for everyone to play, share and use.')}</p>
+        <p>
+          {tr('Vibe-coded with an AI assistant (Claude).')}{' '}
+          <a href="https://github.com/gucere/oyun-masasi" target="_blank" rel="noreferrer">
+            {tr('Source code on GitHub')}
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }

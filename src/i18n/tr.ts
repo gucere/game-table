@@ -100,6 +100,10 @@ export const TR: Record<string, string> = {
   'Settings are saved on this device only. You can also change them during a game with the 🎨 button.':
     'Ayarlar yalnızca bu cihaza kaydedilir. Oyun sırasında 🎨 düğmesiyle de değiştirebilirsin.',
 
+  'Made for fun, not for profit. Free for everyone to play, share and use.': 'Kâr amacı yok, eğlence için yapıldı. Herkes ücretsiz oynayabilir, paylaşabilir ve kullanabilir.',
+  'Vibe-coded with an AI assistant (Claude).': 'Bir yapay zekâ asistanıyla (Claude) vibe-code edildi.',
+  'Source code on GitHub': 'Kaynak kodu GitHub’da',
+
   // Online notices and system messages
   'Room not found. Check the code, and make sure the host still has the room open.': 'Oda bulunamadı. Kodu kontrol et ve kurucunun odayı hâlâ açık tuttuğundan emin ol.',
   'This browser does not support peer-to-peer connections.': 'Bu tarayıcı eşler arası bağlantıyı desteklemiyor.',

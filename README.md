@@ -2,6 +2,14 @@
 
 Free, open-source classic games that run entirely in the browser.
 
+**Play:** https://gucere.github.io/oyun-masasi/
+
+> **Not for profit.** This is a just-for-fun project: no ads, no accounts, no payments, no tracking. Anyone is welcome to play it, share it, fork it and use the code.
+>
+> **Vibe-coded.** The whole thing was built by chatting with an AI coding assistant (Claude) rather than written line by line by hand. It's tested, but expect the odd rough edge, and bug reports or fixes are welcome.
+>
+> *Kâr amacı yok, eğlence için yapıldı; herkes oynayabilir, paylaşabilir, kodu kullanabilir. Proje bir yapay zekâ asistanıyla (Claude) sohbet ederek "vibe-code" edildi.*
+
 - **Solo:** play against bots (easy / normal / hard).
 - **Same device:** pass the phone or laptop around. Games with secrets hide the screen between turns.
 - **Online:** one player hosts a room and friends join with a 6-character code. Browsers connect directly to each other (WebRTC), so there's no game server to run or pay for.
