@@ -31,7 +31,7 @@
   color: #3ecf8e;
 }
 
-/* ---------- Minesweeper ---------- */
+/* ---------- Mayın Tarlası (minefield) ---------- */
 .mines-wrap {
   display: flex;
   flex-direction: column;

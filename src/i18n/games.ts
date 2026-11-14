@@ -51,7 +51,7 @@ export const GAME_NAMES: Record<string, { en: string; tr: string }> = {
   birlestir: { en: 'Merge', tr: 'Birleştir' },
   solitaire: { en: 'Solitaire', tr: 'Solitaire (İskambil Falı)' },
   sudoku: { en: 'Sudoku', tr: 'Sudoku' },
-  minesweeper: { en: 'Minesweeper', tr: 'Mayın Tarlası' },
+  minesweeper: { en: 'Minefield', tr: 'Mayın Tarlası' },
   'kelime-avi': { en: 'Word Search', tr: 'Kelime Avı' },
   nonogram: { en: 'Nonogram', tr: 'Nonogram' },
   kakuro: { en: 'Kakuro', tr: 'Kakuro' },
@@ -67,6 +67,10 @@ export const GAME_NAMES: Record<string, { en: string; tr: string }> = {
   'bilgi-yarisi': { en: 'Trivia Race', tr: 'Bilgi Yarışı' },
   hafiza: { en: 'Memory Pairs', tr: 'Hafıza' },
   'kelime-ustasi': { en: 'Word Builder', tr: 'Kelime Ustası' },
+  'pis-yedili': { en: 'Dirty Seven', tr: 'Pis Yedili' },
+  'kelimeyi-anlat': { en: 'Describe It', tr: 'Kelimeyi Anlat' },
+  'gizli-gorev': { en: 'Secret Mission', tr: 'Gizli Görev' },
+  'casus-kim': { en: 'Who’s the Spy?', tr: 'Casus Kim?' },
 };
 
 export { GAME_TEXT_TR } from './games-tr';

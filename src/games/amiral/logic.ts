@@ -8,10 +8,10 @@ import type { BotCtx, GameCtx, GameResult, Seat } from '../../engine/types';
 export const SIZE = 10;
 export const FLEET = [
   { name: 'Carrier', nameTr: 'Uçak gemisi', len: 5 },
-  { name: 'Battleship', nameTr: 'Zırhlı', len: 4 },
+  { name: 'Frigate', nameTr: 'Fırkateyn', len: 4 },
   { name: 'Cruiser', nameTr: 'Kruvazör', len: 3 },
   { name: 'Submarine', nameTr: 'Denizaltı', len: 3 },
-  { name: 'Destroyer', nameTr: 'Muhrip', len: 2 },
+  { name: 'Patrol boat', nameTr: 'Hücumbot', len: 2 },
 ];
 
 export interface Ship {

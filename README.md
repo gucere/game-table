@@ -33,6 +33,7 @@ Free, open-source classic games that run entirely in the browser.
 | 3-5-8 | 3 | ✅ | Fixed targets 8/5/3; dealer picks trump, swaps 4 cards with the middle |
 | 3'lü Gömmeli | 3 | ✅ | 16 cards each; bid winner takes the 4 middle cards and buries 4 |
 | King | 4 | ✅ | 20 hands (or a quick 8): six penalty games and koz; everyone calls 3 penalties + 2 koz |
+| Pis Yedili | 2–8 | ✅ | The traditional Turkish shedding game: match suit or rank; 7 = draw two (stacks), 8 = skip, 10 = reverse, jack = pick the suit. One round or rounds to 101 |
 | Papaz Kaçtı | 2–8 | ✅ | One king is left without a partner; draw blind, pair up, don't be left holding the papaz. The holder can see which card you reach for |
 | Pişti | 2–4 | ✅ | Play to one deal, 51, 101 or 151; 4 players can play as partners |
 | 51 | 2–4 | ✅ | Card rummy on the 101 Okey engine: two decks + two wild jokers, open with 51 points or 5 pairs |
@@ -58,6 +59,9 @@ Free, open-source classic games that run entirely in the browser.
 | Vampir Köylü | 4–12 | ✅ | Hidden roles (vampires, villagers, doktor, gözcü); night actions and day votes, with timers |
 | Two Truths and a Lie | 3–12 | – | Write two truths and a lie; spot the lie for a point, fool others for points |
 | Kim Daha Çok? | 3–12 | ✅ | "Who's most likely to…?" Secret votes, crowns and points for reading the room (TR/EN prompts) |
+| Casus Kim? | 3–12 | – | Online only: everyone knows the secret place except the spy. Questions, accusations, a final vote; our own list of 30 places |
+| Gizli Görev | 4–12 | – | Two teams, 25 words: leaders give one-word clues, teammates find their words and avoid the bomb. Our own TR/EN word lists |
+| Kelimeyi Anlat | 4–12 | – | Teams describe words against the clock without saying the forbidden ones; our own TR/EN cards |
 | Bilgi Yarışı | 1–12 | ✅ | Trivia race: everyone answers at once, faster right answers score more. Built-in TR/EN questions, your own question pack (saved in the browser, shareable as a link), or “Everyone writes some”, where players write questions for each other |
 | Hafıza | 1–6 | ✅ | Memory pairs: animals, food or things, 16–36 cards; bots remember more on harder levels |
 | Beş Harf | 1–8 | ✅ | Original five-letter word game (TR/EN): six guesses, colored hints, word of the day, or race friends on the same word. Guesses are checked against Turkish Wiktionary headwords ([atmanat/random-wordlist-tr](https://github.com/atmanat/random-wordlist-tr), Apache-2.0) and the public-domain ENABLE list |
@@ -69,7 +73,7 @@ Free, open-source classic games that run entirely in the browser.
 | Hava Hokeyi | 1–2 | ✅ | Air hockey on one screen: two players with a finger each (multi-touch), or against a bot. One device only |
 | Generala · Sayı Bulmaca | 1–6 · 1–2 | ✅ | Five-dice game; bulls & cows code-cracking |
 | XOX · Four in a Row · Rock Paper Scissors · Coin Flip | 1–2 | ✅ | |
-| Solitaire · Sudoku · Minesweeper | 1 | – | Klondike (draw 1/3, undo), generated sudokus with one solution, 3 sizes of minefield |
+| Solitaire · Sudoku · Mayın Tarlası (Minefield) | 1 | – | Klondike (draw 1/3, undo), generated sudokus with one solution, 3 sizes of minefield |
 | Birleştir · Yılan · Kelime Avı | 1 | – | Sliding merge puzzle, snake, word search (TR/EN) |
 | Zeka Küpü | 1 | – | The twisty puzzle cube in 3D, 2×2 to 7×7: drag stickers or use U D L R F B keys. "Solve it for me" on 2×2 and 3×3 (Kociemba's two-phase algorithm via [cubejs](https://github.com/ldez/cubejs), MIT). Ported from my own [cube solver](https://github.com/gucere/Rubik-s-Cube-Solver-s-) |
 | Uzay Savunması | 1 | – | Original arcade shooter: marching drone waves that speed up, a hive boss every fifth wave, power-ups; works with touch, mouse or keys |

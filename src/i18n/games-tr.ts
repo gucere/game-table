@@ -293,4 +293,24 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
     rules:
       'Herkesin yedi harf taşı var. Sıra sende taşları tek bir satıra ya da sütuna, tahtadakilerle bulmaca gibi kelime oluşturacak şekilde koy; oluşan her yeni kelime listede olmalı. İlk kelime ortadaki ★ karesinden geçer. Oluşturduğun her kelimenin harf puanlarını topla: renkli kareler harfi (2H, 3H) ya da bütün kelimeyi (2K, 3K) ikiye ya da üçe katlar, ama yalnızca ilk kapatıldıklarında. Yedi taşın hepsini birden kullanmak 50 puan ekler. İki boş taş istediğin harf olur ve 0 puan sayılır. Sonra torbadan taş tamamla. Oynamak yerine taş değiştirebilir (torbada en az yedi taş varken) ya da pas geçebilirsin. Torba boşken biri son taşını kullanınca oyun biter (o kişi diğerlerinin elinde kalan taşların puanını kazanır, diğerleri kendi taşlarının puanını kaybeder) ya da üç tur boyunca kimse puan almazsa biter. Türkçede yalnızca sözlük biçimleri geçerlidir, ek almış kelimeler sayılmaz.',
   },
+  'pis-yedili': {
+    tagline: 'Rengi ya da sayıyı eşle, yedilerden kaç, elini ilk sen bitir.',
+    rules:
+      'Herkese 7 kart dağıtılır (5 ve daha fazla oyuncuda iki deste). Sıra sende yerdeki kartla aynı renkte ya da aynı sayıda bir kart at. Atamazsan (ya da istemezsen) bir kart çek; uyuyorsa atabilirsin, yoksa pas geç. Özel kartlar: 7 atılınca sıradaki 2 kart çeker, o da 7 atarsa bir sonraki 4 çeker ve böyle devam eder; 8 sıradakini atlar; 10 yönü değiştirir; vale her kartın üstüne atılır ve atan rengi seçer. Elini ilk bitiren eli kazanır. Puanlı oyunda diğerleri elinde kalan kartları yazar (vale 25, yedi 20, as 11, resimli kartlar ve onlar 10, diğerleri sayısı kadar); biri 101’e ulaşınca en düşük toplam kazanır. Kurallar yöreden yöreye değişir; bunlar yaygın olanlardır.',
+  },
+  'kelimeyi-anlat': {
+    tagline: 'Yasaklı kelimeleri söylemeden kelimeyi anlat. Takım takıma, zamana karşı.',
+    rules:
+      'İki takım: 1, 3, 5… numaralı oyuncular ile 2, 4, 6… numaralı oyuncular. Takımlar sırayla oynar; sıra sende bir kelime ve söylemen yasak olan kelimeleri görürsün. Takımın sesli tahmin etsin diye kelimeyi anlat: kelimenin kendisini, yasaklı kelimeleri ya da onların parçalarını söylemek, ses taklidiyle anlatmak yok. Bilinen her kelime 1 puan. Pas geçmek bedava (aksi seçilmediyse tur başına 3); yasaklı kelime söylemek 1 puan kaybettirir. Rakip takım da kartı görür ve yasaklı kelimeleri yakalar. Aynı odada ya da sesli sohbet açıkken internetten oynayın. Sonunda puanı fazla olan takım kazanır.',
+  },
+  'gizli-gorev': {
+    tagline: 'İki takım, 25 kelime, tek gizli anahtar. Zekice tek kelimelik ipuçları ver; bombadan uzak dur.',
+    rules:
+      'İki takım: 1, 3, 5… numaralı oyuncular ile 2, 4, 6… numaralı oyuncular. Her takımın ilk oyuncusu liderdir ve gizli anahtarı görür: 25 kelimeden hangileri hangi takımın, hangileri tarafsız ve hangisi 💣 bomba. Başlayan takımın 9, diğerinin 8 kelimesi vardır. Sıra takımına gelince lider tahtada olmayan tek bir ipucu kelimesi ve bunun kaç kelimeye uyduğunu söyleyen bir sayı verir. Takım arkadaşları kelimeleri tek tek seçer. Kendi kelimeniz çıkarsa sayının bir fazlasına kadar devam edersiniz; tarafsız ya da rakip takımın kelimesi sırayı bitirir; bomba oyunu hemen kaybettirir. Bütün kelimelerini ilk bulan takım kazanır. Liderler yüz ifadesiyle ya da fazladan sözle ipucu vermesin! En iyisi herkes kendi telefonundan, sesli sohbetle ya da aynı odada oynamak.',
+  },
+  'casus-kim': {
+    tagline: 'Casus dışında herkes mekânı biliyor. Sor, blöf yap, casusu bul.',
+    rules:
+      'Bir oyuncu, yani casus, dışında herkes aynı gizli mekânı görür; casus hiçbir şey görmez. Sırayla birbirinize mekânla ilgili sesli sorular sorun (“Burada ne giyilir?”); casusa yardım etmeyecek kadar belirsiz ama mekânı bildiğinizi gösterecek kadar net cevap verin. Herkes oyun başına bir kez birini suçlayabilir: diğer herkes kabul ederse suçlanan açıklanır. Casus yakalanırsa diğerleri kazanır; masum biri suçlanırsa casus kazanır. Casus istediği an kendini açık edip mekânı tahmin edebilir: doğruysa kazanır, yanlışsa kaybeder. Süre dolunca herkes oy verir; casus en çok oyu alırsa mekânı tahmin etmek için son bir hakkı olur. Aynı odada ya da sesli sohbet açıkken, herkes kendi telefonundan oynayın.',
+  },
 };

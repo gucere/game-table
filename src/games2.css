@@ -1858,3 +1858,186 @@
 .wt-blank-letters .btn {
   min-width: 2.2rem;
 }
+
+/* Pis Yedili */
+.py-center {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+.py-stock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+.py-stock:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* Kelimeyi Anlat */
+.da {
+  width: 100%;
+}
+.da-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1rem 2rem;
+  min-width: 220px;
+  border-radius: 18px;
+  background: #fffaf0;
+  color: #1b1f27;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+.da-word {
+  font-size: 1.8rem;
+  color: #2a6f97;
+}
+.da-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  font-weight: 600;
+  color: #c0392b;
+}
+.da-guess {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.da-log {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+.chip.da-ok {
+  background: rgba(42, 157, 143, 0.35);
+}
+.chip.da-buzz {
+  background: rgba(230, 57, 70, 0.35);
+}
+
+/* Gizli Görev */
+.gm {
+  width: 100%;
+}
+.gm-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  width: min(100%, 640px);
+}
+.gm-card {
+  min-height: 3.2rem;
+  padding: 0.4rem 0.2rem;
+  border: 3px solid transparent;
+  border-radius: 10px;
+  background: #f3ead6;
+  color: #2b2116;
+  font: inherit;
+  font-weight: 700;
+  font-size: clamp(0.66rem, 2.4vw, 0.95rem);
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.gm-card:disabled {
+  cursor: default;
+  opacity: 1;
+  color: #2b2116;
+}
+.gm-card.hint.k-a {
+  border-color: #e63946;
+}
+.gm-card.hint.k-b {
+  border-color: #3a86ff;
+}
+.gm-card.hint.k-x {
+  border-color: #111;
+  background: #d8d2c4;
+}
+.gm-card.open.k-a {
+  background: #e63946;
+  color: #fff;
+}
+.gm-card.open.k-b {
+  background: #3a86ff;
+  color: #fff;
+}
+.gm-card.open.k-n {
+  background: #b9b1a0;
+  color: #4a4438;
+}
+.gm-card.open.k-x {
+  background: #111;
+  color: #fff;
+}
+.gm-a {
+  box-shadow: inset 4px 0 0 #e63946;
+}
+.gm-b {
+  box-shadow: inset 4px 0 0 #3a86ff;
+}
+.gm-current {
+  display: flex;
+  gap: 0.8rem;
+  align-items: baseline;
+  padding: 0.5rem 1.2rem;
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 1.5rem;
+}
+.gm-clue-form .input {
+  width: auto;
+}
+.gm-log {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+
+/* Casus Kim? */
+.spy {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+}
+.spy-role {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1rem 1.5rem;
+  border-radius: 18px;
+  background: var(--surface);
+  text-align: center;
+}
+.spy-role.is-spy {
+  background: rgba(230, 57, 70, 0.3);
+}
+.spy-big {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+.spy-places {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+.spy-accuse {
+  padding: 0.8rem;
+  border-radius: 14px;
+  background: rgba(242, 193, 78, 0.18);
+}
