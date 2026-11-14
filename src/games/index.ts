@@ -12,6 +12,7 @@ import { dots } from './dots';
 import { drawGuess } from './draw-guess';
 import { durak } from './durak';
 import { fetih } from './fetih';
+import { fiveLetters } from './fiveletters';
 import { fiftyOne } from './fiftyone';
 import { fourInARow } from './four-in-a-row';
 import { generala } from './generala';
@@ -40,6 +41,7 @@ import { rain } from './rain';
 import { reversi } from './reversi';
 import { rps } from './rps';
 import { snake } from './snake';
+import { space } from './space';
 import { tasEsle } from './tasesle';
 import { wordsearch } from './wordsearch';
 import { satranc } from './satranc';
@@ -101,6 +103,8 @@ export const GAMES: GameDef[] = [
   marti,
   hockey,
   cube,
+  fiveLetters,
+  space,
   solitaire,
   sudoku,
   minesweeper,
@@ -120,6 +124,6 @@ export function getGame(id: string): GameDef | undefined {
 export const SECTIONS: { title: string; ids: string[] }[] = [
   { title: 'Card games', ids: ['batak', 'esli-batak', 'balayi-batagi', '3-5-8', 'uclu-gommeli', 'king', 'pisti', 'papaz-kacti', '51', 'konken', 'holdem', 'poker', 'hearts', 'spades', 'durak', 'bluff'] },
   { title: 'Tiles & boards', ids: ['okey', 'okey-101', 'esli-101', 'backgammon', 'mahbusa', 'gul-bara', 'kizma-birader', 'fetih', 'satranc', 'dama', 'mangala', 'reversi', 'gomoku', 'dokuz-tas', 'yilan-merdiven', 'noktalar', 'amiral-batti', 'xox', 'four-in-a-row'] },
-  { title: 'Party', ids: ['vampir-koylu', 'iki-dogru-bir-yalan', 'kim-daha-cok', 'tombala', 'isim-sehir-hayvan', 'draw-guess', 'adam-asmaca', 'generala', 'sayi-bulmaca', 'rps', 'coin-flip'] },
-  { title: 'Solo & arcade', ids: ['marti', 'hava-hokeyi', 'zeka-kupu', 'tas-yagmuru', 'yilan', 'birlestir', 'solitaire', 'sudoku', 'minesweeper', 'kelime-avi', 'nonogram', 'kakuro', 'tas-esle'] },
+  { title: 'Party', ids: ['vampir-koylu', 'iki-dogru-bir-yalan', 'kim-daha-cok', 'bes-harf', 'tombala', 'isim-sehir-hayvan', 'draw-guess', 'adam-asmaca', 'generala', 'sayi-bulmaca', 'rps', 'coin-flip'] },
+  { title: 'Solo & arcade', ids: ['marti', 'uzay-savunmasi', 'hava-hokeyi', 'zeka-kupu', 'tas-yagmuru', 'yilan', 'birlestir', 'solitaire', 'sudoku', 'minesweeper', 'kelime-avi', 'nonogram', 'kakuro', 'tas-esle'] },
 ];

@@ -268,4 +268,14 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
     rules:
       'Küp karışık başlar. Her yüz tek renk olana kadar katmanları çevir. Bir kareyi sürükleyerek katmanını çevir (orta katmanlar da olur), arka planı sürükleyerek küpü döndür. Klavyede U D L R F B yüzleri çevirir; Shift ile ters yöne döner. Süre ilk hamlenle başlar. 2×2 ya da 3×3’te takıldın mı? "Benim için çöz" Kociemba’nın iki aşamalı algoritmasıyla bir çözüm bulup senin için oynar. Sitenin yazarının kendi küp çözücüsünden uyarlandı.',
   },
+  'bes-harf': {
+    tagline: 'Beş harfli kelimeyi altı tahminde bul. Arkadaşlarınla aynı kelimede yarış.',
+    rules:
+      'Gizli beş harfli kelimeyi altı denemede bul. Her tahmin gerçek bir kelime olmalı. Tahminden sonra her harf renklenir: yeşil, harf doğru ve yeri doğru; sarı, harf kelimede var ama başka yerde; gri, harf kelimede yok. Arkadaşlarınla oynarken herkese aynı kelime düşer ve herkes diğerlerinin renklerini görür (harflerini asla). En az tahminde bulan kazanır; eşitlikte önce bitiren. "Günün kelimesi" aynı gün herkese aynı kelimeyi verir.',
+  },
+  'uzay-savunmasi': {
+    tagline: 'Yürüyen drone dalgalarına ve kovana karşı hattı tut.',
+    rules:
+      'Drone dalgaları bir yandan öbür yana yürür ve kenara her vardığında biraz aşağı iner. Ne kadar azalırlarsa o kadar hızlanırlar. Gemin kendi kendine ateş eder: nişan almak ve atışlardan kaçmak için onu hareket ettir. Küre drone 10, denizanası 20, kristal 30 puan (kristaller sana nişan alır ve 4. dalgadan sonra iki vuruşta ölür). Her beşinci dalgada kovan gelir ve yelpaze gibi atış yapar. Vurulan drone’lar bazen ⚡ hızlı atış, ✦ çift atış ya da 🛡 kalkan düşürür. Üç canın var; drone’lar senin hizana inerse oyun biter.',
+  },
 };

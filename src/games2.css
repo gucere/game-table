@@ -1329,3 +1329,191 @@
   max-width: 560px;
   word-break: break-word;
 }
+
+/* Beş Harf */
+.fl {
+  --fl-g: #2a9d8f;
+  --fl-y: #e9a23b;
+  --fl-x: #4a4f5c;
+}
+.fl-grid {
+  display: grid;
+  gap: 6px;
+}
+.fl-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.fl-row.shake {
+  animation: fl-shake 0.4s;
+}
+.fl-cell {
+  width: clamp(44px, 13vw, 58px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  font-size: clamp(1.3rem, 5vw, 1.8rem);
+  font-weight: 800;
+  border-radius: 10px;
+  border: 2px solid var(--surface-2);
+  background: rgba(0, 0, 0, 0.18);
+  color: #fff;
+  text-transform: none;
+}
+.fl-cell.typed {
+  border-color: rgba(255, 255, 255, 0.55);
+  animation: fl-pop 0.12s;
+}
+.fl-cell.g,
+.fl-cell.y,
+.fl-cell.x {
+  border-color: transparent;
+  animation: fl-flip 0.45s both;
+}
+.fl-cell.g {
+  background: var(--fl-g);
+}
+.fl-cell.y {
+  background: var(--fl-y);
+}
+.fl-cell.x {
+  background: var(--fl-x);
+}
+.fl-msg {
+  min-height: 1.4em;
+  margin: 0;
+}
+.fl-keys {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(100%, 520px);
+}
+.fl-keyrow {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+.fl-key {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 44px;
+  height: 52px;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.82);
+  color: #1b1f27;
+  cursor: pointer;
+  padding: 0;
+}
+.fl-key.wide {
+  max-width: 68px;
+  flex-grow: 1.5;
+  font-size: 0.8rem;
+}
+.fl-key.g {
+  background: var(--fl-g);
+  color: #fff;
+}
+.fl-key.y {
+  background: var(--fl-y);
+  color: #fff;
+}
+.fl-key.x {
+  background: var(--fl-x);
+  color: #c9ccd3;
+}
+.fl-key:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.fl-others {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+.fl-other {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.fl-mini {
+  display: grid;
+  gap: 2px;
+}
+.fl-mini-row {
+  display: flex;
+  gap: 2px;
+}
+.fl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.fl-dot.g {
+  background: var(--fl-g);
+}
+.fl-dot.y {
+  background: var(--fl-y);
+}
+.fl-dot.x {
+  background: var(--fl-x);
+}
+@keyframes fl-flip {
+  0% {
+    transform: rotateX(90deg);
+  }
+  100% {
+    transform: rotateX(0);
+  }
+}
+@keyframes fl-pop {
+  50% {
+    transform: scale(1.08);
+  }
+}
+@keyframes fl-shake {
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+/* Uzay Savunması */
+.sp-wrap {
+  position: relative;
+  width: min(100%, 360px, calc((100vh - 230px) * 0.6667));
+  margin: 0 auto;
+}
+.sp-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 360 / 540;
+  border-radius: 14px;
+  touch-action: none;
+  user-select: none;
+  cursor: crosshair;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.sp-paused {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(7, 11, 24, 0.55);
+  border-radius: 14px;
+  pointer-events: none;
+}

@@ -57,6 +57,7 @@ Free, open-source classic games that run entirely in the browser.
 | Vampir Köylü | 4–12 | ✅ | Hidden roles (vampires, villagers, doktor, gözcü); night actions and day votes, with timers |
 | Two Truths and a Lie | 3–12 | – | Write two truths and a lie; spot the lie for a point, fool others for points |
 | Kim Daha Çok? | 3–12 | ✅ | "Who's most likely to…?" Secret votes, crowns and points for reading the room (TR/EN prompts) |
+| Beş Harf | 1–8 | ✅ | Original five-letter word game (TR/EN): six guesses, colored hints, word of the day, or race friends on the same word. Guesses are checked against Turkish Wiktionary headwords ([atmanat/random-wordlist-tr](https://github.com/atmanat/random-wordlist-tr), Apache-2.0) and the public-domain ENABLE list |
 | Tombala | 1–12 | ✅ | Turkish bingo: numbers drawn automatically; first to press wins each çinko and the tombala |
 | İsim Şehir Hayvan | 2–10 | – | Online only; STOP gives everyone 5 seconds; players vote down bad answers |
 | Adam Asmaca | 1–8 | ✅ | Hangman; the computer picks the word, or players take turns |
@@ -68,6 +69,7 @@ Free, open-source classic games that run entirely in the browser.
 | Solitaire · Sudoku · Minesweeper | 1 | – | Klondike (draw 1/3, undo), generated sudokus with one solution, 3 sizes of minefield |
 | Birleştir · Yılan · Kelime Avı | 1 | – | Sliding merge puzzle, snake, word search (TR/EN) |
 | Zeka Küpü | 1 | – | The twisty puzzle cube in 3D, 2×2 to 7×7: drag stickers or use U D L R F B keys. "Solve it for me" on 2×2 and 3×3 (Kociemba's two-phase algorithm via [cubejs](https://github.com/ldez/cubejs), MIT). Ported from my own [cube solver](https://github.com/gucere/Rubik-s-Cube-Solver-s-) |
+| Uzay Savunması | 1 | – | Original arcade shooter: marching drone waves that speed up, a hive boss every fifth wave, power-ups; works with touch, mouse or keys |
 | Taş Yağmuru | 1 | – | Original falling-tile game: steer pairs of Okey tiles, clear sets and runs, chain reactions |
 | Nonogram · Kakuro · Taş Eşle | 1 | – | Generated puzzles: nonograms solvable by logic alone, kakuros checked for a unique answer, tile matching with Okey tiles (every deal can be cleared) |
 
