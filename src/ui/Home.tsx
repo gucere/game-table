@@ -47,6 +47,22 @@ export function Home() {
           </div>
         </section>
       ))}
+
+      <section>
+        <h2 className="section-title">{t('Tools')}</h2>
+        <div className="game-grid">
+          <a className="game-card" href="#/santa">
+            <span className="game-icon" aria-hidden>
+              🎅
+            </span>
+            <span className="game-name">{t('Secret Santa')}</span>
+            <span className="muted small">{t('Draw names for a gift exchange; everyone gets an email with theirs.')}</span>
+            <span className="row">
+              <span className="chip">{t('{n} players', { n: `3–40` })}</span>
+            </span>
+          </a>
+        </div>
+      </section>
     </div>
   );
 }

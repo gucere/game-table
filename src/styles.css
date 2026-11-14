@@ -1143,3 +1143,115 @@ a.game-card:hover {
   background: var(--surface);
   border: 2px solid var(--accent);
 }
+
+/* Secret Santa */
+.santa {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.santa-row {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr 1.4fr auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+.santa-num {
+  text-align: right;
+}
+.santa-paste {
+  width: 100%;
+  font-family: inherit;
+}
+.santa-extras {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.santa-extras label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.santa-extras .wide {
+  grid-column: 1 / -1;
+}
+.santa-extras textarea {
+  font-family: inherit;
+  resize: vertical;
+}
+.santa-errors {
+  color: #e63946;
+  margin: 0;
+  padding-left: 1.2rem;
+}
+.santa-warn {
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(242, 193, 78, 0.18);
+}
+.santa-sendlist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.santa-sendlist li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+.santa-sendlist li.done {
+  opacity: 0.65;
+}
+.santa-reveal,
+.santa-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.5rem 2rem;
+  border-radius: 18px;
+  background: var(--surface-2);
+  animation: santa-pop 0.5s ease-out;
+}
+.santa-reveal strong {
+  font-size: 2rem;
+}
+.santa-info p {
+  margin: 0.2rem 0;
+}
+.big-btn {
+  font-size: 1.1rem;
+  padding: 0.8rem 1.4rem;
+}
+@keyframes santa-pop {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@media (max-width: 560px) {
+  .santa-row {
+    grid-template-columns: 1fr auto;
+  }
+  .santa-row .santa-num {
+    display: none;
+  }
+  .santa-row input[type='email'] {
+    grid-column: 1 / 2;
+  }
+  .santa-extras {
+    grid-template-columns: 1fr;
+  }
+}

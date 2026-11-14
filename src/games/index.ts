@@ -5,6 +5,7 @@ import { balayi, batak, esliBatak, ucBesSekiz, ucluGommeli } from './batak';
 import { bluff } from './bluff';
 import { bulls } from './bulls';
 import { coinFlip } from './coin-flip';
+import { cube } from './cube';
 import { dama } from './dama';
 import { dokuzTas } from './dokuztas';
 import { dots } from './dots';
@@ -99,6 +100,7 @@ export const GAMES: GameDef[] = [
   coinFlip,
   marti,
   hockey,
+  cube,
   solitaire,
   sudoku,
   minesweeper,
@@ -119,5 +121,5 @@ export const SECTIONS: { title: string; ids: string[] }[] = [
   { title: 'Card games', ids: ['batak', 'esli-batak', 'balayi-batagi', '3-5-8', 'uclu-gommeli', 'king', 'pisti', 'papaz-kacti', '51', 'konken', 'holdem', 'poker', 'hearts', 'spades', 'durak', 'bluff'] },
   { title: 'Tiles & boards', ids: ['okey', 'okey-101', 'esli-101', 'backgammon', 'mahbusa', 'gul-bara', 'kizma-birader', 'fetih', 'satranc', 'dama', 'mangala', 'reversi', 'gomoku', 'dokuz-tas', 'yilan-merdiven', 'noktalar', 'amiral-batti', 'xox', 'four-in-a-row'] },
   { title: 'Party', ids: ['vampir-koylu', 'iki-dogru-bir-yalan', 'kim-daha-cok', 'tombala', 'isim-sehir-hayvan', 'draw-guess', 'adam-asmaca', 'generala', 'sayi-bulmaca', 'rps', 'coin-flip'] },
-  { title: 'Solo & arcade', ids: ['marti', 'hava-hokeyi', 'tas-yagmuru', 'yilan', 'birlestir', 'solitaire', 'sudoku', 'minesweeper', 'kelime-avi', 'nonogram', 'kakuro', 'tas-esle'] },
+  { title: 'Solo & arcade', ids: ['marti', 'hava-hokeyi', 'zeka-kupu', 'tas-yagmuru', 'yilan', 'birlestir', 'solitaire', 'sudoku', 'minesweeper', 'kelime-avi', 'nonogram', 'kakuro', 'tas-esle'] },
 ];

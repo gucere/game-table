@@ -5,6 +5,7 @@ import { LANGS, t, useLang, useT } from './i18n';
 import { updateSettings } from './theme/settings';
 import { Home } from './ui/Home';
 import { Join } from './ui/Join';
+import { SantaPage, SantaReveal } from './santa/SantaPage';
 import { RejoinBanner } from './ui/RoomExtras';
 import { SessionScreen } from './ui/SessionScreen';
 import { SettingsPage } from './ui/SettingsPage';
@@ -14,13 +15,16 @@ type Route =
   | { page: 'home' }
   | { page: 'game'; id: string }
   | { page: 'join'; code: string }
-  | { page: 'settings' };
+  | { page: 'settings' }
+  | { page: 'santa' }
+  | { page: 'santa-reveal'; token: string };
 
 function parseHash(): Route {
   const parts = window.location.hash.replace(/^#\/?/, '').split('/');
   if (parts[0] === 'game' && parts[1] && getGame(parts[1])) return { page: 'game', id: parts[1] };
   if (parts[0] === 'join') return { page: 'join', code: parts[1] ?? '' };
   if (parts[0] === 'settings') return { page: 'settings' };
+  if (parts[0] === 'santa') return parts[1] === 'r' && parts[2] ? { page: 'santa-reveal', token: parts[2] } : { page: 'santa' };
   return { page: 'home' };
 }
 
@@ -74,6 +78,8 @@ export function App() {
   else if (route.page === 'game') content = <Setup key={route.id} gameId={route.id} onStart={setSession} />;
   else if (route.page === 'join') content = <Join key={route.code} initialCode={route.code} onJoin={setSession} />;
   else if (route.page === 'settings') content = <SettingsPage />;
+  else if (route.page === 'santa') content = <SantaPage />;
+  else if (route.page === 'santa-reveal') content = <SantaReveal token={route.token} />;
   else content = <Home />;
 
   return (
@@ -98,7 +104,7 @@ export function App() {
         </nav>
       </header>
       <main className="page">
-        {!session && <RejoinBanner onStart={setSession} />}
+        {!session && route.page !== 'santa-reveal' && <RejoinBanner onStart={setSession} />}
         {content}
       </main>
       <footer className="site-footer">

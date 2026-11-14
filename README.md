@@ -67,8 +67,11 @@ Free, open-source classic games that run entirely in the browser.
 | XOX · Four in a Row · Rock Paper Scissors · Coin Flip | 1–2 | ✅ | |
 | Solitaire · Sudoku · Minesweeper | 1 | – | Klondike (draw 1/3, undo), generated sudokus with one solution, 3 sizes of minefield |
 | Birleştir · Yılan · Kelime Avı | 1 | – | Sliding merge puzzle, snake, word search (TR/EN) |
+| Zeka Küpü | 1 | – | The twisty puzzle cube in 3D, 2×2 to 7×7: drag stickers or use U D L R F B keys. "Solve it for me" on 2×2 and 3×3 (Kociemba's two-phase algorithm via [cubejs](https://github.com/ldez/cubejs), MIT). Ported from my own [cube solver](https://github.com/gucere/Rubik-s-Cube-Solver-s-) |
 | Taş Yağmuru | 1 | – | Original falling-tile game: steer pairs of Okey tiles, clear sets and runs, chain reactions |
 | Nonogram · Kakuro · Taş Eşle | 1 | – | Generated puzzles: nonograms solvable by logic alone, kakuros checked for a unique answer, tile matching with Okey tiles (every deal can be cleared) |
+
+**Tools:** 🎅 **Secret Santa** (Yılbaşı Çekilişi): list names and emails, press the button, and everyone finds out who they're buying a present for. Nobody draws themselves, and everyone is in one big circle.
 
 Only traditional or generic games are included. Trademarked games and names are left out on purpose.
 
@@ -88,6 +91,18 @@ Other scripts: `npm test` (rules + bot tests), `npm run build` (production build
 1. Push this folder to a GitHub repository (public repos get Pages for free).
 2. In the repo, go to **Settings → Pages** and set **Source** to **GitHub Actions**.
 3. Every push to `main` runs `.github/workflows/deploy.yml`, which tests, builds and publishes the site to `https://<you>.github.io/<repo>/`.
+
+## Secret Santa emails
+
+The site has no server, so by default the organizer sends the emails from their own email app. The page makes one ready-to-send email per person. The name each person drew is hidden in a private link inside their email, so the organizer doesn't see it (unless they open someone else's link).
+
+To send every email automatically with one button, deploy the small Google Apps Script in `apps-script/secret-santa.gs` (free). The draw then happens on Google's side, so not even the organizer knows the pairs:
+
+1. Use a Google account made just for this (emails are sent **from** that account's address). Go to [script.google.com](https://script.google.com) → **New project**, and paste in `apps-script/secret-santa.gs`.
+2. **Deploy → New deployment** → type **Web app**. Set **Execute as: Me** and **Who has access: Anyone**. Allow the email permission it asks for.
+3. Copy the web app URL (`https://script.google.com/macros/s/…/exec`) into `SANTA_MAIL_URL` in `src/santa/config.ts` and push. The **Draw and email everyone** button appears.
+
+Limits: 3–40 people per draw, names and messages can't contain links, at most 120 emails an hour across the whole site, and Google's own quota (about 100 emails a day for a free account).
 
 ## How online play works
 

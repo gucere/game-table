@@ -61,6 +61,7 @@ export const GAME_NAMES: Record<string, { en: string; tr: string }> = {
   'iki-dogru-bir-yalan': { en: 'Two Truths and a Lie', tr: 'İki Doğru Bir Yalan' },
   'kim-daha-cok': { en: 'Most Likely To', tr: 'Kim Daha Çok?' },
   'hava-hokeyi': { en: 'Air Hockey', tr: 'Hava Hokeyi' },
+  'zeka-kupu': { en: 'Puzzle Cube', tr: 'Zeka Küpü' },
 };
 
 export { GAME_TEXT_TR } from './games-tr';

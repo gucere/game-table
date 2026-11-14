@@ -263,4 +263,9 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
     rules:
       'İki oyuncu aynı ekranı paylaşır: alt yarı bir oyuncunun, üst yarı diğerinindir. Tokmağını sürükleyerek pulu rakibin kalesine sok; orta çizgiyi geçemezsin. Bota karşı alt yarıda oynarsın. Telefon ya da tablette iki parmak aynı anda çalışır. Hedef gol sayısına ilk ulaşan kazanır.',
   },
+  'zeka-kupu': {
+    tagline: 'Klasik zeka küpü: 2×2’den 7×7’ye, çözücüsüyle.',
+    rules:
+      'Küp karışık başlar. Her yüz tek renk olana kadar katmanları çevir. Bir kareyi sürükleyerek katmanını çevir (orta katmanlar da olur), arka planı sürükleyerek küpü döndür. Klavyede U D L R F B yüzleri çevirir; Shift ile ters yöne döner. Süre ilk hamlenle başlar. 2×2 ya da 3×3’te takıldın mı? "Benim için çöz" Kociemba’nın iki aşamalı algoritmasıyla bir çözüm bulup senin için oynar. Sitenin yazarının kendi küp çözücüsünden uyarlandı.',
+  },
 };
