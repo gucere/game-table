@@ -1,6 +1,6 @@
 /**
  * Shared Okey tile logic.
- * A tile is 0..105: 0..103 are numbered tiles (two copies of 1..13 in four colours),
+ * A tile is 0..105: 0..103 are numbered tiles (two copies of 1..13 in four colors),
  * 104 and 105 are the two false jokers (sahte okey).
  */
 export type Tile = number;
@@ -22,7 +22,7 @@ export function allTiles(): Tile[] {
   return Array.from({ length: 106 }, (_, i) => i);
 }
 
-/** The okey (wild tile) is the indicator's colour, one number higher (13 wraps to 1) */
+/** The okey (wild tile) is the indicator's color, one number higher (13 wraps to 1) */
 export function okeyFrom(indicator: Tile): Face {
   return { color: colorOf(indicator), num: (numOf(indicator) % 13) + 1 };
 }
@@ -159,7 +159,7 @@ function toCounts(tiles: Tile[], okey: Face): Counts {
 type Shape = number[];
 
 /**
- * Find the arrangement of `tiles` into sets and runs that maximises the score
+ * Find the arrangement of `tiles` into sets and runs that maximizes the score
  * (tiles covered, or points for 101). Leftover tiles are returned as `rest`.
  */
 export function bestMelds(
@@ -298,7 +298,7 @@ export function bestPairs(tiles: Tile[], okey: Face): { pairs: Meld[]; rest: Til
   return { pairs, rest };
 }
 
-/** Sort a rack: by colour then number, jokers last */
+/** Sort a rack: by color then number, jokers last */
 export function sortTiles(tiles: Tile[], okey: Face, by: 'runs' | 'sets' = 'runs'): Tile[] {
   return tiles.slice().sort((a, b) => {
     const ja = isJoker(a, okey) ? 1 : 0;

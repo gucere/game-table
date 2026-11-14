@@ -7,20 +7,23 @@ import { t as tx } from '../../i18n';
 function Board({ view: v, seat, players, canMove, onMove }: BoardProps<L.PapazView, L.PapazMove>) {
   const myTurn = canMove && v.turn === seat && v.target !== null;
   const others = Array.from({ length: v.n - 1 }, (_, k) => ((seat + 1 + k) % v.n) as Seat);
-  const name = (s: Seat) => (s === seat ? 'You' : players[s].name);
-  const plural = (r: number) => `${rankLabel(r)}${r > 10 ? "'s" : 's'}`;
+  const name = (s: Seat) => (s === seat ? tx('You') : players[s].name);
 
   let lastText = '';
   const l = v.last;
   if (l) {
-    const pair = l.pair !== null ? `: a pair of ${plural(l.pair)}, thrown away` : '';
+    const vars = { name: name(l.drawer), target: name(l.target), card: l.card !== null ? cardLabel(l.card) : '' };
+    const papaz = l.card !== null && rankOf(l.card) === 13;
     if (l.drawer === seat) {
-      lastText = `You drew ${l.card !== null ? cardLabel(l.card) : 'a card'} from ${name(l.target)}${pair}` + (l.card !== null && rankOf(l.card) === 13 ? '. 😱 The papaz!' : '');
+      lastText = l.card !== null ? tx('You drew {card} from {target}.', vars) : tx('You drew a card from {target}.', vars);
+      if (papaz) lastText += ' ' + tx('😱 The papaz!');
     } else if (l.target === seat) {
-      lastText = `${name(l.drawer)} took your ${l.card !== null ? cardLabel(l.card) : 'card'}${pair}` + (l.card !== null && rankOf(l.card) === 13 ? '. 😌 The papaz is gone!' : '');
+      lastText = l.card !== null ? tx('{name} took your {card}.', vars) : tx('{name} took one of your cards.', vars);
+      if (papaz) lastText += ' ' + tx('😌 The papaz is gone!');
     } else {
-      lastText = `${name(l.drawer)} drew a card from ${name(l.target)}${pair}`;
+      lastText = tx('{name} drew a card from {target}.', vars);
     }
+    if (l.pair !== null) lastText += ' ' + tx('A pair of {rank} was thrown away.', { rank: rankLabel(l.pair) });
   }
 
   const reaching = v.target === seat && v.pointing !== null && !v.done;

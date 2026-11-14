@@ -1,7 +1,7 @@
 import type { GameDef } from '../engine/types';
 import { amiral } from './amiral';
 import { backgammon, gulbara, mahbusa } from './backgammon';
-import { balayi, batak, ucBesSekiz, ucluGommeli } from './batak';
+import { balayi, batak, esliBatak, ucBesSekiz, ucluGommeli } from './batak';
 import { bluff } from './bluff';
 import { bulls } from './bulls';
 import { coinFlip } from './coin-flip';
@@ -16,9 +16,11 @@ import { fourInARow } from './four-in-a-row';
 import { generala } from './generala';
 import { gomoku } from './gomoku';
 import { hangman } from './hangman';
+import { hockey } from './hockey';
 import { kakuro } from './kakuro';
 import { ish } from './ish';
 import { kizma } from './kizma';
+import { likely } from './likely';
 import { ladders } from './ladders';
 import { king } from './king';
 import { mangala } from './mangala';
@@ -27,7 +29,7 @@ import { merge } from './merge';
 import { minesweeper } from './minesweeper';
 import { nonogram } from './nonogram';
 import { konken, okey } from './okey';
-import { okey101 } from './okey101';
+import { esli101, okey101 } from './okey101';
 import { papaz } from './papaz';
 import { pisti } from './pisti';
 import { holdem, poker } from './poker';
@@ -43,12 +45,14 @@ import { satranc } from './satranc';
 import { solitaire } from './solitaire';
 import { sudoku } from './sudoku';
 import { tombala } from './tombala';
+import { truths } from './truths';
 import { vampir } from './vampir';
 import { xox } from './xox';
 
 /** Playable games. To add one: write a GameDef in its own folder and list it here. */
 export const GAMES: GameDef[] = [
   batak,
+  esliBatak,
   balayi,
   ucBesSekiz,
   ucluGommeli,
@@ -63,6 +67,7 @@ export const GAMES: GameDef[] = [
   spades,
   okey,
   okey101,
+  esli101,
   kizma,
   satranc,
   dama,
@@ -81,6 +86,8 @@ export const GAMES: GameDef[] = [
   bluff,
   vampir,
   tombala,
+  truths,
+  likely,
   ish,
   drawGuess,
   hangman,
@@ -91,6 +98,7 @@ export const GAMES: GameDef[] = [
   rps,
   coinFlip,
   marti,
+  hockey,
   solitaire,
   sudoku,
   minesweeper,
@@ -108,8 +116,8 @@ export function getGame(id: string): GameDef | undefined {
 }
 
 export const SECTIONS: { title: string; ids: string[] }[] = [
-  { title: 'Card games', ids: ['batak', 'balayi-batagi', '3-5-8', 'uclu-gommeli', 'king', 'pisti', 'papaz-kacti', '51', 'konken', 'holdem', 'poker', 'hearts', 'spades', 'durak', 'bluff'] },
-  { title: 'Tiles & boards', ids: ['okey', 'okey-101', 'backgammon', 'mahbusa', 'gul-bara', 'kizma-birader', 'fetih', 'satranc', 'dama', 'mangala', 'reversi', 'gomoku', 'dokuz-tas', 'yilan-merdiven', 'noktalar', 'amiral-batti', 'xox', 'four-in-a-row'] },
-  { title: 'Party', ids: ['vampir-koylu', 'tombala', 'isim-sehir-hayvan', 'draw-guess', 'adam-asmaca', 'generala', 'sayi-bulmaca', 'rps', 'coin-flip'] },
-  { title: 'Solo & arcade', ids: ['marti', 'tas-yagmuru', 'yilan', 'birlestir', 'solitaire', 'sudoku', 'minesweeper', 'kelime-avi', 'nonogram', 'kakuro', 'tas-esle'] },
+  { title: 'Card games', ids: ['batak', 'esli-batak', 'balayi-batagi', '3-5-8', 'uclu-gommeli', 'king', 'pisti', 'papaz-kacti', '51', 'konken', 'holdem', 'poker', 'hearts', 'spades', 'durak', 'bluff'] },
+  { title: 'Tiles & boards', ids: ['okey', 'okey-101', 'esli-101', 'backgammon', 'mahbusa', 'gul-bara', 'kizma-birader', 'fetih', 'satranc', 'dama', 'mangala', 'reversi', 'gomoku', 'dokuz-tas', 'yilan-merdiven', 'noktalar', 'amiral-batti', 'xox', 'four-in-a-row'] },
+  { title: 'Party', ids: ['vampir-koylu', 'iki-dogru-bir-yalan', 'kim-daha-cok', 'tombala', 'isim-sehir-hayvan', 'draw-guess', 'adam-asmaca', 'generala', 'sayi-bulmaca', 'rps', 'coin-flip'] },
+  { title: 'Solo & arcade', ids: ['marti', 'hava-hokeyi', 'tas-yagmuru', 'yilan', 'birlestir', 'solitaire', 'sudoku', 'minesweeper', 'kelime-avi', 'nonogram', 'kakuro', 'tas-esle'] },
 ];

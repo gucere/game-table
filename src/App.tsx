@@ -5,6 +5,7 @@ import { LANGS, t, useLang, useT } from './i18n';
 import { updateSettings } from './theme/settings';
 import { Home } from './ui/Home';
 import { Join } from './ui/Join';
+import { RejoinBanner } from './ui/RoomExtras';
 import { SessionScreen } from './ui/SessionScreen';
 import { SettingsPage } from './ui/SettingsPage';
 import { Setup } from './ui/Setup';
@@ -96,7 +97,10 @@ export function App() {
           <LangSwitch />
         </nav>
       </header>
-      <main className="page">{content}</main>
+      <main className="page">
+        {!session && <RejoinBanner onStart={setSession} />}
+        {content}
+      </main>
       <footer className="site-footer">
         <p>{tr('Made for fun, not for profit. Free for everyone to play, share and use.')}</p>
         <p>

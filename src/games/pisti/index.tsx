@@ -16,10 +16,15 @@ function Board({ view: v, seat, players, canMove, onMove }: BoardProps<L.PistiVi
   const sides = v.scores.map((_, i) => i);
   const mySide = v.teams ? seat % 2 : seat;
 
-  const lastText = v.last
-    ? `${v.last.seat === seat ? 'You' : players[v.last.seat].name} played ${cardLabel(v.last.card)}` +
-      (v.last.pisti ? ` and made a PİŞTİ! +${v.last.pisti} 🎉` : v.last.took ? `, took ${v.last.took} cards` : '')
-    : '';
+  const lastText = (() => {
+    const l = v.last;
+    if (!l) return '';
+    const vars = { name: players[l.seat].name, card: cardLabel(l.card), n: l.pisti || l.took || 0 };
+    const mine = l.seat === seat;
+    if (l.pisti) return mine ? tx('You played {card} and made a PİŞTİ! +{n} 🎉', vars) : tx('{name} played {card} and made a PİŞTİ! +{n} 🎉', vars);
+    if (l.took) return mine ? tx('You played {card} and took {n} cards.', vars) : tx('{name} played {card} and took {n} cards.', vars);
+    return mine ? tx('You played {card}.', vars) : tx('{name} played {card}.', vars);
+  })();
 
   return (
     <div className="table">

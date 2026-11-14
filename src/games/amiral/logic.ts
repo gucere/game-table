@@ -136,7 +136,7 @@ export function move(s: AmState, seat: Seat, m: AmMove): AmState | string {
   const target = shipAt(s.ships[enemy]!, m.cell);
   const hit = !!target;
   const sunkShip = target && isSunk(target, shots[seat]) ? target : null;
-  const sunkName = sunkShip ? FLEET.find((f) => f.len === sunkShip.len)!.name : null;
+  const sunkName = sunkShip ? (FLEET[s.ships[enemy]!.indexOf(sunkShip)] ?? FLEET.find((f) => f.len === sunkShip.len)!).name : null;
   const won = s.ships[enemy]!.every((sh) => isSunk(sh, shots[seat]));
   const last = { seat, cell: m.cell, hit, sunk: sunkName };
   if (won) return { ...s, shots, phase: 'done', winner: seat, last };

@@ -3,7 +3,7 @@ import { asMeld, bestMelds, okeyFrom, type Tile } from './tiles/tiles';
 import { winningHand } from './okey/logic';
 import { checkGroups } from './okey101/logic';
 
-// tile id helper: colour 0..3, number 1..13, copy 0/1
+// tile id helper: color 0..3, number 1..13, copy 0/1
 const t = (color: number, num: number, copy = 0): Tile => copy * 52 + color * 13 + (num - 1);
 const okey = okeyFrom(t(3, 4)); // okey = yellow 5
 const J = t(3, 5); // the okey tile (wild)

@@ -238,4 +238,29 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
     tagline: 'Katmanlı yığından okey taşı çiftlerini eşleştir.',
     rules: 'Aynı iki taşı (aynı sayı ve renk) çiftler halinde kaldırarak tahtayı temizle. Yalnızca serbest taşı alabilirsin: üstünde başka taş olmamalı ve sağı ya da solu açık olmalı. Takıldın mı? İpucu kullan, geri al ya da kalan taşları karıştır. Her dağıtım temizlenebilir.',
   },
+  'esli-batak': {
+    tagline: 'Eşli batak: ihaleyi birlikte al, birlikte bat.',
+    rules:
+      '4 oyuncu, iki takım; eşler karşılıklı oturur. Kişi başı 13 kart. Takımının kaç el alacağını söyle (en az 7); en yüksek ihaleyi yapan kozu seçer ve ilk oynar.\nElinde varsa aynı renkten oyna ve masadaki en büyük kartı geçebiliyorsan geç. O renk yoksa koz atmak (ve mümkünse yükseltmek) zorunludur. Biri koz atmadan koz açılamaz.\nPuanlama: ihaleyi alan ve eşi birlikte ihaleyi tuttururlarsa ikisi de aldığı el kadar yazar; tutturamazlarsa ihaleyi alan ihale kadar düşer, eşi hiç yazmaz. Diğer takım aldığı el kadar yazar. Takım toplamı en yüksek olan kazanır.',
+  },
+  'esli-101': {
+    tagline: 'Eşli 101 Okey: birlikte aç, birlikte bitir.',
+    rules:
+      'İki takım; eşler karşılıklı oturur. Her şey 101 gibidir: 101 puanla ya da 5 çiftle aç, sonra per indir ve perlere işle (kendi perlerine, eşininkine ya da herhangi birine). Biri bitirince eşinin elindeki taşlar sayılmaz; diğerleri ellerini her zamanki gibi yazar. Eşlerin toplamları birleştirilir ve toplamı en düşük olan takım kazanır.',
+  },
+  'iki-dogru-bir-yalan': {
+    tagline: 'İki doğru, bir yalan. Arkadaşların hangisi olduğunu bulabilir mi?',
+    rules:
+      'Oyuncular sırayla anlatıcı olur. Anlatıcı kendisiyle ilgili üç cümle yazar (ikisi doğru, biri yalan) ve yalanı gizlice işaretler. Diğer herkes yalan olduğunu düşündüğü cümleye oy verir. Sonra açıklanır: yalanı bulan her oyuncu 1 puan alır, anlatıcı da kandırdığı her oyuncu için 1 puan alır. Oyun sonunda en çok puanı olan kazanır. En güzeli, arkadaşlarla görüntülü konuşurken ya da aynı masada oynamak.',
+  },
+  'kim-daha-cok': {
+    tagline: 'Hangimiz en çok…? Oy ver, açıkla, gül.',
+    rules:
+      'Her turda "Hangimiz en çok kendi düğününe geç kalır?" gibi bir soru çıkar. Herkes gizlice en çok kime uyduğunu düşündüğü oyuncuya oy verir (kendine de verebilirsin). Oylar birlikte açılır: en çok oy alan taç 👑 kazanır, ona oy veren herkes ortamı iyi okuduğu için 1 puan alır. Sonunda en çok puanı olan kazanır; taçlar sadece övünmek için.',
+  },
+  'hava-hokeyi': {
+    tagline: 'Tek ekranda iki kişilik hava hokeyi ya da bota karşı.',
+    rules:
+      'İki oyuncu aynı ekranı paylaşır: alt yarı bir oyuncunun, üst yarı diğerinindir. Tokmağını sürükleyerek pulu rakibin kalesine sok; orta çizgiyi geçemezsin. Bota karşı alt yarıda oynarsın. Telefon ya da tablette iki parmak aynı anda çalışır. Hedef gol sayısına ilk ulaşan kazanır.',
+  },
 };

@@ -70,7 +70,7 @@ export function move(s: RpsState, seat: Seat, choice: unknown): RpsState | strin
 export function bot(v: RpsView, seat: Seat, ctx: BotCtx): Choice {
   const random = () => CHOICES[Math.floor(ctx.random() * 3)];
   if (ctx.level !== 'hard' || v.history.length < 2 || ctx.random() < 0.35) return random();
-  // Counter the opponent's favourite pick
+  // Counter the opponent's favorite pick
   const counts: Record<Choice, number> = { rock: 0, paper: 0, scissors: 0 };
   for (const r of v.history) counts[r.choices[1 - seat]]++;
   const fav = CHOICES.reduce((a, b) => (counts[b] > counts[a] ? b : a));

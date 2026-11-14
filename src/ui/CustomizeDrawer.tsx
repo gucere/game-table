@@ -5,7 +5,7 @@ import { useT } from '../i18n';
 import { LookSections, type LookPart } from './LookSections';
 import { OptionsForm } from './Setup';
 
-const CARD_GAMES = new Set(['batak', 'balayi-batagi', '3-5-8', 'uclu-gommeli', 'king', 'pisti', 'papaz-kacti', '51', 'konken', 'holdem', 'poker', 'hearts', 'spades', 'durak', 'bluff', 'solitaire']);
+const CARD_GAMES = new Set(['batak', 'esli-batak', 'balayi-batagi', '3-5-8', 'uclu-gommeli', 'king', 'pisti', 'papaz-kacti', '51', 'konken', 'holdem', 'poker', 'hearts', 'spades', 'durak', 'bluff', 'solitaire']);
 const TILE_GAMES = new Set(['okey', 'okey-101']);
 
 /** Which appearance settings make a visible difference in this game */

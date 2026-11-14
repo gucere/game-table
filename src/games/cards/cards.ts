@@ -40,7 +40,7 @@ export function shuffle<T>(arr: T[], random: () => number): T[] {
   return a;
 }
 
-/** Group by suit (alternating colours, trump last), high to low within a suit */
+/** Group by suit (alternating colors, trump last), high to low within a suit */
 export function sortHand(hand: Card[], trump: Suit | null = null): Card[] {
   const order = [0, 1, 2, 3].sort((a, b) => (a === trump ? 1 : 0) - (b === trump ? 1 : 0));
   return hand.slice().sort((a, b) => {

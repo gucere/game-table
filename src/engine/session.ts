@@ -24,6 +24,23 @@ export interface VoteInfo {
   endsAt: number;
 }
 
+/** A floating emoji someone sent to the table */
+export interface Reaction {
+  id: number;
+  seat: Seat | null;
+  name: string;
+  emoji: string;
+  time: number;
+}
+
+export interface VoiceState {
+  /** Names of everyone in the voice chat */
+  members: string[];
+  on: boolean;
+  muted: boolean;
+  error?: string;
+}
+
 export interface SessionSnapshot {
   phase: 'connecting' | 'lobby' | 'playing' | 'closed';
   error?: string;
@@ -48,6 +65,14 @@ export interface SessionSnapshot {
   chat?: ChatMsg[];
   /** Online only: a vote to remove a player, if one is running */
   vote?: VoteInfo | null;
+  /** This device is watching (not playing): the seat whose view it follows */
+  spectating?: Seat | null;
+  /** Names of people watching the room */
+  spectators?: string[];
+  reactions?: Reaction[];
+  voice?: VoiceState;
+  /** Lost the host for a moment and trying to get back in */
+  reconnecting?: boolean;
 }
 
 /** What the UI talks to, whether the game is local, hosted, or joined */
@@ -60,6 +85,14 @@ export interface Session {
   sendChat?(text: string): void;
   startVote?(target: Seat): void;
   castVote?(yes: boolean): void;
+  react?(emoji: string): void;
+  /** Spectators: change whose view to watch */
+  follow?(seat: Seat): void;
+  /** Spectators: take a free seat (in the lobby) */
+  sit?(): void;
+  voiceJoin?(): void;
+  voiceLeave?(): void;
+  voiceMute?(muted: boolean): void;
   // Host / local only:
   restart?(): void;
   start?(): void;

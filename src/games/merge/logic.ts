@@ -1,5 +1,5 @@
 /**
- * Birleştir: slide every tile one way; equal neighbours merge into their sum.
+ * Birleştir: slide every tile one way; equal neighbors merge into their sum.
  * A new 2 (sometimes a 4) appears after each move. Keep going until the board locks up.
  */
 import type { GameCtx, GameResult, Seat } from '../../engine/types';

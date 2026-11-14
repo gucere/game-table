@@ -251,7 +251,7 @@ export const dokuzTas: GameDef<MorrisState, MorrisMove, MorrisState> = {
   maxPlayers: 2,
   hiddenInfo: false,
   rules:
-    'Each player has nine pieces. First take turns placing them on empty points. Then take turns sliding a piece along a line to a neighbouring empty point. Whenever you make three in a row along a line (a mill), remove one of your opponent’s pieces, but not one that is in a mill unless there is no other choice. When you are down to three pieces you may jump to any empty point. You lose with two pieces left, or when you cannot move.',
+    'Each player has nine pieces. First take turns placing them on empty points. Then take turns sliding a piece along a line to a neighboring empty point. Whenever you make three in a row along a line (a mill), remove one of your opponent’s pieces, but not one that is in a mill unless there is no other choice. When you are down to three pieces you may jump to any empty point. You lose with two pieces left, or when you cannot move.',
   setup: () => setup(),
   activePlayers,
   view: (s) => s,

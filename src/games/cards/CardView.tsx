@@ -4,7 +4,7 @@ import { rankLabel, rankOf, SUIT_SYMBOL, suitOf, type Card } from './cards';
 import type { PlayerInfo } from '../../engine/types';
 import { t as tx } from '../../i18n';
 
-/** Face colours per suit for the "four-colour" deck option */
+/** Face colors per suit for the "four-color" deck option */
 const FOUR_COLOR = ['#1b1b1b', '#c8102e', '#1e7a34', '#1f5fbf'];
 const TWO_COLOR = ['#1b1b1b', '#c8102e', '#1b1b1b', '#c8102e'];
 

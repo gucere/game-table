@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import type { Session } from '../engine/session';
 import { ChatDock, VoteBanner } from './ChatDock';
+import { ReactionBar, ReactionsOverlay, SpectatorBar, VoiceBar } from './RoomExtras';
 import { Lobby } from './Lobby';
 import { useT } from '../i18n';
 import { PlayView } from './PlayView';
@@ -38,7 +39,14 @@ export function SessionScreen({ session, onLeave }: { session: Session; onLeave:
   return (
     <div className="online-room">
       <VoteBanner session={session} snap={snap} />
+      {snap.reconnecting && <p className="notice center">{t('Connection lost. Reconnecting…')}</p>}
+      <div className="room-tools">
+        <VoiceBar session={session} snap={snap} />
+        {snap.phase === 'playing' && <ReactionBar session={session} />}
+      </div>
+      <SpectatorBar session={session} snap={snap} />
       {main}
+      <ReactionsOverlay snap={snap} />
       <ChatDock session={session} snap={snap} />
     </div>
   );

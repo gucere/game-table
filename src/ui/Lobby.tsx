@@ -3,6 +3,7 @@ import type { Session, SessionSnapshot } from '../engine/session';
 import { GAMES, getGame } from '../games';
 import { gameName, useLang, useT } from '../i18n';
 import { CustomizeButton } from './CustomizeDrawer';
+import { QrCode } from './RoomExtras';
 import { OptionsForm } from './Setup';
 
 function joinLink(code: string) {
@@ -37,12 +38,18 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
           <p className="room-code">{code}</p>
         </div>
         {game && <CustomizeButton game={game} snap={snap} session={session} />}
-        {snap.isHost && (
+        {code && (
           <div className="stack-sm lobby-share">
             <button className="btn" onClick={copy}>
               {copied ? t('Link copied ✓') : t('Copy invite link')}
             </button>
             <span className="muted small break">{joinLink(code)}</span>
+          </div>
+        )}
+        {code && (
+          <div className="lobby-qr">
+            <QrCode text={joinLink(code)} />
+            <span className="small muted">{t('Scan to join')}</span>
           </div>
         )}
       </div>
@@ -51,7 +58,7 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
         <span>{t('Game')}</span>
         {snap.isHost ? (
           <select className="input" value={snap.gameId} onChange={(e) => session.setGame?.(e.target.value)}>
-            {GAMES.filter((g) => g.maxPlayers >= 2).map((g) => (
+            {GAMES.filter((g) => g.maxPlayers >= 2 && !g.localOnly).map((g) => (
               <option key={g.id} value={g.id}>
                 {g.icon} {gameName(g, lang)} ({t('{n} players', { n: g.minPlayers === g.maxPlayers ? g.minPlayers : `${g.minPlayers}–${g.maxPlayers}` })})
               </option>
@@ -94,6 +101,17 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
           ))}
         </div>
       </div>
+
+      {(snap.spectators?.length ?? 0) > 0 && (
+        <p className="small muted">
+          👀 {t('Watching: {names}', { names: snap.spectators!.join(', ') })}
+        </p>
+      )}
+      {snap.spectating !== null && snap.spectating !== undefined && game && n < game.maxPlayers && (
+        <button className="btn primary" onClick={() => session.sit?.()}>
+          {t('Take a seat')}
+        </button>
+      )}
 
       {snap.notice && <p className="notice">{t(snap.notice)}</p>}
 

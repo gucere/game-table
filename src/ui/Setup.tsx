@@ -65,7 +65,7 @@ export function Setup({ gameId, onStart }: { gameId: string; onStart: (s: Sessio
   const lang = useLang();
   const aka = otherName(game, lang);
   const canLocal = !game.onlineOnly;
-  const canOnline = game.maxPlayers >= 2;
+  const canOnline = game.maxPlayers >= 2 && !game.localOnly;
   const [mode, setMode] = useState<'local' | 'online'>(canLocal ? 'local' : 'online');
   const [myName, setMyName] = useState(getSettings().name);
   const [seats, setSeats] = useState(() => defaultSeats(game, getSettings().name));

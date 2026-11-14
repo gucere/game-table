@@ -111,7 +111,7 @@ export const THEMES: Theme[] = [
   },
 ];
 
-/** Player colours, per seat. Chosen to stay distinct on every background. */
+/** Player colors, per seat. Chosen to stay distinct on every background. */
 export const PIECE_SETS: { id: string; name: string; colors: string[] }[] = [
   { id: 'classic', name: 'Classic', colors: ['#e63946', '#ffd23f', '#3a86ff', '#2ec4b6', '#ff7f11', '#b388eb', '#f15bb5', '#9ef01a'] },
   { id: 'bold', name: 'Bold', colors: ['#ff006e', '#00f5d4', '#fee440', '#9b5de5', '#f15bb5', '#00bbf9', '#fb5607', '#80ed99'] },

@@ -153,7 +153,7 @@ function Board({ view: v, seat, players, onMove, clockOffset }: BoardProps<L.DGV
           {drawing && v.phase === 'draw' && (
             <div className="dg-tools">
               {PALETTE.map((c) => (
-                <button key={c} className={'dg-color' + (c === color ? ' on' : '')} style={{ background: c }} onClick={() => setColor(c)} aria-label={tx('Colour {c}', { c: c })} />
+                <button key={c} className={'dg-color' + (c === color ? ' on' : '')} style={{ background: c }} onClick={() => setColor(c)} aria-label={tx('Color {c}', { c: c })} />
               ))}
               {SIZES.map((sz) => (
                 <button key={sz} className={'dg-size' + (sz === size ? ' on' : '')} onClick={() => setSize(sz)} aria-label={tx('Brush {sz}', { sz: sz })}>

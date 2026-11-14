@@ -14,15 +14,21 @@ Free, open-source classic games that run entirely in the browser.
 - **Same device:** pass the phone or laptop around. Games with secrets hide the screen between turns.
 - **Online:** one player hosts a room and friends join with a 6-character code. Browsers connect directly to each other (WebRTC), so there's no game server to run or pay for.
 - **Room chat:** online rooms have a chat with quick reactions, in the lobby and during games.
+- **Invite by QR code:** the lobby shows a QR code of the invite link, so people around the table can scan it to join.
+- **Voice chat:** players in a room can turn on voice chat (browser to browser, nothing recorded). Everyone has a mute button.
+- **Emoji reactions:** tap 👍 😂 😮 👏 and friends during a game, and they float up over the table for everyone.
+- **Spectators:** people who join after a game has started (or when the room is full) watch instead. In games with hidden cards, a spectator picks whose shoulder to watch over and sees only that player's view. They can take a seat in the next game.
+- **Rejoin after a refresh:** if your page reloads or your connection drops, you get your seat back automatically (or with one tap). If the host's page reloads, the host can reopen the room with the game still in progress, and everyone reconnects.
 - **Vote to remove:** anyone in an online room can start a vote to remove a disruptive player. It passes when more than half of the other people agree; a bot takes the seat and that device can't rejoin the room. The host can't be voted out (the room runs in their browser).
 - **Two languages:** English and Türkçe (switch at the top right; Turkish browsers start in Turkish). Every game shows its international name too, e.g. "Kızma Birader · Ludo". Adding a language is one dictionary file in `src/i18n`.
-- **Customizable:** table backgrounds, player colors, card backs, two- or four-colour card faces, and Okey tile styles, from the Customize page or the 🎨 button during a game. The host can also change the rules mid-game; they apply from the next round.
+- **Customizable:** table backgrounds, player colors, card backs, two- or four-color card faces, and Okey tile styles, from the Customize page or the 🎨 button during a game. The host can also change the rules mid-game; they apply from the next round.
 
 ## Games
 
 | Game | Players | Bots | Notes |
 |---|---|---|---|
 | Batak | 4 | ✅ | Auction Batak: bid ≥5, highest bidder picks trump |
+| Eşli Batak | 4 | ✅ | Partners Batak: partners sit opposite and play the contract together (bid ≥7) |
 | Balayı Batağı | 2 | ✅ | Drafting phase, then Batak with 13 tricks (bid ≥7) |
 | 3-5-8 | 3 | ✅ | Fixed targets 8/5/3; dealer picks trump, swaps 4 cards with the middle |
 | 3'lü Gömmeli | 3 | ✅ | 16 cards each; bid winner takes the 4 middle cards and buries 4 |
@@ -33,6 +39,7 @@ Free, open-source classic games that run entirely in the browser.
 | Okey | 4 | ✅ | Tally scoring (start at 6/10/20 points); optional çanak (pot) |
 | Konken | 2–4 | ✅ | Okey with two card decks and wild jokers; players who don't finish write down their leftover cards |
 | 101 Okey | 4 | ✅ | Open with 101 points or 5 pairs; penalties and doubling |
+| Eşli 101 | 4 | ✅ | 101 Okey in partnerships: team totals, lowest wins |
 | Backgammon (Tavla) | 2 | ✅ | Single game or match to 3/5; mars = 2 points |
 | Kızma Birader | 2–4 | ✅ | The cross-shaped race game: roll a 6 to come out, capture by landing on others |
 | Gul Bara | 2 | ✅ | Tavla variant: both race the same way round, a single checker holds a point, doubles cascade from turn 4 |
@@ -48,11 +55,14 @@ Free, open-source classic games that run entirely in the browser.
 | Hearts · Spades | 4 | ✅ | Hearts with passing and shooting the moon; Spades in partnerships with nil and bags |
 | Bluff | 2–8 | ✅ | Claim a rank, call "Bluff!" |
 | Vampir Köylü | 4–12 | ✅ | Hidden roles (vampires, villagers, doktor, gözcü); night actions and day votes, with timers |
+| Two Truths and a Lie | 3–12 | – | Write two truths and a lie; spot the lie for a point, fool others for points |
+| Kim Daha Çok? | 3–12 | ✅ | "Who's most likely to…?" Secret votes, crowns and points for reading the room (TR/EN prompts) |
 | Tombala | 1–12 | ✅ | Turkish bingo: numbers drawn automatically; first to press wins each çinko and the tombala |
 | İsim Şehir Hayvan | 2–10 | – | Online only; STOP gives everyone 5 seconds; players vote down bad answers |
 | Adam Asmaca | 1–8 | ✅ | Hangman; the computer picks the word, or players take turns |
 | Draw & Guess | 2–8 | – | Online only; Turkish and English word lists |
 | Martı | 1–8 | ✅ | Original one-tap flyer; friends race on the same course. Fly as a seagull, pigeon, stork, parrot, crow, canary, or Hazerfen Ahmet Çelebi (launching from Galata Tower) |
+| Hava Hokeyi | 1–2 | ✅ | Air hockey on one screen: two players with a finger each (multi-touch), or against a bot. One device only |
 | Generala · Sayı Bulmaca | 1–6 · 1–2 | ✅ | Five-dice game; bulls & cows code-cracking |
 | XOX · Four in a Row · Rock Paper Scissors · Coin Flip | 1–2 | ✅ | |
 | Solitaire · Sudoku · Minesweeper | 1 | – | Klondike (draw 1/3, undo), generated sudokus with one solution, 3 sizes of minefield |
@@ -93,7 +103,7 @@ Each game lives in `src/games/<name>/` and exports a `GameDef` (see `src/engine/
 - `view(state, seat)`: what one player can see (hide other players' secrets here)
 - `bot(view, seat, ctx)`: optional computer player, which only gets its own view
 - `Board`: a React component that draws the view and calls `onMove`
-- optional: `options` (difficulty, number of hands…), `timer`/`onTimer` for timed games, `onlineOnly`
+- optional: `options` (difficulty, number of hands…), `timer`/`onTimer` for timed games, `onlineOnly`, `localOnly`
 
 Register it in `src/games/index.ts` (and in `SECTIONS` for the home page). Local play, online play, bots and the pass-the-device screen then work automatically. Shared helpers: `src/games/cards` (deck, card rendering) and `src/games/tiles` (Okey tiles, meld search, rack).
 

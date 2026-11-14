@@ -26,15 +26,16 @@ function makeBoard(cfg: E.BatakConfig) {
     const infoFor = (s: Seat) => {
       const bits: string[] = [];
       if (v.phase === 'bid') {
-        if (v.passed[s]) bits.push('passed');
-        else if (v.bids[s]) bits.push(`bid ${v.bids[s]}`);
+        if (v.passed[s]) bits.push(tx('passed'));
+        else if (v.bids[s]) bits.push(tx('bid {n}', { n: v.bids[s]! }));
       }
       if (v.phase === 'play' || v.phase === 'trump' || v.phase === 'bury') {
-        bits.push(`${v.tricks[s] ?? 0} tricks`);
-        if (cfg.mode === 'targets') bits.push(`target ${v.targets[s]}`);
-        else if (v.bidder === s) bits.push(`contract ${v.contract}`);
+        bits.push(tx('{n} tricks', { n: v.tricks[s] ?? 0 }));
+        if (cfg.mode === 'targets') bits.push(tx('target {n}', { n: v.targets[s] }));
+        else if (v.bidder === s) bits.push(tx('contract {n}', { n: v.contract }));
       }
-      if (s === v.dealer) bits.push('dealer');
+      if (cfg.teams && s === (seat + 2) % v.n) bits.push(tx('partner'));
+      if (s === v.dealer) bits.push(tx('dealer'));
       return bits.join(' · ');
     };
 
@@ -53,7 +54,17 @@ function makeBoard(cfg: E.BatakConfig) {
             <span className="chip">{tx('Hand {v} / {totalHands}', { v: Math.min(v.handNo + 1, v.totalHands), totalHands: v.totalHands })}
             </span>
             {(v.phase === 'play' || v.phase === 'bury') && <SuitBadge suit={v.trump} />}
-            {v.phase === 'play' && cfg.mode === 'auction' && v.bidder !== null && (
+            {v.phase === 'play' && cfg.mode === 'auction' && v.bidder !== null && cfg.teams && (
+            <span className="chip">
+              {tx('{name} & {partner} need {contract} (have {tricks})', {
+                name: players[v.bidder].name,
+                partner: players[(v.bidder + 2) % v.n].name,
+                contract: v.contract,
+                tricks: E.sideTricks(cfg, v, v.bidder),
+              })}
+            </span>
+          )}
+          {v.phase === 'play' && cfg.mode === 'auction' && v.bidder !== null && !cfg.teams && (
               <span className="chip">
                 {tx('{name} needs {contract} (has {tricks})', { name: players[v.bidder].name, contract: v.contract, tricks: v.tricks[v.bidder] })}</span>
             )}
@@ -230,7 +241,7 @@ function makeGame(
     activePlayers: (s) => (s.phase === 'done' ? [] : [s.turn]),
     view: (s, seat) => E.viewOf(cfg, s, seat),
     move: (s, seat, m, ctx) => E.applyMove(cfg, s, seat, m, ctx.random),
-    result: E.resultOf,
+    result: (s) => E.resultOf(s, cfg),
     bot: (v, _seat, ctx) => E.botMove(cfg, v, ctx),
     botDelay: (s) => (s.phase === 'play' && !s.trick.length && s.lastTrick ? 1600 : 750),
     Board: makeBoard(cfg),
@@ -255,6 +266,17 @@ export const batak = makeGame(
     icon: '♠️',
     hands: handsOption([4, 8, 12], 4),
     rules: `4 players, 13 cards each. Players bid how many tricks they will take (minimum 5); the highest bidder picks trump and leads.\n${OBLIGATIONS}\nScoring: the bidder scores their tricks if they make the contract, otherwise loses the bid amount. Everyone else scores the tricks they took.`,
+  },
+);
+
+export const esliBatak = makeGame(
+  { id: 'esli-batak', players: 4, handSize: 13, kitty: 0, mode: 'auction', kittyRule: 'none', draw: false, minBid: 7, mustBeat: true, mustTrump: true, trumpLead: true, teams: true },
+  {
+    name: 'Eşli Batak',
+    tagline: 'Partners Batak: bid together, sink together.',
+    icon: '🤝',
+    hands: handsOption([4, 8, 12], 4),
+    rules: `4 players in two teams; partners sit opposite. 13 cards each. Bid how many tricks your team will take (minimum 7); the highest bidder picks trump and leads.\n${OBLIGATIONS}\nScoring: if the bidder and partner together reach the contract, both score the tricks they took; if not, the bidder loses the bid amount and the partner scores nothing. The other team scores its tricks. Highest team total wins.`,
   },
 );
 

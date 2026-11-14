@@ -286,7 +286,7 @@ export function result(s: ChessState): GameResult | null {
 // ------------------------------------------------------------- bot
 
 const VAL: Record<string, number> = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
-// Small positional bonuses (from white's side, a8 = 0): centre control and pawn advance
+// Small positional bonuses (from white's side, a8 = 0): center control and pawn advance
 const CENTER = Array.from({ length: 64 }, (_, i) => {
   const [r, c] = rc(i);
   return 14 - (Math.abs(3.5 - r) + Math.abs(3.5 - c)) * 4;

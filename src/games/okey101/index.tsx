@@ -64,7 +64,7 @@ export function RummyBoard({ view: v, seat, players, canMove, onMove }: BoardPro
                 {players[s].kind === 'bot' && ' 🤖'}
               </div>
               <span className="opp-info">
-                {v.handCounts[s]} {unit} · {openedLabel(v.opened[s])}{' '}{tx('· total {totals}', { totals: v.totals[s] })}
+                {v.teams && s === (me + 2) % v.n ? `${tx('partner')} · ` : ''}{v.handCounts[s]} {unit} · {openedLabel(v.opened[s])}{' '}{tx('· total {totals}', { totals: v.totals[s] })}
               </span>
               <span className="discard-spot">{d.length ? <TileView tile={d[d.length - 1]} okey={v.okey} size="sm" /> : <span className="empty-slot" />}{tx('discard')}</span>
             </div>
@@ -187,7 +187,12 @@ export function RummyBoard({ view: v, seat, players, canMove, onMove }: BoardPro
 
       {v.history.length > 0 && (
         <details className="rules" open={v.phase === 'done'}>
-          <summary>{tx('Totals (lowest wins): {v}', { v: players.map((p, i) => `${p.name} ${v.totals[i]}`).join(' · ') })}
+          <summary>
+            {v.teams
+              ? tx('Team totals (lowest wins): {v}', {
+                  v: [0, 1].map((t) => `${players[t].name} & ${players[t + 2].name} ${v.totals[t] + v.totals[t + 2]}`).join(' · '),
+                })
+              : tx('Totals (lowest wins): {v}', { v: players.map((p, i) => `${p.name} ${v.totals[i]}`).join(' · ') })}
             {lastHand && tx(' · last hand: {v}', { v: lastHand.winner === null ? 'no winner' : players[lastHand.winner].name })}
           </summary>
           <table className="score-table">
@@ -249,4 +254,15 @@ export const okey101: GameDef<L.O101State, L.O101Move, L.O101View> = {
   bot: L.bot,
   botDelay: () => 650,
   Board: RummyBoard,
+};
+
+export const esli101: GameDef<L.O101State, L.O101Move, L.O101View> = {
+  ...okey101,
+  id: 'esli-101',
+  name: 'Eşli 101',
+  tagline: '101 Okey in partnerships: open together, finish together.',
+  icon: '👥',
+  rules:
+    '101 Okey for two teams; partners sit opposite. Everything works as in 101: open with 101 points or 5 pairs, then lay down and add to melds (yours, your partner’s or anyone’s). When a player finishes, their partner’s tiles are not counted; everyone else scores their hand as usual. Partners’ totals are added up, and the team with the lowest total wins.',
+  setup: (ctx) => L.setup({ ...ctx, options: { ...ctx.options, teams: 'yes' } }),
 };

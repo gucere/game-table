@@ -1,7 +1,7 @@
 /**
  * Taş Yağmuru: pairs of Okey tiles fall into a well. Line tiles up so that three or more
- * in a row or column form an Okey meld (a set: same number, different colours; or a run:
- * same colour, consecutive numbers). Melds vanish, tiles above drop, and chains score more.
+ * in a row or column form an Okey meld (a set: same number, different colors; or a run:
+ * same color, consecutive numbers). Melds vanish, tiles above drop, and chains score more.
  */
 
 export const COLS = 7;
@@ -9,7 +9,7 @@ export const ROWS = 13;
 export const JOKER = 4;
 
 export interface RTile {
-  /** 0..3 colour, 4 = joker */
+  /** 0..3 color, 4 = joker */
   c: number;
   n: number;
 }
@@ -108,9 +108,9 @@ export function isMeld(tiles: RTile[]): boolean {
   if (tiles.length < 3) return false;
   const real = tiles.filter((t) => t.c !== JOKER);
   if (real.length === 0) return true;
-  // Set: same number, all different colours (so at most 4)
+  // Set: same number, all different colors (so at most 4)
   if (tiles.length <= 4 && real.every((t) => t.n === real[0].n) && new Set(real.map((t) => t.c)).size === real.length) return true;
-  // Run: one colour, numbers going up (or down) by one, jokers filling in
+  // Run: one color, numbers going up (or down) by one, jokers filling in
   if (real.every((t) => t.c === real[0].c)) {
     for (const dir of [1, -1]) {
       const firstIdx = tiles.findIndex((t) => t.c !== JOKER);

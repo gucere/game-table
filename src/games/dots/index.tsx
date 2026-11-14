@@ -184,7 +184,7 @@ export const dots: GameDef<DotsState, DotsMove, DotsState> = {
       ],
     },
   ],
-  rules: 'Take turns drawing a line between two neighbouring dots. If your line closes the fourth side of a box, the box is yours and you draw again. When every box is taken, whoever has the most wins. Tip: avoid drawing the third side of a box.',
+  rules: 'Take turns drawing a line between two neighboring dots. If your line closes the fourth side of a box, the box is yours and you draw again. When every box is taken, whoever has the most wins. Tip: avoid drawing the third side of a box.',
   setup,
   activePlayers,
   view: (s) => s,

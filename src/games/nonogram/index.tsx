@@ -110,7 +110,7 @@ export const nonogram: GameDef<L.NonoState, L.NonoMove, L.NonoView> = {
     },
   ],
   rules:
-    'The numbers beside each row and above each column are the lengths of its runs of filled squares, in order, with at least one blank between runs. Fill the grid to match every clue. Every puzzle can be solved by logic alone, no guessing needed. Clues turn grey when their line matches.',
+    'The numbers beside each row and above each column are the lengths of its runs of filled squares, in order, with at least one blank between runs. Fill the grid to match every clue. Every puzzle can be solved by logic alone, no guessing needed. Clues turn gray when their line matches.',
   setup: L.setup,
   activePlayers: L.activePlayers,
   view: (s) => L.view(s),

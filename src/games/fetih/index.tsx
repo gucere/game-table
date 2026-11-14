@@ -15,7 +15,7 @@ const corner = (x: number, y: number, k: number) => {
   const a = (Math.PI / 180) * (60 * k - 30);
   return [x + S * Math.cos(a), y + S * Math.sin(a)];
 };
-/** Neighbour across each hex edge (edge k joins corners k and k+1), odd rows shifted right */
+/** Neighbor across each hex edge (edge k joins corners k and k+1), odd rows shifted right */
 function across(i: number, k: number): number {
   const r = Math.floor(i / L.W);
   const c = i % L.W;
@@ -70,7 +70,7 @@ function Board({ view: v, seat, players, canMove, onMove }: BoardProps<L.FetihSt
   let prompt = '';
   if (myTurn) {
     if (v.phase === 'place') prompt = tx('Place {n} reinforcements on your territories.', { n: v.pending });
-    else if (v.phase === 'attack') prompt = sel === null ? tx('Pick one of your territories (2+ armies) to attack from, or end your attacks.') : tx('Now pick a neighbouring enemy territory.');
+    else if (v.phase === 'attack') prompt = sel === null ? tx('Pick one of your territories (2+ armies) to attack from, or end your attacks.') : tx('Now pick a neighboring enemy territory.');
     else if (v.phase === 'fortify') prompt = sel === null ? tx('Optional: move armies between your connected territories, then your turn ends.') : tx('Pick where to move them.');
   }
 
@@ -172,7 +172,7 @@ function Board({ view: v, seat, players, canMove, onMove }: BoardProps<L.FetihSt
           {last.won ? tx('Territory taken! 🎉') : tx('The attack failed.')}
         </p>
       )}
-      <p className="small muted">{tx('Income: {n} per turn (half your territories, at least 3, +1 per 🏠 village). 🏰 Castles add 2 to defence.', { n: L.income(v, seat) })}</p>
+      <p className="small muted">{tx('Income: {n} per turn (half your territories, at least 3, +1 per 🏠 village). 🏰 Castles add 2 to defense.', { n: L.income(v, seat) })}</p>
     </div>
   );
 }
@@ -199,7 +199,7 @@ export const fetih: GameDef<L.FetihState, L.FetihMove, L.FetihState> = {
     },
   ],
   rules:
-    'Every game has a new map. Territories are dealt out with a few armies each. On your turn: 1) Reinforce: you get half your territory count (at least 3) plus 1 for each village 🏠 you hold. 2) Attack as often as you like from a territory with 2+ armies into a neighbouring enemy one: each side adds one die to its armies (the attacker counts all but one; a castle 🏰 gives the defender +2). Higher wins; ties go to the defender. Win and you move in; lose and you lose half your attacking armies. 3) Make one move of armies between your connected territories, which ends your turn. Take the whole map, or hold the most territories when the rounds run out.',
+    'Every game has a new map. Territories are dealt out with a few armies each. On your turn: 1) Reinforce: you get half your territory count (at least 3) plus 1 for each village 🏠 you hold. 2) Attack as often as you like from a territory with 2+ armies into a neighboring enemy one: each side adds one die to its armies (the attacker counts all but one; a castle 🏰 gives the defender +2). Higher wins; ties go to the defender. Win and you move in; lose and you lose half your attacking armies. 3) Make one move of armies between your connected territories, which ends your turn. Take the whole map, or hold the most territories when the rounds run out.',
   setup: L.setup,
   activePlayers: L.activePlayers,
   view: (s) => s,

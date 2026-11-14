@@ -42,7 +42,7 @@ export const TR_BOARDS: Record<string, string> = {
   'Choose your flyer': 'Uçucunu seç',
   'Choosing trump…': 'Koz seçiliyor…',
   Clear: 'Temizle',
-  'Colour {c}': 'Renk {c}',
+  'Color {c}': 'Renk {c}',
   Contract: 'Kontrat',
   'Correct calls: {scores} / {length} · Streak:': 'Doğru tahmin: {scores} / {length} · Seri:',
   'Current rank: {v}': 'Geçerli değer: {v}',

@@ -148,6 +148,7 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
                 )}
               </div>
             ))}
+            {(snap.spectators?.length ?? 0) > 0 && <p className="small muted">👀 {t('Watching: {names}', { names: snap.spectators!.join(', ') })}</p>}
             <p className="muted small">
               {t("A vote passes when more than half of the other people in the room agree. Removed players can't rejoin this room. The host can't be voted out, since the room runs in their browser.")}
             </p>

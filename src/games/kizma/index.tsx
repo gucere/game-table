@@ -25,10 +25,16 @@ function Board({ view: v, seat, players, canMove, onMove }: BoardProps<L.KizmaVi
     }),
   );
 
-  const lastText = v.last
-    ? `${v.last.seat === seat ? 'You' : players[v.last.seat].name} rolled ${v.last.dice}` +
-      (v.last.captured !== null ? ` and sent ${v.last.captured === seat ? 'you' : players[v.last.captured].name} back to start! 😤` : '')
-    : '';
+  const lastText = (() => {
+    const l = v.last;
+    if (!l) return '';
+    const vars = { name: players[l.seat].name, dice: l.dice, target: l.captured !== null ? players[l.captured].name : '' };
+    const mine = l.seat === seat;
+    if (l.captured === null) return mine ? tx('You rolled {dice}.', vars) : tx('{name} rolled {dice}.', vars);
+    if (mine) return tx('You rolled {dice} and sent {target} back to start! 😤', vars);
+    if (l.captured === seat) return tx('{name} rolled {dice} and sent you back to start! 😤', vars);
+    return tx('{name} rolled {dice} and sent {target} back to start! 😤', vars);
+  })();
 
   return (
     <div className="stack center kizma">

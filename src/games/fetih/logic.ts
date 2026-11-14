@@ -1,7 +1,7 @@
 /**
  * Fetih (Frontiers): an original territory game on a freshly generated hex map.
- * Each turn: reinforce (income from territories and villages), attack neighbours, then make
- * one fortifying move. A battle is armies + one die each; castles add 2 to the defence.
+ * Each turn: reinforce (income from territories and villages), attack neighbors, then make
+ * one fortifying move. A battle is armies + one die each; castles add 2 to the defense.
  * Take every territory, or hold the most when the round limit is reached.
  */
 import type { BotCtx, GameCtx, GameResult, Seat } from '../../engine/types';
@@ -43,7 +43,7 @@ export type FetihMove =
   | { type: 'fortify'; from: number; to: number; n: number }
   | { type: 'endTurn' };
 
-/** Neighbours of a cell on an odd-row-offset hex grid */
+/** Neighbors of a cell on an odd-row-offset hex grid */
 export function hexNeighbors(i: number): number[] {
   const r = Math.floor(i / W);
   const c = i % W;
@@ -216,7 +216,7 @@ export function move(s: FetihState, seat: Seat, m: FetihMove, ctx: Pick<GameCtx,
     }
     case 'attack': {
       if (s.phase !== 'attack') return 'Place your reinforcements first';
-      if (!mine(m.from) || s.owner[m.to] === seat || !s.terr[m.from].adj.includes(m.to)) return 'Attack a neighbouring enemy territory from your own';
+      if (!mine(m.from) || s.owner[m.to] === seat || !s.terr[m.from].adj.includes(m.to)) return 'Attack a neighboring enemy territory from your own';
       if (s.armies[m.from] < 2) return 'You need at least 2 armies to attack';
       const att = s.armies[m.from] - 1;
       const def = s.armies[m.to];
@@ -276,7 +276,7 @@ export function bot(v: FetihState, seat: Seat, ctx: BotCtx): FetihMove {
   const mine = v.owner.flatMap((o, k) => (o === seat ? [k] : []));
   const border = mine.filter((k) => v.terr[k].adj.some((a) => v.owner[a] !== seat));
   if (v.phase === 'place') {
-    // Back the border territory with the juiciest weak neighbour
+    // Back the border territory with the juiciest weak neighbor
     const score = (k: number) => {
       const weakest = Math.min(...v.terr[k].adj.filter((a) => v.owner[a] !== seat).map((a) => v.armies[a] + (v.terr[a].castle ? 2 : 0)));
       return v.armies[k] - weakest + (ctx.random() * 2);

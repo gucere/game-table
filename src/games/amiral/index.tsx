@@ -123,9 +123,15 @@ function Board({ view: v, players, canMove, onMove }: BoardProps<L.AmView, L.AmM
     if (!v.myShips && canMove) return <Placement onDone={(ships) => onMove({ type: 'place', ships })} />;
     return <p className="center muted">{tx('Waiting for {name} to place their fleet…', { name: players[enemy].name })}</p>;
   }
-  const lastText = v.last
-    ? `${v.last.seat === v.me ? 'You' : players[v.last.seat].name} fired at ${cellName(v.last.cell)}: ${v.last.hit ? (v.last.sunk ? `sunk the ${v.last.sunk}! 💥` : 'hit! 🔥') : 'miss.'}`
-    : '';
+  const lastText = (() => {
+    const l = v.last;
+    if (!l) return '';
+    const vars = { name: players[l.seat].name, cell: cellName(l.cell), ship: l.sunk ? tx(l.sunk) : '' };
+    const mine = l.seat === v.me;
+    if (l.sunk) return mine ? tx('You fired at {cell} and sank the {ship}! 💥', vars) : tx('{name} fired at {cell} and sank your {ship}! 💥', vars);
+    if (l.hit) return mine ? tx('You fired at {cell}: a hit! 🔥', vars) : tx('{name} fired at {cell}: a hit! 🔥', vars);
+    return mine ? tx('You fired at {cell}: a miss.', vars) : tx('{name} fired at {cell}: a miss.', vars);
+  })();
   return (
     <div className="stack center am">
       <div className="info-row">

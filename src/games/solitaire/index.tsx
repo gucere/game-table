@@ -130,7 +130,7 @@ export const solitaire: GameDef<L.SolState, L.SolMove, L.SolView> = {
     },
   ],
   rules:
-    'Build four foundations from Ace to King, one per suit. In the columns, stack cards downward in alternating colours. Only a King can fill an empty column. Tap a card to move it to the best spot, or tap it and then tap where it should go.',
+    'Build four foundations from Ace to King, one per suit. In the columns, stack cards downward in alternating colors. Only a King can fill an empty column. Tap a card to move it to the best spot, or tap it and then tap where it should go.',
   setup: L.setup,
   activePlayers: (s) => (s.endedAt ? [] : [0]),
   view: L.view,

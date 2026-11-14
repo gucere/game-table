@@ -1,7 +1,7 @@
 /**
  * Martı characters. They are cosmetic only: every character has the same
  * hitbox and physics, so races on a shared course stay fair.
- * Each draw function paints the flyer centred on (0, 0), facing right.
+ * Each draw function paints the flyer centered on (0, 0), facing right.
  * `wing` swings between about -9 and 9 as the wings beat.
  */
 

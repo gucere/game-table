@@ -1,4 +1,4 @@
-/** Reversi: place a disc to flank a line of the other colour and flip it. Most discs wins. */
+/** Reversi: place a disc to flank a line of the other color and flip it. Most discs wins. */
 import type { BoardProps, BotCtx, GameDef, GameResult, Seat } from '../../engine/types';
 import { t as tx } from '../../i18n';
 
@@ -162,7 +162,7 @@ export const reversi: GameDef<ReversiState, ReversiMove, ReversiState> = {
   maxPlayers: 2,
   hiddenInfo: false,
   rules:
-    'Dark moves first. Place a disc so that one or more straight lines (across, down or diagonal) of your opponent’s discs end at another of yours; all of them flip to your colour. If you have no such move you pass. When neither player can move, the one with more discs wins. Tip: corners can never be flipped.',
+    'Dark moves first. Place a disc so that one or more straight lines (across, down or diagonal) of your opponent’s discs end at another of yours; all of them flip to your color. If you have no such move you pass. When neither player can move, the one with more discs wins. Tip: corners can never be flipped.',
   setup: () => setup(),
   activePlayers,
   view: (s) => s,

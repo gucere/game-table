@@ -25,7 +25,7 @@ function bestScore(score: number) {
   }
 }
 
-/** Tile colours: Iznik tile blues and turquoise, warming to coral and gold */
+/** Tile colors: Iznik tile blues and turquoise, warming to coral and gold */
 const COLORS = ['#e8f1f2', '#cfe8ea', '#9fd6d9', '#5fbcc4', '#2a9aa6', '#1d6f8f', '#244c86', '#4b3b8f', '#a23a6b', '#d4553b', '#e88d2a', '#e9b949', '#3c3c3c'];
 const tileColor = (v: number) => COLORS[Math.min(COLORS.length - 1, Math.log2(v) - 1)];
 

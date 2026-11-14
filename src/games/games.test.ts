@@ -681,7 +681,7 @@ describe('Poker', () => {
 });
 
 describe('Taş Yağmuru', () => {
-  it('recognises Okey melds with jokers, and clears them', async () => {
+  it('recognizes Okey melds with jokers, and clears them', async () => {
     const R = await import('./rain/sim');
     const t = (c: number, n: number) => ({ c, n });
     const J = { c: R.JOKER, n: 0 };
@@ -901,7 +901,7 @@ describe('Durak pass-on', () => {
 });
 
 describe('Fetih', () => {
-  it('builds a connected map where every territory has neighbours', async () => {
+  it('builds a connected map where every territory has neighbors', async () => {
     const F = await import('./fetih/logic');
     const { terr, cellOf } = F.makeMap(20, rng(6));
     expect(cellOf.every((x) => x >= 0)).toBe(true);

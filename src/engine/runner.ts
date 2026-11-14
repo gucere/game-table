@@ -78,6 +78,12 @@ export class GameRunner {
     this.setState(this.game.setup(this.ctx()));
   }
 
+  /** Pick up a saved game (the host reloaded the page) */
+  restoreState(state: unknown) {
+    this.clearBots();
+    this.setState(state);
+  }
+
   setPlayer(seat: Seat, info: PlayerInfo) {
     this.players = this.players.map((p, i) => (i === seat ? info : p));
     this.emit();

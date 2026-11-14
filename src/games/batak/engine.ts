@@ -26,6 +26,13 @@ export interface BatakConfig {
   trumpLead: boolean;
   /** Fixed targets by position relative to the dealer: [dealer, left, right] */
   targets?: number[];
+  /** Partners sit opposite (0 & 2, 1 & 3) and play the contract together */
+  teams?: boolean;
+}
+
+/** Tricks the bidder's side has taken (the bidder alone, or with their partner) */
+export function sideTricks(cfg: Pick<BatakConfig, 'teams'>, s: { tricks: number[]; n: number }, seat: Seat) {
+  return cfg.teams ? s.tricks[seat] + s.tricks[(seat + 2) % s.n] : s.tricks[seat];
 }
 
 export interface Play {
@@ -230,6 +237,12 @@ export function legalCards(cfg: BatakConfig, hand: Card[], trick: Play[], trump:
 
 function scoreHand(cfg: BatakConfig, s: TState): number[] {
   if (cfg.mode === 'targets') return s.tricks.map((t, i) => t - s.targets[i]);
+  if (cfg.teams && s.bidder !== null) {
+    // The bidder's team plays the contract together; falling short costs the bidder the bid
+    const made = sideTricks(cfg, s, s.bidder) >= s.contract;
+    const partner = (s.bidder + 2) % s.n;
+    return s.tricks.map((t, i) => (i === s.bidder ? (made ? t : -s.contract) : i === partner ? (made ? t : 0) : t));
+  }
   return s.tricks.map((t, i) => {
     if (i !== s.bidder) return t;
     return t >= s.contract ? t : -s.contract;
@@ -244,7 +257,8 @@ function endHand(cfg: BatakConfig, s: TState, random: () => number): TState {
   const handNo = s.handNo + 1;
   let notice = '';
   if (cfg.mode === 'auction' && s.bidder !== null) {
-    notice = s.tricks[s.bidder] >= s.contract ? `Contract made (${s.tricks[s.bidder]}/${s.contract}).` : `Contract failed (${s.tricks[s.bidder]}/${s.contract}).`;
+    const got = sideTricks(cfg, s, s.bidder);
+    notice = got >= s.contract ? `Contract made (${got}/${s.contract}).` : `Contract failed (${got}/${s.contract}).`;
   }
   const after: TState = { ...s, scores, history, handNo, notice };
   if (handNo >= s.totalHands) return { ...after, phase: 'done' };
@@ -399,8 +413,14 @@ export function viewOf(cfg: BatakConfig, s: TState, seat: Seat): TView {
   };
 }
 
-export function resultOf(s: TState): GameResult | null {
+export function resultOf(s: TState, cfg?: BatakConfig): GameResult | null {
   if (s.phase !== 'done') return null;
+  if (cfg?.teams) {
+    const team = [s.scores[0] + s.scores[2], s.scores[1] + s.scores[3]];
+    if (team[0] === team[1]) return { winners: [], draw: true };
+    const t = team[0] > team[1] ? 0 : 1;
+    return { winners: [t, t + 2] };
+  }
   const best = Math.max(...s.scores);
   return { winners: s.scores.map((x, i) => (x === best ? i : -1)).filter((i) => i >= 0) };
 }
@@ -448,7 +468,7 @@ export function botMove(cfg: BatakConfig, v: TView, ctx: BotCtx): TMove {
     }
     case 'bid': {
       const bonus = cfg.kittyRule === 'bidder' ? 0.6 : 0;
-      let est = estimateTricks(v.hand, v.n, bonus);
+      let est = estimateTricks(v.hand, v.n, bonus) + (cfg.teams ? 2.6 : 0);
       if (ctx.level === 'easy') est += (r() - 0.5) * 2;
       if (ctx.level === 'normal') est -= 0.3;
       const want = Math.floor(est);
@@ -486,6 +506,8 @@ export function botMove(cfg: BatakConfig, v: TView, ctx: BotCtx): TMove {
         return { type: 'play', card: low(legal) };
       }
       const winners = legal.filter((c) => winsNow(v.trick, c, v.trump));
+      // Partner already has this trick: keep our high cards
+      if (cfg.teams && trickWinner(v.trick, v.trump).seat === (v.me + 2) % v.n) return { type: 'play', card: low(legal) };
       const last = v.trick.length === v.n - 1;
       // In 3-5-8 a player who already hit their target still wants overtricks; in Batak everyone wants tricks
       if (winners.length) {

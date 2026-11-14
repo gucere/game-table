@@ -24,7 +24,9 @@ export function PlayView({ session, snap, onLeave }: { session: Session; snap: S
   const you = humansHere.length === 1 ? humansHere[0] : null;
 
   // Whose eyes are we showing? The local seat that has to move; otherwise keep the last one.
-  const perspective = useRef<Seat>(localSeats[0]);
+  const perspective = useRef<Seat>(snap.spectating ?? localSeats[0]);
+  // Spectators see whichever player they chose to follow
+  if (snap.spectating !== null && snap.spectating !== undefined) perspective.current = snap.spectating;
   const activeHere = active.filter((s) => localSeats.includes(s) && players[s]?.kind !== 'bot');
   if (activeHere.length && !activeHere.includes(perspective.current)) perspective.current = activeHere[0];
   const seat = perspective.current;
@@ -45,7 +47,8 @@ export function PlayView({ session, snap, onLeave }: { session: Session; snap: S
   const secret = view !== undefined && (game.isPrivate ? game.isPrivate(view) : true);
   const needsPass = game.hiddenInfo && hotSeat && !result && revealed !== seat && secret;
 
-  const canMove = !result && active.includes(seat) && players[seat]?.kind !== 'bot';
+  const watching = snap.spectating !== null && snap.spectating !== undefined;
+  const canMove = !watching && !result && active.includes(seat) && players[seat]?.kind !== 'bot';
 
   let status: string;
   if (result) status = resultText(result, players, you);

@@ -165,7 +165,7 @@ export const rain: GameDef<RainState, RainMove, RainState> = {
     },
   ],
   rules:
-    'Pairs of Okey tiles fall into the well. Move and rotate them so that three or more tiles in a row or a column make an Okey meld: a set (the same number in different colours) or a run (one colour, consecutive numbers, up or down). The green ✿ tile is a joker and fits anywhere. Melds disappear, the tiles above drop, and any new melds that form score a chain bonus. It speeds up as you go; the game ends when the well is full.',
+    'Pairs of Okey tiles fall into the well. Move and rotate them so that three or more tiles in a row or a column make an Okey meld: a set (the same number in different colors) or a run (one color, consecutive numbers, up or down). The green ✿ tile is a joker and fits anywhere. Melds disappear, the tiles above drop, and any new melds that form score a chain bonus. It speeds up as you go; the game ends when the well is full.',
   setup: (ctx) => ({ score: null, maxNum: Number(ctx.options.numbers ?? 6) }),
   activePlayers: (s) => (s.score === null ? [0] : []),
   view: (s) => s,

@@ -1194,3 +1194,114 @@
 .ft-label .ft-icon {
   font-size: 11px;
 }
+
+/* ---------- Two Truths and a Lie ---------- */
+.tt-write {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.tt-write input[type='radio'] {
+  width: 20px;
+  height: 20px;
+  accent-color: #e5484d;
+  flex: none;
+}
+.tt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 1.05rem;
+  width: 100%;
+}
+.tt-card:not(:disabled) {
+  cursor: pointer;
+}
+.tt-card:not(:disabled):hover,
+.tt-card.mine {
+  border-color: var(--accent);
+}
+.tt-card.secret {
+  border-style: dashed;
+  border-color: #e5484d;
+}
+.tt-card.lie {
+  border-color: #e5484d;
+  background: rgba(229, 72, 77, 0.15);
+}
+.tt-card.truth {
+  opacity: 0.75;
+}
+
+/* ---------- Kim Daha Çok? ---------- */
+.lk-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 1.35rem;
+  text-align: center;
+  max-width: 560px;
+}
+.lk-players {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  width: 100%;
+  max-width: 640px;
+}
+.lk-player {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+.lk-player:not(:disabled) {
+  cursor: pointer;
+}
+.lk-player:not(:disabled):hover,
+.lk-player.mine {
+  border-color: var(--accent);
+}
+.lk-player.top {
+  border-color: #f2c14e;
+  background: rgba(242, 193, 78, 0.18);
+}
+.lk-crown {
+  position: absolute;
+  top: -12px;
+  right: -6px;
+  font-size: 1.6rem;
+}
+
+/* Hava Hokeyi */
+.hk-canvas {
+  display: block;
+  margin: 0 auto;
+  width: min(100%, 360px, calc((100vh - 220px) * 0.6));
+  aspect-ratio: 360 / 600;
+  border-radius: 18px;
+  border: 6px solid #1b2b3d;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}

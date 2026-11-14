@@ -56,6 +56,11 @@ export const GAME_NAMES: Record<string, { en: string; tr: string }> = {
   nonogram: { en: 'Nonogram', tr: 'Nonogram' },
   kakuro: { en: 'Kakuro', tr: 'Kakuro' },
   'tas-esle': { en: 'Tile Match', tr: 'Taş Eşle' },
+  'esli-batak': { en: 'Partners Batak', tr: 'Eşli Batak' },
+  'esli-101': { en: 'Partners 101 Okey', tr: 'Eşli 101' },
+  'iki-dogru-bir-yalan': { en: 'Two Truths and a Lie', tr: 'İki Doğru Bir Yalan' },
+  'kim-daha-cok': { en: 'Most Likely To', tr: 'Kim Daha Çok?' },
+  'hava-hokeyi': { en: 'Air Hockey', tr: 'Hava Hokeyi' },
 };
 
 export { GAME_TEXT_TR } from './games-tr';

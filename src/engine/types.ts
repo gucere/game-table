@@ -75,6 +75,8 @@ export interface GameDef<S = any, M = any, V = any> {
   hiddenInfo: boolean;
   /** Only playable online (e.g. needs each player on their own screen) */
   onlineOnly?: boolean;
+  /** Only playable on one device (fast real-time games) */
+  localOnly?: boolean;
   options?: GameOption[];
   /** Short rules shown under the board */
   rules?: string;

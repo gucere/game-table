@@ -72,7 +72,7 @@ function fill(size: number, white: boolean[], runs: Run[], random: () => number)
     if (k === cells.length) return true;
     if (++steps > 20000) return false;
     const c = cells[k];
-    // Favour low and high digits: their sums have fewer combinations, so fewer ambiguities
+    // Favor low and high digits: their sums have fewer combinations, so fewer ambiguities
     const ds = [1, 2, 3, 4, 5, 6, 7, 8, 9]
       .map((d) => [d, Math.abs(d - 5) + random() * 4] as const)
       .sort((a, b) => b[1] - a[1])

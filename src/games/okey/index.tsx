@@ -75,7 +75,7 @@ function Board({ view: v, seat, players, canMove, onMove }: BoardProps<L.OkeyVie
         {v.notice && <span className="small">{v.notice}</span>}
         {v.lastWin && (
           <div className="stack-sm center">
-            <span className="small">{tx('Round won by')}{' '}{v.lastWin.seat === me ? 'you' : players[v.lastWin.seat].name}
+            <span className="small">{v.lastWin.seat === me ? tx('You won the round') : tx('{name} won the round', { name: players[v.lastWin.seat].name })}
               {v.lastWin.pairs ? tx(' with pairs') : ''}
               {v.lastWin.okeyDiscard ? (konken ? tx(' by discarding a joker') : tx(' by discarding the okey')) : ''}
               {konken
@@ -145,7 +145,7 @@ export const okey: GameDef<L.OkeyState, L.OkeyMove, L.OkeyView> = {
     },
   ],
   rules:
-    'Tiles 1–13 in four colours (two of each) plus two false jokers. The tile after the indicator (same colour, +1) is the okey: a wild tile. False jokers count as that tile.\nDraw from the pile or take the tile the player on your left just discarded, then discard one. Finish when your 14 tiles form sets (same number, different colours) and runs (same colour in a row; 12-13-1 is allowed), or seven pairs, and discard the 15th.\nEveryone starts with the chosen points. When someone finishes, the others lose 2 (doubled for finishing with pairs, doubled again for discarding the okey). The game ends when someone reaches 0.\nWith the çanak (pot) on: everyone puts 1 point into the pot each hand, and whoever finishes by discarding the okey or with seven pairs also takes the whole pot. Otherwise it keeps growing.',
+    'Tiles 1–13 in four colors (two of each) plus two false jokers. The tile after the indicator (same color, +1) is the okey: a wild tile. False jokers count as that tile.\nDraw from the pile or take the tile the player on your left just discarded, then discard one. Finish when your 14 tiles form sets (same number, different colors) and runs (same color in a row; 12-13-1 is allowed), or seven pairs, and discard the 15th.\nEveryone starts with the chosen points. When someone finishes, the others lose 2 (doubled for finishing with pairs, doubled again for discarding the okey). The game ends when someone reaches 0.\nWith the çanak (pot) on: everyone puts 1 point into the pot each hand, and whoever finishes by discarding the okey or with seven pairs also takes the whole pot. Otherwise it keeps growing.',
   setup: (ctx) => L.setup(ctx),
   activePlayers: (s) => (s.phase === 'done' ? [] : [s.turn]),
   view: L.view,

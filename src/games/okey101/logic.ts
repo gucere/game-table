@@ -77,6 +77,8 @@ export interface HandResult {
 
 export interface O101State {
   variant: '101' | '51';
+  /** Eşli 101: partners sit opposite and add up their totals */
+  teams?: boolean;
   n: number;
   dealer: Seat;
   handNo: number;
@@ -155,6 +157,7 @@ export function setup(ctx: Pick<GameCtx, 'random' | 'options'> & { numPlayers?: 
     dealer: Math.floor(ctx.random() * n),
     handNo: 0,
     totalHands: Number(ctx.options.hands) || 3,
+    teams: ctx.options.teams === 'yes',
     hands: [],
     pile: [],
     discards: [],
@@ -186,7 +189,7 @@ export function checkGroups(groups: Tile[][], opened: Opened, okey: Face): { mel
   const melds: Meld[] = [];
   for (const g of groups) {
     const m = asMeld(g, okey, cfg.rules, kinds);
-    if (!m) return kinds[0] === 'pair' ? 'Pairs must be two identical tiles' : 'Each group must be a set (same number, different colours) or a run (same colour in a row)';
+    if (!m) return kinds[0] === 'pair' ? 'Pairs must be two identical tiles' : 'Each group must be a set (same number, different colors) or a run (same color in a row)';
     melds.push(m);
   }
   const kind = kinds[0] === 'pair' ? 'pairs' : 'sets';
@@ -223,6 +226,8 @@ function endHand(s: O101State, winner: Seat | null, lastTile: Tile | null, rando
     const cfg = cfgFor(s.okey);
     for (let i = 0; i < s.n; i++) {
       if (i === winner) delta[i] = -cfg.winBonus * m;
+      // Eşli 101: the winner's partner doesn't count their tiles
+      else if (s.teams && i === (winner + 2) % s.n) delta[i] = 0;
       else if (s.opened[i] === 'none') delta[i] = cfg.notOpened * (m > 1 ? 2 : 1);
       else delta[i] = handValue(s.hands[i], s.okey) * m * (s.opened[i] === 'pairs' ? 2 : 1);
     }
@@ -335,6 +340,12 @@ export function view(s: O101State, seat: Seat): O101View {
 
 export function result(s: O101State): GameResult | null {
   if (s.phase !== 'done') return null;
+  if (s.teams) {
+    const team = [s.totals[0] + s.totals[2], s.totals[1] + s.totals[3]];
+    if (team[0] === team[1]) return { winners: [], draw: true };
+    const t = team[0] < team[1] ? 0 : 1;
+    return { winners: [t, t + 2] };
+  }
   const best = Math.min(...s.totals);
   return { winners: s.totals.map((x, i) => (x === best ? i : -1)).filter((i) => i >= 0) };
 }

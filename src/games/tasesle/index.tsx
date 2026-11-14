@@ -91,7 +91,7 @@ export const tasEsle: GameDef<L.TasState, L.TasMove, L.TasState> = {
     },
   ],
   rules:
-    'Clear the board by removing pairs of identical tiles (same number and colour). You can only take a tile that is free: nothing is stacked on it, and its left or right side is open. Stuck? Use a hint, undo, or shuffle the remaining tiles. Every deal can be cleared.',
+    'Clear the board by removing pairs of identical tiles (same number and color). You can only take a tile that is free: nothing is stacked on it, and its left or right side is open. Stuck? Use a hint, undo, or shuffle the remaining tiles. Every deal can be cleared.',
   setup: L.setup,
   activePlayers: L.activePlayers,
   view: (s) => s,

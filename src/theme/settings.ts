@@ -7,7 +7,7 @@ export interface Settings {
   name: string;
   /** Card back pattern: see CARD_BACKS */
   cardBack: string;
-  /** 'two' = classic red/black, 'four' = four-colour deck */
+  /** 'two' = classic red/black, 'four' = four-color deck */
   cardFace: 'two' | 'four';
   /** Okey tile style */
   tiles: string;
