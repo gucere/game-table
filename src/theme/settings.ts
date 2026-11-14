@@ -53,12 +53,14 @@ export function updateSettings(patch: Partial<Settings>) {
   }
   applyTheme(current.theme, current.pieces);
   document.documentElement.lang = current.lang;
+  document.title = current.lang === 'tr' ? 'Oyun Masası' : 'Game Table';
   listeners.forEach((fn) => fn());
 }
 
 export function initSettings() {
   applyTheme(current.theme, current.pieces);
   document.documentElement.lang = current.lang;
+  document.title = current.lang === 'tr' ? 'Oyun Masası' : 'Game Table';
 }
 
 export function useSettings(): Settings {

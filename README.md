@@ -1,8 +1,8 @@
-# Oyun Masası
+# Game Table (Oyun Masası)
 
 Free, open-source classic games that run entirely in the browser.
 
-**Play:** https://gucere.github.io/oyun-masasi/
+**Play:** https://gucere.github.io/game-table/
 
 > **Not for profit.** This is a just-for-fun project: no ads, no accounts, no payments, no tracking. Anyone is welcome to play it, share it, fork it and use the code.
 >

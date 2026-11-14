@@ -88,7 +88,7 @@ export function App() {
             }
           }}
         >
-          <span className="brand-mark">◆</span> Oyun Masası
+          <span className="brand-mark">◆</span> {tr('Game Table')}
         </a>
         <nav className="topnav">
           {!session && <a href="#/join">{tr('Join a room')}</a>}
@@ -101,7 +101,7 @@ export function App() {
         <p>{tr('Made for fun, not for profit. Free for everyone to play, share and use.')}</p>
         <p>
           {tr('Vibe-coded with an AI assistant (Claude).')}{' '}
-          <a href="https://github.com/gucere/oyun-masasi" target="_blank" rel="noreferrer">
+          <a href="https://github.com/gucere/game-table" target="_blank" rel="noreferrer">
             {tr('Source code on GitHub')}
           </a>
         </p>

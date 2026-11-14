@@ -1,6 +1,7 @@
 /** Turkish translations, keyed by the English text used in the code. */
 export const TR: Record<string, string> = {
   // App shell
+  'Game Table': 'Oyun Masası',
   'Pick a game': 'Bir oyun seç',
   'Play alone against bots, pass one device around, or play online with friends straight from the browser, peer to peer.':
     'Botlara karşı tek başına oyna, tek cihazı elden ele dolaştır ya da arkadaşlarınla doğrudan tarayıcıdan, sunucusuz çevrim içi oyna.',
