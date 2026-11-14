@@ -64,6 +64,8 @@ export const GAME_NAMES: Record<string, { en: string; tr: string }> = {
   'zeka-kupu': { en: 'Puzzle Cube', tr: 'Zeka Küpü' },
   'bes-harf': { en: 'Five Letters', tr: 'Beş Harf' },
   'uzay-savunmasi': { en: 'Space Defense', tr: 'Uzay Savunması' },
+  'bilgi-yarisi': { en: 'Trivia Race', tr: 'Bilgi Yarışı' },
+  hafiza: { en: 'Memory Pairs', tr: 'Hafıza' },
 };
 
 export { GAME_TEXT_TR } from './games-tr';

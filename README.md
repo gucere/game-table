@@ -57,6 +57,8 @@ Free, open-source classic games that run entirely in the browser.
 | Vampir Köylü | 4–12 | ✅ | Hidden roles (vampires, villagers, doktor, gözcü); night actions and day votes, with timers |
 | Two Truths and a Lie | 3–12 | – | Write two truths and a lie; spot the lie for a point, fool others for points |
 | Kim Daha Çok? | 3–12 | ✅ | "Who's most likely to…?" Secret votes, crowns and points for reading the room (TR/EN prompts) |
+| Bilgi Yarışı | 1–12 | ✅ | Trivia race: everyone answers at once, faster right answers score more. Built-in TR/EN questions, your own question pack (saved in the browser, shareable as a link), or “Everyone writes some”, where players write questions for each other |
+| Hafıza | 1–6 | ✅ | Memory pairs: animals, food or things, 16–36 cards; bots remember more on harder levels |
 | Beş Harf | 1–8 | ✅ | Original five-letter word game (TR/EN): six guesses, colored hints, word of the day, or race friends on the same word. Guesses are checked against Turkish Wiktionary headwords ([atmanat/random-wordlist-tr](https://github.com/atmanat/random-wordlist-tr), Apache-2.0) and the public-domain ENABLE list |
 | Tombala | 1–12 | ✅ | Turkish bingo: numbers drawn automatically; first to press wins each çinko and the tombala |
 | İsim Şehir Hayvan | 2–10 | – | Online only; STOP gives everyone 5 seconds; players vote down bad answers |

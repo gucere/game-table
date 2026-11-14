@@ -278,4 +278,14 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
     rules:
       'Drone dalgaları bir yandan öbür yana yürür ve kenara her vardığında biraz aşağı iner. Ne kadar azalırlarsa o kadar hızlanırlar. Gemin kendi kendine ateş eder: nişan almak ve atışlardan kaçmak için onu hareket ettir. Küre drone 10, denizanası 20, kristal 30 puan (kristaller sana nişan alır ve 4. dalgadan sonra iki vuruşta ölür). Her beşinci dalgada kovan gelir ve yelpaze gibi atış yapar. Vurulan drone’lar bazen ⚡ hızlı atış, ✦ çift atış ya da 🛡 kalkan düşürür. Üç canın var; drone’lar senin hizana inerse oyun biter.',
   },
+  'bilgi-yarisi': {
+    tagline: 'Hızlı bilgi yarışı: herkes aynı anda cevaplar, hızlı olan kazanır. Kendi sorularını da getir.',
+    rules:
+      'Herkes en fazla dört şıklı aynı soruyu görür ve cevaplamak için 20 saniyesi vardır. Doğru cevap 500 puan, hıza göre de 500 puana kadar ek puan getirir; yanlış ya da boş cevap puan getirmez. En yüksek toplam kazanır. Sorular hazır sorulardan, senin sorularından (“Benim sorularım”: aşağıda yazarsın ve bağlantıyla paylaşabilirsin), karışık ya da “Herkes soru yazsın” modundan gelir: bu modda önce herkes diğerleri için soru yazar ve kendi sorusunda bekler.',
+  },
+  hafiza: {
+    tagline: 'İki kart çevir, eşleri bul, neyin nerede olduğunu hatırla.',
+    rules:
+      'Bütün kartlar kapalı başlar ve her resimden iki tane vardır. Sıra sende iki kart çevir. Aynıysa çift senindir ve tekrar oynarsın; değilse kartlar kapanır ve sıra diğer oyuncuya geçer. Bütün çiftler bulununca en çok çifti olan kazanır. Tek başına oynarken masayı olabildiğince az denemede temizlemeye çalış.',
+  },
 };

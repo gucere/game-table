@@ -1517,3 +1517,177 @@
   border-radius: 14px;
   pointer-events: none;
 }
+
+/* Bilgi Yarışı */
+.tv {
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+}
+.tv-question {
+  font-size: clamp(1.15rem, 3.6vw, 1.5rem);
+  font-weight: 700;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 16px;
+  background: var(--surface);
+}
+.tv-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.tv-choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.88);
+  color: #1b1f27;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.tv-choice:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+.tv-choice:disabled {
+  cursor: default;
+}
+.tv-choice.mine {
+  border-color: #3a86ff;
+}
+.tv-choice.right {
+  background: #2a9d8f;
+  color: #fff;
+}
+.tv-choice.wrong {
+  background: #e63946;
+  color: #fff;
+}
+.tv-letter {
+  display: inline-grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.12);
+  font-weight: 800;
+  flex: none;
+}
+.tv-pickers {
+  flex-basis: 100%;
+  opacity: 0.85;
+}
+.tv-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+.tv-fields > :first-child {
+  grid-column: 1 / -1;
+}
+.tv-right {
+  border-color: #2a9d8f !important;
+}
+.tv-pack,
+.tv-pack-bar {
+  padding: 0.75rem;
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+.tv-pack-list {
+  margin: 0;
+  padding-left: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 320px;
+  overflow: auto;
+}
+.tv-pack-list li > span:first-child {
+  margin-right: 0.5rem;
+}
+.tv-pack-list li {
+  display: list-item;
+}
+.tv-pack-list li .row {
+  display: inline-flex;
+}
+.tv-import {
+  max-width: 680px;
+  margin: 0 auto;
+}
+@media (max-width: 520px) {
+  .tv-choices,
+  .tv-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Hafıza */
+.mem {
+  width: 100%;
+}
+.mem-grid {
+  display: grid;
+  gap: 8px;
+  width: min(100%, 520px);
+  min-width: 240px;
+  margin: 0 auto;
+}
+.mem-card {
+  aspect-ratio: 3 / 4;
+  border: 0;
+  padding: 0;
+  background: none;
+  border-radius: 12px;
+  perspective: 600px;
+  cursor: pointer;
+}
+.mem-card:disabled {
+  cursor: default;
+  opacity: 1;
+  color: #000;
+}
+.mem-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.35s;
+  transform-style: preserve-3d;
+}
+.mem-card.up .mem-inner {
+  transform: rotateY(180deg);
+}
+.mem-back,
+.mem-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  display: grid;
+  place-items: center;
+}
+.mem-back {
+  background: repeating-linear-gradient(45deg, #2b4c7e 0 8px, #33598f 8px 16px);
+  border: 3px solid rgba(255, 255, 255, 0.75);
+}
+.mem-face {
+  transform: rotateY(180deg);
+  color: #000;
+  background: #fffaf0;
+  font-size: clamp(1.6rem, 7vw, 2.6rem);
+}
+.mem-card.taken .mem-face {
+  background: #eef8f2;
+}
+.mem-card:not(:disabled):hover .mem-back {
+  filter: brightness(1.12);
+}

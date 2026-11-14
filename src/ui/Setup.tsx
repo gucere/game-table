@@ -115,6 +115,7 @@ export function Setup({ gameId, onStart }: { gameId: string; onStart: (s: Sessio
         </div>
       </div>
       {game.rules && <p className="small rules-text">{gameRules(game, lang)}</p>}
+      {game.SetupExtra && <game.SetupExtra />}
 
       {canLocal && canOnline && (
         <div className="tabs" role="tablist">

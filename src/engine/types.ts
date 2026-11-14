@@ -98,6 +98,8 @@ export interface GameDef<S = any, M = any, V = any> {
   timer?(state: S): number | null;
   onTimer?(state: S, ctx: GameCtx): S;
   Board: ComponentType<BoardProps<V, M>>;
+  /** Extra panel on the setup screen (e.g. a question editor) */
+  SetupExtra?: ComponentType;
 }
 
 export function defaultOptions(game: GameDef): GameOptions {

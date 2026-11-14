@@ -5,6 +5,7 @@ import { LANGS, t, useLang, useT } from './i18n';
 import { updateSettings } from './theme/settings';
 import { Home } from './ui/Home';
 import { Join } from './ui/Join';
+import { TriviaImport } from './games/trivia';
 import { SantaPage, SantaReveal } from './santa/SantaPage';
 import { RejoinBanner } from './ui/RoomExtras';
 import { SessionScreen } from './ui/SessionScreen';
@@ -17,13 +18,15 @@ type Route =
   | { page: 'join'; code: string }
   | { page: 'settings' }
   | { page: 'santa' }
-  | { page: 'santa-reveal'; token: string };
+  | { page: 'santa-reveal'; token: string }
+  | { page: 'trivia'; token: string };
 
 function parseHash(): Route {
   const parts = window.location.hash.replace(/^#\/?/, '').split('/');
   if (parts[0] === 'game' && parts[1] && getGame(parts[1])) return { page: 'game', id: parts[1] };
   if (parts[0] === 'join') return { page: 'join', code: parts[1] ?? '' };
   if (parts[0] === 'settings') return { page: 'settings' };
+  if (parts[0] === 'trivia' && parts[1]) return { page: 'trivia', token: parts[1] };
   if (parts[0] === 'santa') return parts[1] === 'r' && parts[2] ? { page: 'santa-reveal', token: parts[2] } : { page: 'santa' };
   return { page: 'home' };
 }
@@ -80,6 +83,7 @@ export function App() {
   else if (route.page === 'settings') content = <SettingsPage />;
   else if (route.page === 'santa') content = <SantaPage />;
   else if (route.page === 'santa-reveal') content = <SantaReveal token={route.token} />;
+  else if (route.page === 'trivia') content = <TriviaImport token={route.token} />;
   else content = <Home />;
 
   return (
