@@ -53,6 +53,7 @@ export class RoomMedia {
         const audio = this.audio.get(key) ?? new Audio();
         audio.autoplay = true; audio.setAttribute('playsinline', ''); audio.srcObject = stream;
         this.audio.set(key, audio);
+        this.applyHearing();
         audio.play().catch(() => { this.audioBlocked = true; this.changed(); });
       }
       this.changed();
@@ -120,6 +121,19 @@ export class RoomMedia {
     stream?.getTracks().forEach((track) => { track.onended = null; track.stop(); });
     for (const key of [...this.calls.keys()]) if (key.startsWith('out:') && key.endsWith(`:${kind}`)) this.drop(key);
     this.changed();
+  }
+  /** Silence (or hear again) a person on this device only */
+  private unheard = new Set<string>();
+  hearName(name: string, on: boolean) {
+    if (on) this.unheard.delete(name);
+    else this.unheard.add(name);
+    this.applyHearing();
+  }
+  private applyHearing() {
+    for (const [key, audio] of this.audio) {
+      const peerId = key.split(':')[1];
+      audio.muted = this.unheard.has(this.members.get(peerId) ?? '');
+    }
   }
   setMuted(muted: boolean) { this.muted = muted; this.applyAllowed(); this.changed(); }
   setAllowed(allowed: boolean) { if (this.allowed !== allowed) { this.allowed = allowed; this.applyAllowed(); } }

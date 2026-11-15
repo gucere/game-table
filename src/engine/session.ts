@@ -117,6 +117,8 @@ export interface Session {
   screenStart?(): Promise<void>;
   screenStop?(): void;
   resumeAudio?(): void;
+  /** Stop (or start again) hearing someone's voice on this device */
+  hearPerson?(name: string, on: boolean): void;
   // Host / local only:
   restart?(): void;
   start?(): void;

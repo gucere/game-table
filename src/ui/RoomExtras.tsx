@@ -1,6 +1,7 @@
 /** Extras for online rooms: invite QR code, voice chat, emoji reactions, spectating, rejoining. */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import qrcode from 'qrcode-generator';
+import { useHidden } from './hidden';
 import { ClientSession, HostSession, REACTIONS } from '../engine/online';
 import { loadHostedRoom, loadLastRoom, roomOpenElsewhere, saveHostedRoom, saveLastRoom } from '../engine/rejoin';
 import type { Session, SessionSnapshot } from '../engine/session';
@@ -98,12 +99,13 @@ function Video({ stream, label, mirror }: { stream: MediaStream; label: string; 
 /** Cameras and shared screens of everyone in the call */
 export function VideoTiles({ snap }: { snap: SessionSnapshot }) {
   const t = useT();
+  const hidden = useHidden();
   const v = snap.voice;
   if (!v) return null;
   const tiles: { id: string; stream: MediaStream; label: string; mirror?: boolean }[] = [];
   if (v.localCamera) tiles.push({ id: 'me-cam', stream: v.localCamera, label: t('You'), mirror: true });
   if (v.localScreen) tiles.push({ id: 'me-screen', stream: v.localScreen, label: t('Your screen') });
-  for (const x of v.videos ?? []) tiles.push({ id: x.id, stream: x.stream, label: x.kind === 'screen' ? t('{name}’s screen', { name: x.name }) : x.name });
+  for (const x of v.videos ?? []) if (!hidden.has(x.name)) tiles.push({ id: x.id, stream: x.stream, label: x.kind === 'screen' ? t('{name}’s screen', { name: x.name }) : x.name });
   if (!tiles.length) return null;
   return (
     <div className="video-grid">

@@ -13,7 +13,7 @@ function Board(_: BoardProps<HangoutState, null>) {
     <div className="panel stack narrow center hangout">
       <p className="big">💬📞</p>
       <h2>{tx('Chat & call room')}</h2>
-      <p>{tx('Join the call with the buttons above: microphone, camera or screen sharing. Open 💬 for messages, emoji, pictures and files.')}</p>
+      <p>{tx('Join the call with the buttons above: microphone, camera or screen sharing. Open 💬 for messages and emoji (and, in private rooms, pictures and files).')}</p>
       <p className="small muted">{tx('Only people with the room code or link can come in. Fancy a game? The host can go back to the lobby and pick one.')}</p>
     </div>
   );
@@ -28,6 +28,7 @@ export const hangout: GameDef<HangoutState, null, HangoutState> = {
   maxPlayers: 12,
   hiddenInfo: false,
   onlineOnly: true,
+  openSeats: true,
   rules:
     'Open a room and share the code or link with friends. Everyone can chat (with emoji, pictures and files up to 8 MB), join the voice call, turn on their camera or share their screen. Calls go straight between browsers, so with many people it can get heavy on slower connections; screen sharing works on computers. Nothing is recorded or stored.',
   setup: () => ({ open: true }),

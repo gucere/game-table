@@ -1011,6 +1011,28 @@ a.game-card:hover {
   text-decoration: underline;
   overflow-wrap: anywhere;
 }
+.public-note {
+  margin: 0 auto 8px;
+  max-width: 760px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(42, 157, 143, 0.18);
+  text-align: center;
+}
+button.game-card.public-room {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border: 0;
+}
+.public-rules ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .video-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));

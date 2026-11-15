@@ -40,6 +40,11 @@ export function SessionScreen({ session, onLeave }: { session: Session; onLeave:
     <div className="online-room">
       <VoteBanner session={session} snap={snap} />
       {snap.reconnecting && <p className="notice center">{t('Connection lost. Reconnecting…')}</p>}
+      {snap.publicLounge && (
+        <p className="small public-note">
+          🌍 {t('Public room: anyone can come in. Be kind, keep personal details to yourself, and use Hide (in 💬 → People) for anyone you’d rather not see or hear.')}
+        </p>
+      )}
       <div className="room-tools">
         <VoiceBar session={session} snap={snap} />
         {snap.phase === 'playing' && <ReactionBar session={session} />}

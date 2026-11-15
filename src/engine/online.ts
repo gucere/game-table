@@ -32,6 +32,8 @@ const VOTE_MS = 30000;
 /** After the host reopens a room, players who don't come back within this time get a bot */
 const RETURN_GRACE_MS = 45000;
 const RECONNECT_TRIES = 20;
+/** Internal: a public room's code is already hosted by someone else */
+export const LOUNGE_TAKEN = 'lounge-taken';
 export const REACTIONS = ['👍', '😂', '😮', '😡', '👏', '🎉', '😭', '🤔'];
 
 export function makeRoomCode(random = Math.random) {
@@ -190,7 +192,11 @@ export class HostSession implements Session {
   private files = new AttachmentCache();
   private fileError?: string;
 
-  constructor(gameId: string, hostName: string, restore: HostedRoom | null = null) {
+  /** A public room: fixed code, chat and calls only, nothing saved for reopening */
+  private lounge: boolean;
+
+  constructor(gameId: string, hostName: string, restore: HostedRoom | null = null, opts: { code?: string; lounge?: boolean } = {}) {
+    this.lounge = !!opts.lounge;
     this.restoring = restore;
     this.gameId = restore?.gameId ?? gameId;
     this.hostName = cleanName(restore?.hostName ?? hostName, 'Host');
@@ -211,7 +217,7 @@ export class HostSession implements Session {
       () => this.refresh(),
     );
     this.refresh();
-    this.openPeer(0, restore?.code);
+    this.openPeer(0, restore?.code ?? opts.code);
   }
 
   private openPeer(attempt: number, code = makeRoomCode()) {
@@ -225,6 +231,8 @@ export class HostSession implements Session {
       if (this.restoring) this.finishRestore();
       else this.phase = 'lobby';
       this.refresh();
+      // Public rooms go straight to chatting
+      if (this.lounge) this.start();
     });
     peer.on('connection', (conn) => this.onConnection(conn));
     peer.on('disconnected', () => {
@@ -232,6 +240,14 @@ export class HostSession implements Session {
       if (!this.closed && !peer.destroyed) peer.reconnect();
     });
     peer.on('error', (err) => {
+      if (err.type === 'unavailable-id' && this.lounge) {
+        // Someone else is already hosting this public room: join them instead
+        peer.destroy();
+        this.phase = 'closed';
+        this.error = LOUNGE_TAKEN;
+        this.refresh();
+        return;
+      }
       if (err.type === 'unavailable-id') {
         peer.destroy();
         // Reopening: the broker may still hold the old room for a few seconds, so keep trying it
@@ -349,6 +365,10 @@ export class HostSession implements Session {
         }
         case 'file-begin': {
           if ((from < 0 && !spec) || !this.allow(conn)) return;
+          if (this.lounge) {
+            this.send(conn, { t: 'error', message: 'Pictures and files can’t be shared in public rooms.' });
+            return;
+          }
           const err = this.receiver.begin(conn.peer, msg.file);
           if (err) this.send(conn, { t: 'error', message: err });
           return;
@@ -387,6 +407,11 @@ export class HostSession implements Session {
   }
 
   async sendFile(f: File) {
+    if (this.lounge) {
+      this.fileError = 'Pictures and files can’t be shared in public rooms.';
+      this.refresh();
+      return;
+    }
     const file = cleanFileMeta({ id: newFileId(), name: f.name, size: f.size, mime: f.type || 'application/octet-stream' });
     if (!file) {
       this.fileError = 'Choose a file between 1 byte and 8 MB.';
@@ -417,8 +442,17 @@ export class HostSession implements Session {
       this.system(`${info.name} is back.`);
       return;
     }
+    // Two people with the same name get told apart: "Ayla", "Ayla 2"
+    const taken = new Set([...this.seats.map((p) => p.name), ...this.spectators.map((s) => s.name)]);
+    for (let k = 2; taken.has(name); k++) name = `${name.replace(/ \d+$/, '')} ${k}`;
     const info: PlayerInfo = { name, kind: 'remote', connected: true };
-    if (this.phase === 'lobby' && this.seats.length < this.game.maxPlayers) {
+    if (this.phase === 'playing' && this.game.openSeats && this.seats.length < this.game.maxPlayers) {
+      this.seats.push(info);
+      this.conns.push(conn);
+      this.seatIds.push(id);
+      this.seatNames.push(name);
+      if (this.runner) this.runner.players = [...this.runner.players, info];
+    } else if (this.phase === 'lobby' && this.seats.length < this.game.maxPlayers) {
       this.seats.push(info);
       this.conns.push(conn);
       this.seatIds.push(id);
@@ -485,8 +519,9 @@ export class HostSession implements Session {
   /** Remove a remote player: in the lobby the seat goes away, mid-game a bot takes over */
   private dropSeat(seat: Seat, how: 'left' | 'was voted out') {
     const name = this.seatNames[seat] ?? this.seats[seat].name;
-    if (this.phase === 'lobby') {
+    if (this.phase === 'lobby' || this.game.openSeats) {
       this.removeAt(seat);
+      if (this.runner) this.runner.players = this.runner.players.filter((_, i) => i !== seat);
       this.notice = `${name} ${how}.`;
     } else {
       this.conns[seat] = null;
@@ -730,6 +765,10 @@ export class HostSession implements Session {
     void this.voice.resumeAudio();
   }
 
+  hearPerson(name: string, on: boolean) {
+    this.voice.hearName(name, on);
+  }
+
   // ------------------------------------------------------------ state
 
   private send(conn: DataConnection, msg: ToClient) {
@@ -774,6 +813,7 @@ export class HostSession implements Session {
       voice: this.voiceState(),
       attachments: this.files.snapshot(),
       fileError: this.fileError,
+      publicLounge: this.lounge,
     };
     this.broadcast();
     this.save();
@@ -782,7 +822,7 @@ export class HostSession implements Session {
 
   /** Keep enough on this device to reopen the room after a refresh */
   private save() {
-    if (this.closed || !this.roomCode || (this.phase !== 'lobby' && this.phase !== 'playing')) return;
+    if (this.lounge || this.closed || !this.roomCode || (this.phase !== 'lobby' && this.phase !== 'playing')) return;
     saveHostedRoom({
       code: this.roomCode,
       hostName: this.hostName,
@@ -921,6 +961,7 @@ export class HostSession implements Session {
     this.files.clear();
     this.everyone().forEach((c) => this.send(c, { t: 'closed', reason: 'The host closed the room.' }));
     this.runner?.dispose();
+    if (this.lounge) saveHostedRoom(null);
     setTimeout(() => this.peer?.destroy(), 300);
   }
 }
@@ -947,10 +988,15 @@ export class ClientSession implements Session {
   private receiver = new FileReceiver();
   private files = new AttachmentCache();
 
+  /** Public room: hand over quickly if the host leaves, nothing saved for rejoining */
+  private lounge: boolean;
+
   constructor(
     private code: string,
     private name: string,
+    opts: { lounge?: boolean } = {},
   ) {
+    this.lounge = !!opts.lounge;
     this.snapshot = {
       phase: 'connecting',
       online: true,
@@ -1014,7 +1060,7 @@ export class ClientSession implements Session {
   /** Lost the host: try to get back in for a while before giving up */
   private retry() {
     if (this.left || this.snapshot.phase === 'closed' || this.retryTimer) return;
-    if (!this.everConnected || this.tries >= RECONNECT_TRIES) {
+    if (!this.everConnected || this.tries >= (this.lounge ? 1 : RECONNECT_TRIES)) {
       this.fail('Lost connection to the host.');
       return;
     }
@@ -1054,7 +1100,7 @@ export class ClientSession implements Session {
     if (msg.t === 'state') {
       clearTimeout(this.timeout);
       const s = msg.state;
-      if (!this.everConnected || this.snapshot.reconnecting) saveLastRoom({ code: this.code, name: this.name, at: Date.now() });
+      if (!this.lounge && (!this.everConnected || this.snapshot.reconnecting)) saveLastRoom({ code: this.code, name: this.name, at: Date.now() });
       this.everConnected = true;
       this.tries = 0;
       this.voicePeers = s.voice ?? [];
@@ -1077,6 +1123,7 @@ export class ClientSession implements Session {
         voice: this.voiceState(),
         reconnecting: false,
         error: undefined,
+        publicLounge: this.lounge,
       });
     } else if (msg.t === 'chat') {
       this.update({ chat: [...(this.snapshot.chat ?? []), msg.msg].slice(-CHAT_HISTORY) });
@@ -1171,6 +1218,10 @@ export class ClientSession implements Session {
 
   resumeAudio() {
     void this.voice.resumeAudio();
+  }
+
+  hearPerson(name: string, on: boolean) {
+    this.voice.hearName(name, on);
   }
 
   /** Send a picture or file to everyone in the room (through the host) */

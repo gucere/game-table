@@ -3,6 +3,7 @@ import type { ChatMsg, Session, SessionSnapshot } from '../engine/session';
 import type { Seat } from '../engine/types';
 import { useT } from '../i18n';
 import { getGame } from '../games';
+import { toggleHidden, useHidden } from './hidden';
 
 const QUICK = ['👍', '😂', '😮', '😡', '👏', 'GG', 'İyi oyunlar!'];
 
@@ -27,7 +28,9 @@ function canVoteOn(snap: SessionSnapshot, seat: Seat) {
 /** Floating chat for online rooms, with a People tab to start a vote to remove someone */
 export function ChatDock({ session, snap }: { session: Session; snap: SessionSnapshot }) {
   const t = useT();
-  const chat = snap.chat ?? [];
+  const hidden = useHidden();
+  // Hidden people's messages stay hidden on this device
+  const chat = (snap.chat ?? []).filter((m) => m.system || !hidden.has(m.name));
   const me = snap.localSeats[0];
   const game = getGame(snap.gameId);
   const chatAllowed = snap.phase !== 'playing' || !game?.canChat || !snap.views[me] || game.canChat(snap.views[me]);
@@ -223,6 +226,11 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
                   {p.kind === 'bot' && <span className="muted small"> · {t('bot')}</span>}
                   {i === me && <span className="muted small"> · {t('you')}</span>}
                 </span>
+                {i !== me && p.kind !== 'bot' && (
+                  <button className="btn ghost small" onClick={() => toggleHidden(p.name, session)} title={t('Hide their messages, video and voice on this device')}>
+                    {hidden.has(p.name) ? t('Show') : t('Hide')}
+                  </button>
+                )}
                 {canVoteOn(snap, i) && (
                   <button className="btn ghost small" onClick={() => session.startVote?.(i)}>
                     {t('Vote to remove')}

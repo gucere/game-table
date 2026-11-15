@@ -84,6 +84,8 @@ export interface GameDef<S = any, M = any, V = any> {
   onlineOnly?: boolean;
   /** Only playable on one device (fast real-time games) */
   localOnly?: boolean;
+  /** People may join and leave while it runs (chat rooms) */
+  openSeats?: boolean;
   options?: GameOption[];
   /** A game-specific options editor, shared by local setup, online rooms and the rules drawer. */
   OptionsExtra?: ComponentType<GameOptionsProps>;

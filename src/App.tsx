@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import type { Session } from './engine/session';
 import { getGame } from './games';
 import { LANGS, t, useLang, useT } from './i18n';
-import { updateSettings } from './theme/settings';
+import { getSettings, updateSettings } from './theme/settings';
 import { Home } from './ui/Home';
 import { Join } from './ui/Join';
 import { TriviaImport } from './games/trivia';
 import { SantaPage, SantaReveal } from './santa/SantaPage';
 import { RejoinBanner } from './ui/RoomExtras';
+import { PublicLounge } from './engine/lounge';
 import { SessionScreen } from './ui/SessionScreen';
 import { SettingsPage } from './ui/SettingsPage';
 import { Setup } from './ui/Setup';
@@ -84,7 +85,7 @@ export function App() {
   else if (route.page === 'santa') content = <SantaPage />;
   else if (route.page === 'santa-reveal') content = <SantaReveal token={route.token} />;
   else if (route.page === 'trivia') content = <TriviaImport token={route.token} />;
-  else content = <Home />;
+  else content = <Home onEnterPublic={(code) => setSession(new PublicLounge(code, getSettings().name))} />;
 
   return (
     <div className="app">
