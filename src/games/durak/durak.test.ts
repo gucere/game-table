@@ -36,15 +36,23 @@ function table(): D.DurakState {
 }
 
 describe('Durak Friends rules', () => {
-  it('adds a default variant while keeping both previous variants and explicit attacker choices', () => {
+  it('has two separate choices: who attacks, and whether the attack can be passed on', () => {
     const options = defaultOptions(durak);
-    expect(options.mode).toBe('friends');
-    expect(D.setup({ numPlayers: 4, random: rng(), options })).toMatchObject({ transfer: true, sideOnly: true });
-    expect(D.setup({ numPlayers: 4, random: rng() })).toMatchObject({ transfer: true, sideOnly: true });
-    expect(D.setup({ numPlayers: 4, random: rng(), options: { ...options, mode: 'transfer' } })).toMatchObject({ transfer: true, sideOnly: false });
-    expect(D.setup({ numPlayers: 4, random: rng(), options: { ...options, mode: 'throw' } })).toMatchObject({ transfer: false, sideOnly: false });
-    expect(D.setup({ numPlayers: 4, random: rng(), options: { mode: 'transfer', attackers: 'side' } })).toMatchObject({ transfer: true, sideOnly: true });
-    expect(D.setup({ numPlayers: 4, random: rng(), options: { mode: 'friends', attackers: 'all' } })).toMatchObject({ transfer: true, sideOnly: false });
+    expect(options).toEqual({ attackers: 'side', passing: 'on' });
+    const setup = (o?: Record<string, string>) => D.setup({ numPlayers: 4, random: rng(), options: o });
+    expect(setup(options)).toMatchObject({ transfer: true, sideOnly: true });
+    expect(setup()).toMatchObject({ transfer: true, sideOnly: true });
+    expect(setup({ attackers: 'all', passing: 'on' })).toMatchObject({ transfer: true, sideOnly: false });
+    expect(setup({ attackers: 'all', passing: 'off' })).toMatchObject({ transfer: false, sideOnly: false });
+    expect(setup({ attackers: 'side', passing: 'off' })).toMatchObject({ transfer: false, sideOnly: true });
+  });
+
+  it('rooms saved with the old single "variant" choice keep their rules', () => {
+    const setup = (o: Record<string, string>) => D.setup({ numPlayers: 4, random: rng(), options: o });
+    expect(setup({ mode: 'friends', attackers: 'variant' })).toMatchObject({ transfer: true, sideOnly: true });
+    expect(setup({ mode: 'transfer', attackers: 'variant' })).toMatchObject({ transfer: true, sideOnly: false });
+    expect(setup({ mode: 'throw', attackers: 'variant' })).toMatchObject({ transfer: false, sideOnly: false });
+    expect(setup({ mode: 'throw', attackers: 'variant', passing: 'on' })).toMatchObject({ transfer: false, sideOnly: false });
   });
 
   it('limits attacks to the main attacker and the defender’s other neighbor', () => {
@@ -153,12 +161,17 @@ describe('Durak Friends rules', () => {
     expect(s.hands[s.attacker]).toContain(card(s.trump, lowestTrump));
   });
 
-  for (const mode of ['friends', 'transfer', 'throw']) {
-    it(`${mode}: bots finish with 2–6 players and conserve all cards`, () => {
+  for (const [attackers, passing] of [
+    ['side', 'on'],
+    ['all', 'on'],
+    ['all', 'off'],
+    ['side', 'off'],
+  ]) {
+    it(`${attackers} attackers, passing ${passing}: bots finish with 2–6 players and conserve all cards`, () => {
       for (let n = 2; n <= 6; n++) {
         for (const seed of [3, 17, 42]) {
           const random = rng(seed);
-          let s = D.setup({ numPlayers: n, random, options: { mode } });
+          let s = D.setup({ numPlayers: n, random, options: { attackers, passing } });
           for (let step = 0; step < 5000 && !D.result(s); step++) {
             const seat = D.activePlayers(s)[0];
             if (s.phase === 'throw') expect(D.throwers(s)).toContain(seat);

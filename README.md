@@ -25,7 +25,7 @@ Free, open-source classic games that run entirely in the browser.
 - **Profiles (optional):** play as a guest like before, or make a profile on your device with a name and one of 30 ready-made avatars, or your own picture. Your picture is shrunk, kept on your device, and shown only to friends in private rooms; public rooms always show the avatar. Several people can keep their own profile on a shared device.
 - **Stats and achievements:** games played and won per game, win streaks and 21 achievements, kept on your device for each profile. A backup code copies them to another device.
 - **Friends and messages:** signed-in players get a friend code. Add friends with it, accept requests, and send each other messages (they arrive live, with a sound and a badge). Room lobbies get an "Invite a friend" button that sends the room link. Remove or block anyone; that deletes your messages with them.
-- **Finding games:** search by English or Turkish name (Turkish letters optional: "kizma" finds Kızma Birader), filter by number of players and by how you want to play (against bots, on one device, online), and 🎲 Surprise me picks one of the games shown. Tap ♡ to like a game: liked games get their own row at the top, a filter, and come first when choosing a game in a room or for game night. A "Recently played" row shows what you played last. Likes are saved with your profile and account.
+- **Finding games:** ✨ New badges on games added in the last two weeks, a length tag on every game (under 10 min, 10–30 min, 30+ min), search by English or Turkish name (Turkish letters optional: "kizma" finds Kızma Birader), filter by number of players, length, new, and by how you want to play (against bots, on one device, online), and 🎲 Surprise me picks one of the games shown. Tap ♡ to like a game: liked games get their own row at the top, a filter, and come first when choosing a game in a room or for game night. A "Recently played" row shows what you played last. Likes are saved with your profile and account.
 - **Accounts (optional):** sign in with Google or an email and password, and your profile, picture, stats and achievements follow you to every device. Devices are merged automatically. "Delete my account" on the profile page erases everything. See the privacy note on the site (`#/privacy`).
 - **Hints and Teach me:** 💡 asks the computer for a move (in words for chess, draughts, Go, Reversi, Gomoku, Four in a Row, XOX, Mangala, Bridge and Kelime Ustası), and "Play it for me" makes it. 🎓 Teach me adds tips about the position in front of you (atari in Go, a hanging piece in chess, your points in a bridge auction…). Both work on one device or against bots, not against friends online.
 - **Turn timers and rematch votes:** the host can give every turn 15 seconds to 2 minutes; when time runs out, the computer makes a simple move for that player. After a game online, anyone can ask for a rematch and it starts when most of the table agrees.
@@ -64,7 +64,7 @@ Free, open-source classic games that run entirely in the browser.
 | Satranç | 2 | ✅ | Full chess rules (castling, en passant, promotion, all draw rules); bot searches 1–3 moves deep |
 | Dama | 2 | ✅ | Turkish draughts: orthogonal moves, compulsory maximum capture, flying damas |
 | Amiral Battı | 2 | ✅ | Classic sea battle; optional extra shot on a hit |
-| Durak | 2–6 | ✅ | 36 cards. Default “Friends rules”: only the attacker and the side attacker (the player past the defender) attack, and the defender can pass the attack on with a same-rank card. Pass-on and throw-in variants as options |
+| Durak | 2–6 | ✅ | 36 cards. Two choices: who may attack (the attacker and the side attacker, i.e. the player past the defender, or everyone but the defender) and whether the defender may pass the attack on with a same-rank card. The default (two attackers, passing on) is how our friends play; everyone + no passing is classic throw-in |
 | Texas Hold'em · Five-Card Draw | 2–9 · 2–6 | ✅ | Play chips only: no-limit betting, blinds that rise, side pots |
 | Hearts · Spades | 4 | ✅ | Hearts with passing and shooting the moon; Spades in partnerships with nil and bags |
 | Briç (Bridge) | 4 | ✅ | Partnership bridge: auction with doubles and redoubles, declarer plays dummy, duplicate scoring over 1–16 boards |
@@ -163,7 +163,7 @@ Each game lives in `src/games/<name>/` and exports a `GameDef` (see `src/engine/
 - `Board`: a React component that draws the view and calls `onMove`
 - optional: `options` (difficulty, number of hands…), `timer`/`onTimer` for timed games, `onlineOnly`, `localOnly`
 
-Register it in `src/games/index.ts` (and in `SECTIONS` for the home page). Local play, online play, bots and the pass-the-device screen then work automatically. Shared helpers: `src/games/cards` (deck, card rendering) and `src/games/tiles` (Okey tiles, meld search, rack).
+Register it in `src/games/index.ts`, in `SECTIONS` (`src/games/sections.ts`) for the home page, and in `src/games/meta.ts` (how long a game takes, and the day it was added for the ✨ New badge). Local play, online play, bots and the pass-the-device screen then work automatically. Shared helpers: `src/games/cards` (deck, card rendering) and `src/games/tiles` (Okey tiles, meld search, rack).
 
 ## License
 

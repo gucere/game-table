@@ -2,6 +2,7 @@
 import type { GameDef } from '../engine/types';
 import { GAME_NAMES, GAME_TEXT_TR } from '../i18n/games';
 import { SECTIONS } from './sections';
+import { LENGTH, isNew, type Length } from './meta';
 
 export type Mode = 'any' | 'bots' | 'device' | 'online';
 
@@ -11,10 +12,14 @@ export interface Filters {
   players: number | null;
   mode: Mode;
   liked: boolean;
+  /** How long a game takes, or null for any */
+  length: Length | null;
+  /** Only games added recently */
+  fresh: boolean;
 }
 
-export const NO_FILTERS: Filters = { q: '', players: null, mode: 'any', liked: false };
-export const filtering = (f: Filters) => !!f.q.trim() || f.players !== null || f.mode !== 'any' || f.liked;
+export const NO_FILTERS: Filters = { q: '', players: null, mode: 'any', liked: false, length: null, fresh: false };
+export const filtering = (f: Filters) => !!f.q.trim() || f.players !== null || f.mode !== 'any' || f.liked || f.length !== null || f.fresh;
 
 /** Lowercase without accents, so "satranc" finds "Satranç" and "kizma" finds "Kızma" */
 export function fold(s: string): string {
@@ -74,6 +79,8 @@ export function score(g: GameDef, q: string): number {
 
 export function fits(g: GameDef, f: Filters, liked: (id: string) => boolean): boolean {
   if (f.liked && !liked(g.id)) return false;
+  if (f.length && LENGTH[g.id] !== f.length) return false;
+  if (f.fresh && !isNew(g.id)) return false;
   if (f.players !== null) {
     if (f.players >= 6 ? g.maxPlayers < 6 : f.players < g.minPlayers || f.players > g.maxPlayers) return false;
   }

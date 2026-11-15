@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { GameDef } from '../engine/types';
 import { NO_FILTERS, filtering, findGames, type Filters, type Mode } from '../games/finder';
+import { LENGTH, LENGTH_LABEL, isNew, type Length } from '../games/meta';
 import { isLiked, likedIds, recentIds } from '../profile/stats';
 import { LikeButton, useMyStats } from './LikeButton';
 import { PUBLIC_ROOMS, acceptRules, rulesAccepted } from '../engine/lounge';
@@ -83,6 +84,7 @@ function GameCard({ g }: { g: GameDef }) {
         <span className="game-icon" aria-hidden>
           {g.icon}
         </span>
+        {isNew(g.id) && <span className="new-badge">✨ {t('New')}</span>}
         <span className="game-name">
           {name}
           {aka && <span className="game-aka"> · {aka}</span>}
@@ -90,6 +92,7 @@ function GameCard({ g }: { g: GameDef }) {
         <span className="muted small">{gameTagline(g, lang)}</span>
         <span className="row">
           <span className="chip">{players(t, g.minPlayers, g.maxPlayers)}</span>
+          {LENGTH[g.id] && <span className="chip">{t(LENGTH_LABEL[LENGTH[g.id]])}</span>}
           {g.onlineOnly && <span className="chip">{t('online')}</span>}
           {g.bot && <span className="chip">{t('bots')}</span>}
         </span>
@@ -186,8 +189,19 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
               {t(m.label)}
             </button>
           ))}
+        </div>
+        <div className="row finder-chips">
+          <span className="small muted">{t('Length')}:</span>
+          {([null, 'quick', 'medium', 'long'] as (Length | null)[]).map((l) => (
+            <button key={String(l)} className={'chip-btn small-chip' + (f.length === l ? ' on' : '')} aria-pressed={f.length === l} onClick={() => update({ length: l })}>
+              {l ? t(LENGTH_LABEL[l]) : t('Any')}
+            </button>
+          ))}
           <button className={'chip-btn small-chip' + (f.liked ? ' on' : '')} aria-pressed={f.liked} onClick={() => update({ liked: !f.liked })}>
             ♥ {t('Liked')}
+          </button>
+          <button className={'chip-btn small-chip' + (f.fresh ? ' on' : '')} aria-pressed={f.fresh} onClick={() => update({ fresh: !f.fresh })}>
+            ✨ {t('New')}
           </button>
           {active && (
             <button className="btn ghost small" onClick={() => update(NO_FILTERS)}>

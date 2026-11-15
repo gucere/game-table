@@ -1257,4 +1257,14 @@ export const TR_MORE: Record<string, string> = {
   'Unlike {name}': '{name} beğenisini kaldır',
   'Like {name}': '{name} oyununu beğen',
   'Like': 'Beğen',
+  // Durak options
+  'Passing the attack on': 'Saldırıyı aktarma',
+  'Allowed (with a card of the same rank)': 'Serbest (aynı değerde bir kartla)',
+  'Not allowed': 'Yasak',
+  // New badges, lengths
+  'New': 'Yeni',
+  'Length': 'Süre',
+  '⚡ under 10 min': '⚡ 10 dk’dan kısa',
+  '⏱ 10–30 min': '⏱ 10–30 dk',
+  '⌛ 30+ min': '⌛ 30+ dk',
 };

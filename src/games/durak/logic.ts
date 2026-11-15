@@ -96,8 +96,11 @@ export function setup(ctx: Pick<GameCtx, 'numPlayers' | 'random'> & { options?: 
   const hands: Card[][] = Array.from({ length: n }, () => []);
   for (let r = 0; r < 6; r++) for (let i = 0; i < n; i++) hands[i].push(cards.pop()!);
   const trump = suitOf(trumpCard);
-  const mode = ctx.options?.mode ?? 'friends';
-  const attackers = ctx.options?.attackers ?? 'variant';
+  const o = ctx.options ?? {};
+  // Older rooms saved a single "mode" (friends / transfer / throw); read it if that's all there is
+  const legacy = o.attackers === 'variant' || (!o.attackers && !o.passing && !!o.mode);
+  const attackers = legacy ? (o.mode === 'transfer' || o.mode === 'throw' ? 'all' : 'side') : o.attackers === 'all' ? 'all' : 'side';
+  const passing = legacy || !o.passing ? (o.mode === 'throw' ? 'off' : 'on') : o.passing === 'off' ? 'off' : 'on';
   // Lowest trump starts
   let attacker: Seat = 0;
   let low = 99;
@@ -130,8 +133,8 @@ export function setup(ctx: Pick<GameCtx, 'numPlayers' | 'random'> & { options?: 
     durak: null,
     discarded: 0,
     lastBout: null,
-    transfer: mode === 'friends' || mode === 'transfer',
-    sideOnly: attackers === 'side' || (attackers === 'variant' && mode === 'friends'),
+    transfer: passing === 'on',
+    sideOnly: attackers === 'side',
   };
 }
 

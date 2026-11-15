@@ -152,28 +152,26 @@ export const durak: GameDef<L.DurakState, L.DurakMove, L.DurakView> = {
   hiddenInfo: true,
   options: [
     {
-      id: 'mode',
-      label: 'Variant',
-      default: 'friends',
-      choices: [
-        { value: 'friends', label: 'Friends rules (pass-on + side attacker)' },
-        { value: 'transfer', label: 'Pass-on (perevodnoy)' },
-        { value: 'throw', label: 'Throw-in (podkidnoy)' },
-      ],
-    },
-    {
       id: 'attackers',
       label: 'Who may attack',
-      default: 'variant',
+      default: 'side',
       choices: [
-        { value: 'variant', label: 'By variant (Friends: two attackers; others: everyone)' },
         { value: 'side', label: 'Attacker and side attacker' },
         { value: 'all', label: 'Everyone but the defender' },
       ],
     },
+    {
+      id: 'passing',
+      label: 'Passing the attack on',
+      default: 'on',
+      choices: [
+        { value: 'on', label: 'Allowed (with a card of the same rank)' },
+        { value: 'off', label: 'Not allowed' },
+      ],
+    },
   ],
   rules:
-    '36 cards (6 to Ace), 6 each. The bottom card of the deck sets trump, even when all cards are dealt. The attacker plays a card; the defender must beat it with a higher card of the same suit or any trump, or take everything. Friends rules (default): only the attacker and the side attacker (the next player still in the game after the defender) may add cards. Pass-on and Throw-in let everyone except the defender add cards; “Who may attack” can override this. Extra cards must match a rank on the table, up to 6 and no more than the defender can hold off. Friends rules and Pass-on: before beating anything, the defender may add a card of the same rank (any suit) to pass the whole attack to the next player, if they have enough cards. The player who passed becomes the attacker and the side attacker changes with the defender. Throw-in has no passing on. If all are beaten, the defender attacks next; if they take, they skip their attack. Everyone refills to 6 from the deck. When the deck runs out, players who empty their hand are safe. The last one with cards is the durak.',
+    '36 cards (6 to Ace), 6 each. The bottom card of the deck sets trump, even when all cards are dealt. The attacker plays a card; the defender must beat it with a higher card of the same suit or any trump, or take everything. Who may attack: by default only the attacker and the side attacker (the next player still in the game after the defender) may add cards; you can let everyone except the defender add cards instead. Extra cards must match a rank on the table, up to 6 and no more than the defender can hold off. Passing the attack on (allowed by default): before beating anything, the defender may add a card of the same rank (any suit) to pass the whole attack to the next player, if they have enough cards. The player who passed becomes the attacker and the side attacker changes with the defender. The default is how our friends play: two attackers and passing on allowed. Everyone attacking without passing on is the classic throw-in game. If all are beaten, the defender attacks next; if they take, they skip their attack. Everyone refills to 6 from the deck. When the deck runs out, players who empty their hand are safe. The last one with cards is the durak.',
   setup: L.setup,
   activePlayers: L.activePlayers,
   view: L.view,
