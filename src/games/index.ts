@@ -12,6 +12,12 @@ import { dokuzTas } from './dokuztas';
 import { dots } from './dots';
 import { drawGuess } from './draw-guess';
 import { durak } from './durak';
+import { garbage } from './trash';
+import { trashPile } from './trashpile';
+import { hangout } from './hangout';
+import { kemps } from './kemps';
+import { bridge } from './bridge';
+import { dostKazigi } from './dost-kazigi';
 import { fetih } from './fetih';
 import { fiveLetters } from './fiveletters';
 import { fiftyOne } from './fiftyone';
@@ -93,6 +99,12 @@ export const GAMES: GameDef[] = [
   gulbara,
   amiral,
   durak,
+  garbage,
+  trashPile,
+  hangout,
+  kemps,
+  bridge,
+  dostKazigi,
   bluff,
   vampir,
   tombala,
@@ -136,8 +148,8 @@ export function getGame(id: string): GameDef | undefined {
 }
 
 export const SECTIONS: { title: string; ids: string[] }[] = [
-  { title: 'Card games', ids: ['batak', 'esli-batak', 'balayi-batagi', '3-5-8', 'uclu-gommeli', 'king', 'pisti', 'pis-yedili', 'papaz-kacti', '51', 'konken', 'holdem', 'poker', 'hearts', 'spades', 'durak', 'bluff'] },
+  { title: 'Card games', ids: ['batak', 'esli-batak', 'balayi-batagi', '3-5-8', 'uclu-gommeli', 'king', 'pisti', 'pis-yedili', 'papaz-kacti', '51', 'konken', 'holdem', 'poker', 'bric', 'hearts', 'spades', 'kemps', 'durak', 'trash', 'garbage', 'dost-kazigi', 'bluff'] },
   { title: 'Tiles & boards', ids: ['okey', 'okey-101', 'esli-101', 'kelime-ustasi', 'backgammon', 'mahbusa', 'gul-bara', 'kizma-birader', 'fetih', 'satranc', 'dama', 'mangala', 'reversi', 'gomoku', 'dokuz-tas', 'yilan-merdiven', 'noktalar', 'amiral-batti', 'xox', 'four-in-a-row'] },
   { title: 'Party', ids: ['vampir-koylu', 'casus-kim', 'gizli-gorev', 'kelimeyi-anlat', 'iki-dogru-bir-yalan', 'kim-daha-cok', 'bilgi-yarisi', 'bes-harf', 'hafiza', 'tombala', 'isim-sehir-hayvan', 'draw-guess', 'adam-asmaca', 'generala', 'sayi-bulmaca', 'rps', 'coin-flip'] },
-  { title: 'Solo & arcade', ids: ['marti', 'uzay-savunmasi', 'hava-hokeyi', 'zeka-kupu', 'tas-yagmuru', 'yilan', 'birlestir', 'solitaire', 'sudoku', 'minesweeper', 'kelime-avi', 'nonogram', 'kakuro', 'tas-esle'] },
+  { title: 'Solo & arcade', ids: ['marti', 'uzay-savunmasi', 'hava-hokeyi', 'zeka-kupu', 'tas-yagmuru', 'yilan', 'birlestir', 'solitaire', 'sudoku', 'mayin-tarlasi', 'kelime-avi', 'nonogram', 'kakuro', 'tas-esle'] },
 ];

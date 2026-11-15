@@ -44,10 +44,10 @@ export function CustomizeButton({ game, snap, session }: { game: GameDef; snap: 
               </button>
             </div>
             <LookSections parts={lookPartsFor(game)} />
-            {!!game.options?.length && snap.phase === 'playing' && (
+            {(!!game.options?.length || !!game.OptionsExtra) && snap.phase === 'playing' && (
               <section className="stack-sm">
                 <h2 className="section-title">{t('Rules')}</h2>
-                <OptionsForm game={game} options={snap.options} readOnly={!canEditRules} onChange={(id, v) => session.setOption?.(id, v)} />
+                <OptionsForm game={game} numPlayers={snap.players.length} options={snap.options} readOnly={!canEditRules} onChange={(id, v) => session.setOption?.(id, v)} />
                 <p className="muted small">{canEditRules ? t('Rule changes apply from the next game (Play again).') : t('Only the host can change the rules.')}</p>
               </section>
             )}

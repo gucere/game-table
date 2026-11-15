@@ -1,0 +1,48 @@
+.vk-setup-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.vk-setup-heading .chip { flex-shrink: 0; }
+.vk-setup-actions {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: .65rem;
+}
+.vk-setup-actions .field { flex: 1 1 14rem; }
+.vk-role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: .65rem;
+}
+.vk-role-count {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .75rem;
+}
+.vk-role-count-text { display: grid; gap: .3rem; flex: 1; min-width: 0; }
+.vk-role-number { width: 4.5rem; flex: 0 0 4.5rem; text-align: center; }
+.vk-potions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.vk-notes { display: grid; gap: .35rem; }
+.vk-setup .rules p + p { margin-top: .6rem; }
+.vk-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: none;
+}
+.vk-stepper .vk-role-number {
+  width: 1.8rem;
+  flex: 0 0 1.8rem;
+}
+.vk-team {
+  margin: 0.4rem 0 0;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}

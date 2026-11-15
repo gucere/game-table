@@ -1,5 +1,5 @@
 /** Extras for online rooms: invite QR code, voice chat, emoji reactions, spectating, rejoining. */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import qrcode from 'qrcode-generator';
 import { ClientSession, HostSession, REACTIONS } from '../engine/online';
 import { loadHostedRoom, loadLastRoom, roomOpenElsewhere, saveHostedRoom, saveLastRoom } from '../engine/rejoin';
@@ -30,23 +30,86 @@ export function VoiceBar({ session, snap }: { session: Session; snap: SessionSna
   const v = snap.voice;
   if (!session.voiceJoin || !v) return null;
   return (
-    <div className="voice-bar">
-      {v.on ? (
-        <>
-          <button className={'btn small' + (v.muted ? '' : ' primary')} onClick={() => session.voiceMute?.(!v.muted)}>
-            {v.muted ? t('🔇 Unmute') : t('🎙 Mute')}
+    <div className="stack-sm">
+      <div className="voice-bar">
+        {v.on ? (
+          <>
+            {v.microphone ? (
+              <button className={'btn small' + (v.muted ? '' : ' primary')} onClick={() => session.voiceMute?.(!v.muted)}>
+                {v.muted ? t('🔇 Unmute') : t('🎙 Mute')}
+              </button>
+            ) : (
+              <button className="btn small" onClick={() => session.voiceJoin?.()} disabled={v.pending}>
+                🎙 {t('Turn on microphone')}
+              </button>
+            )}
+            {session.cameraStart && (
+              <button className={'btn small' + (v.camera ? ' primary' : '')} disabled={v.pending} onClick={() => (v.camera ? session.cameraStop?.() : session.cameraStart?.())}>
+                📷 {v.camera ? t('Camera off') : t('Camera on')}
+              </button>
+            )}
+            {session.screenStart && typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getDisplayMedia && (
+              <button className={'btn small' + (v.screen ? ' primary' : '')} disabled={v.pending} onClick={() => (v.screen ? session.screenStop?.() : session.screenStart?.())}>
+                🖥️ {v.screen ? t('Stop sharing') : t('Share screen')}
+              </button>
+            )}
+            <button className="btn small ghost" onClick={() => session.voiceLeave?.()}>
+              {t('Leave call')}
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="btn small" onClick={() => session.voiceJoin?.()} disabled={v.pending}>
+              {t('🎙 Join voice chat')}
+            </button>
+            {session.voiceListen && (
+              <button className="btn small ghost" onClick={() => session.voiceListen?.()}>
+                🎧 {t('Just listen')}
+              </button>
+            )}
+          </>
+        )}
+        {v.members.length > 0 && <span className="small muted">{t('In the call: {names}', { names: v.members.join(', ') })}</span>}
+        {v.audioBlocked && (
+          <button className="btn small" onClick={() => session.resumeAudio?.()}>
+            🔊 {t('Tap to hear the call')}
           </button>
-          <button className="btn small ghost" onClick={() => session.voiceLeave?.()}>
-            {t('Leave voice')}
-          </button>
-        </>
-      ) : (
-        <button className="btn small" onClick={() => session.voiceJoin?.()}>
-          {t('🎙 Join voice chat')}
-        </button>
-      )}
-      {v.members.length > 0 && <span className="small muted">{t('In voice: {names}', { names: v.members.join(', ') })}</span>}
-      {v.error && <span className="small notice">{t(v.error)}</span>}
+        )}
+        {v.error && <span className="small notice">{t(v.error)}</span>}
+      </div>
+      <VideoTiles snap={snap} />
+    </div>
+  );
+}
+
+function Video({ stream, label, mirror }: { stream: MediaStream; label: string; mirror?: boolean }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (ref.current && ref.current.srcObject !== stream) ref.current.srcObject = stream;
+  }, [stream]);
+  return (
+    <figure className="video-tile">
+      <video ref={ref} autoPlay playsInline muted style={mirror ? { transform: 'scaleX(-1)' } : undefined} />
+      <figcaption className="small">{label}</figcaption>
+    </figure>
+  );
+}
+
+/** Cameras and shared screens of everyone in the call */
+export function VideoTiles({ snap }: { snap: SessionSnapshot }) {
+  const t = useT();
+  const v = snap.voice;
+  if (!v) return null;
+  const tiles: { id: string; stream: MediaStream; label: string; mirror?: boolean }[] = [];
+  if (v.localCamera) tiles.push({ id: 'me-cam', stream: v.localCamera, label: t('You'), mirror: true });
+  if (v.localScreen) tiles.push({ id: 'me-screen', stream: v.localScreen, label: t('Your screen') });
+  for (const x of v.videos ?? []) tiles.push({ id: x.id, stream: x.stream, label: x.kind === 'screen' ? t('{name}’s screen', { name: x.name }) : x.name });
+  if (!tiles.length) return null;
+  return (
+    <div className="video-grid">
+      {tiles.map((x) => (
+        <Video key={x.id} stream={x.stream} label={x.label} mirror={x.mirror} />
+      ))}
     </div>
   );
 }

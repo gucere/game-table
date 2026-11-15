@@ -13,9 +13,9 @@ Free, open-source classic games that run entirely in the browser.
 - **Solo:** play against bots (easy / normal / hard).
 - **Same device:** pass the phone or laptop around. Games with secrets hide the screen between turns.
 - **Online:** one player hosts a room and friends join with a 6-character code. Browsers connect directly to each other (WebRTC), so there's no game server to run or pay for.
-- **Room chat:** online rooms have a chat with quick reactions, in the lobby and during games.
+- **Room chat:** online rooms have a chat with quick reactions and an emoji picker, in the lobby and during games. You can also send pictures (shown in the chat) and other files up to 8 MB; they go only to the people in the room and aren't stored anywhere.
 - **Invite by QR code:** the lobby shows a QR code of the invite link, so people around the table can scan it to join.
-- **Voice chat:** players in a room can turn on voice chat (browser to browser, nothing recorded). Everyone has a mute button.
+- **Calls:** anyone in a room can join the call with their microphone (or just listen), turn on their camera, or share their screen. It all goes browser to browser and nothing is recorded. Everyone has a mute button.
 - **Emoji reactions:** tap 👍 😂 😮 👏 and friends during a game, and they float up over the table for everyone.
 - **Spectators:** people who join after a game has started (or when the room is full) watch instead. In games with hidden cards, a spectator picks whose shoulder to watch over and sees only that player's view. They can take a seat in the next game.
 - **Rejoin after a refresh:** if your page reloads or your connection drops, you get your seat back automatically (or with one tap). If the host's page reloads, the host can reopen the room with the game still in progress, and everyone reconnects.
@@ -52,11 +52,16 @@ Free, open-source classic games that run entirely in the browser.
 | Satranç | 2 | ✅ | Full chess rules (castling, en passant, promotion, all draw rules); bot searches 1–3 moves deep |
 | Dama | 2 | ✅ | Turkish draughts: orthogonal moves, compulsory maximum capture, flying damas |
 | Amiral Battı | 2 | ✅ | Classic sea battle; optional extra shot on a hit |
-| Durak | 2–6 | ✅ | Throw-in (podkidnoy) or pass-on (perevodnoy), 36 cards |
+| Durak | 2–6 | ✅ | 36 cards. Default “Friends rules”: only the attacker and the side attacker (the player past the defender) attack, and the defender can pass the attack on with a same-rank card. Pass-on and throw-in variants as options |
 | Texas Hold'em · Five-Card Draw | 2–9 · 2–6 | ✅ | Play chips only: no-limit betting, blinds that rise, side pots |
 | Hearts · Spades | 4 | ✅ | Hearts with passing and shooting the moon; Spades in partnerships with nil and bags |
+| Briç (Bridge) | 4 | ✅ | Partnership bridge: auction with doubles and redoubles, declarer plays dummy, duplicate scoring over 1–16 boards |
+| Kemps | 4 | ✅ | Online only: swap cards to collect four of a kind; each team gets a secret signal emoji to tell their partner, and the other team tries to spot it |
+| Trash | 4 | ✅ | One card a turn onto the pile, 2 resets, 8 copies, 10 trashes the pile; face-up and face-down cards for the end game; wins counted round after round |
+| As’tan On’a (Garbage) | 2–6 | ✅ | Turn over ten face-down cards in order from Ace to Ten; jacks (or kings) are wild |
+| Dost Kazığı | 2–4 | ✅ | Traditional Turkish card game: match ranks and pass the penalty piles to your friends |
 | Bluff | 2–8 | ✅ | Claim a rank, call "Bluff!" |
-| Vampir Köylü | 4–12 | ✅ | Hidden roles (vampires, villagers, doktor, gözcü); night actions and day votes, with timers |
+| Vampir Köylü | 4–12 | ✅ | Hidden roles with night actions and day votes. 14 roles: Villager, Vampire, Doctor, Seer, Witch, Hunter, Bodyguard, Elder, Sibling, Noble, Cursed, Traitor, Jester (wins and ends the game if voted out) and Killer. The host sets how many of each, or uses the suggestion for the group size |
 | Two Truths and a Lie | 3–12 | – | Write two truths and a lie; spot the lie for a point, fool others for points |
 | Kim Daha Çok? | 3–12 | ✅ | "Who's most likely to…?" Secret votes, crowns and points for reading the room (TR/EN prompts) |
 | Casus Kim? | 3–12 | – | Online only: everyone knows the secret place except the spy. Questions, accusations, a final vote; our own list of 30 places |
@@ -80,7 +85,7 @@ Free, open-source classic games that run entirely in the browser.
 | Taş Yağmuru | 1 | – | Original falling-tile game: steer pairs of Okey tiles, clear sets and runs, chain reactions |
 | Nonogram · Kakuro · Taş Eşle | 1 | – | Generated puzzles: nonograms solvable by logic alone, kakuros checked for a unique answer, tile matching with Okey tiles (every deal can be cleared) |
 
-**Tools:** 🎅 **Secret Santa** (Yılbaşı Çekilişi): list names and emails, press the button, and everyone finds out who they're buying a present for. Nobody draws themselves, and everyone is in one big circle.
+**Tools:** 💬 **Sohbet Odası** (Chat & call room): a private room with no game, just chat, pictures and files, voice, camera and screen sharing; the host can still start any game from it. 🎅 **Secret Santa** (Yılbaşı Çekilişi): list names and emails, press the button, and everyone finds out who they're buying a present for. Nobody draws themselves, and everyone is in one big circle.
 
 Only traditional or generic games are included. Trademarked games and names are left out on purpose.
 

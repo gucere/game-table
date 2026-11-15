@@ -8,6 +8,7 @@ export class LocalSession implements Session {
   private emitter = new Emitter();
   private snapshot!: SessionSnapshot;
   private version = 0;
+  private notice: string | undefined;
   /** Rules for the next game (changed from the in-game panel) */
   private options: GameOptions;
   subscribe = this.emitter.subscribe;
@@ -39,6 +40,7 @@ export class LocalSession implements Session {
       result: r.result,
       version: ++this.version,
       options: this.options,
+      notice: this.notice,
       clockOffset: 0,
     };
     this.emitter.emit();
@@ -53,11 +55,17 @@ export class LocalSession implements Session {
 
   setOption(id: string, value: string) {
     this.options = { ...this.options, [id]: value };
+    this.notice = undefined;
     this.refresh();
   }
 
   restart() {
-    this.runner.restart(this.options);
+    this.notice = undefined;
+    const error = this.runner.restart(this.options);
+    if (error) {
+      this.notice = error;
+      this.refresh();
+    }
   }
 
   leave() {

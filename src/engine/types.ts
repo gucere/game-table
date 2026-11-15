@@ -21,6 +21,13 @@ export interface GameResult {
 
 export type GameOptions = Record<string, string>;
 
+export interface GameOptionsProps {
+  numPlayers: number;
+  options: GameOptions;
+  onChange?: (id: string, value: string) => void;
+  readOnly?: boolean;
+}
+
 /** A setting picked before the game starts (difficulty, number of hands…) */
 export interface GameOption {
   id: string;
@@ -78,6 +85,10 @@ export interface GameDef<S = any, M = any, V = any> {
   /** Only playable on one device (fast real-time games) */
   localOnly?: boolean;
   options?: GameOption[];
+  /** A game-specific options editor, shared by local setup, online rooms and the rules drawer. */
+  OptionsExtra?: ComponentType<GameOptionsProps>;
+  /** Validate the complete configuration against the current table size before starting. */
+  validateOptions?(numPlayers: number, options: GameOptions): string | null;
   /** Short rules shown under the board */
   rules?: string;
   setup(ctx: GameCtx): S;
@@ -94,6 +105,10 @@ export interface GameDef<S = any, M = any, V = any> {
   botDelay?(state: S): number;
   /** For hidden-info games: false when the current view has no secrets (skip the pass screen) */
   isPrivate?(view: V): boolean;
+  /** Whether this perspective may send room messages/reactions under the game rules. */
+  canChat?(view: V): boolean;
+  /** Explicit non-turn actions, such as a private team message during a night phase. */
+  canSubmitOutsideTurn?(state: S, seat: Seat, move: M): boolean;
   /** Host-clock timestamp when `onTimer` should fire, or null */
   timer?(state: S): number | null;
   onTimer?(state: S, ctx: GameCtx): S;

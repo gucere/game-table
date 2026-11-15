@@ -29,17 +29,21 @@ export function OptionsForm({
   options,
   onChange,
   readOnly,
+  numPlayers,
 }: {
   game: GameDef;
   options: GameOptions;
   onChange?: (id: string, value: string) => void;
   readOnly?: boolean;
+  numPlayers: number;
 }) {
   const t = useT();
-  if (!game.options?.length) return null;
+  if (!game.options?.length && !game.OptionsExtra) return null;
   return (
+    <div className="stack">
+      {game.OptionsExtra && <game.OptionsExtra numPlayers={numPlayers} options={options} onChange={onChange} readOnly={readOnly} />}
     <div className="options-grid">
-      {game.options.map((o) => (
+      {game.options?.map((o) => (
         <label className="field" key={o.id}>
           <span>{t(o.label)}</span>
           {readOnly ? (
@@ -56,6 +60,7 @@ export function OptionsForm({
         </label>
       ))}
     </div>
+    </div>
   );
 }
 
@@ -70,6 +75,7 @@ export function Setup({ gameId, onStart }: { gameId: string; onStart: (s: Sessio
   const [myName, setMyName] = useState(getSettings().name);
   const [seats, setSeats] = useState(() => defaultSeats(game, getSettings().name));
   const [options, setOptions] = useState<GameOptions>(() => defaultOptions(game));
+  const optionsError = game.validateOptions?.(seats.length, options);
 
   const patch = (i: number, p: Partial<SeatDraft>) =>
     setSeats((s) =>
@@ -83,6 +89,7 @@ export function Setup({ gameId, onStart }: { gameId: string; onStart: (s: Sessio
     );
 
   const startLocal = () => {
+    if (optionsError) return;
     const players: PlayerInfo[] = seats.map((s, i) => ({
       name: s.name.trim() || (s.kind === 'bot' ? `Bot ${i}` : t('Player {n}', { n: i + 1 })),
       kind: s.kind,
@@ -130,7 +137,7 @@ export function Setup({ gameId, onStart }: { gameId: string; onStart: (s: Sessio
 
       {mode === 'local' ? (
         <div className="stack">
-          <OptionsForm game={game} options={options} onChange={(id, v) => setOptions((o) => ({ ...o, [id]: v }))} />
+          <OptionsForm game={game} numPlayers={seats.length} options={options} onChange={(id, v) => setOptions((o) => ({ ...o, [id]: v }))} />
           {game.maxPlayers > 1 && (
             <>
               <p className="muted small">
@@ -175,7 +182,7 @@ export function Setup({ gameId, onStart }: { gameId: string; onStart: (s: Sessio
               )}
             </>
           )}
-          <button className="btn primary" onClick={startLocal}>
+          <button className="btn primary" disabled={!!optionsError} onClick={startLocal}>
             {t('Start game')}
           </button>
         </div>

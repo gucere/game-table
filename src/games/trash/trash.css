@@ -1,0 +1,5 @@
+.trash-layout { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .4rem; max-width: 30rem; }
+.trash-slot { display: grid; justify-items: center; gap: .2rem; padding: .2rem; border: 2px solid transparent; border-radius: .6rem; background: transparent; color: inherit; min-width: 0; container-type: inline-size; }
+.trash-slot:disabled { opacity: 1; cursor: default; }
+.trash-slot.can { border-color: var(--accent); cursor: pointer; }
+.trash-slot .pcard { --w: min(4.5rem, 100cqi); }

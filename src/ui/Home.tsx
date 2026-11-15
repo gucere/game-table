@@ -51,6 +51,16 @@ export function Home() {
       <section>
         <h2 className="section-title">{t('Tools')}</h2>
         <div className="game-grid">
+          <a className="game-card" href="#/game/sohbet-odasi">
+            <span className="game-icon" aria-hidden>
+              💬
+            </span>
+            <span className="game-name">{t('Chat & call room')}</span>
+            <span className="muted small">{t('A private room to chat, talk, see each other and share your screen.')}</span>
+            <span className="row">
+              <span className="chip">{t('online')}</span>
+            </span>
+          </a>
           <a className="game-card" href="#/santa">
             <span className="game-icon" aria-hidden>
               🎅

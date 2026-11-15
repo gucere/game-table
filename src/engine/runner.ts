@@ -19,9 +19,14 @@ export class GameRunner {
     public game: GameDef,
     public players: PlayerInfo[],
     options?: GameOptions,
+    restoredState?: unknown,
   ) {
     this.options = { ...defaultOptions(game), ...options };
-    this.state = game.setup(this.ctx());
+    // Saved options may describe an unfinished edit for the next game. Restoring
+    // the current game must not try to deal a new game from that draft.
+    const error = restoredState === undefined ? game.validateOptions?.(players.length, this.options) : null;
+    if (error) throw new Error(error);
+    this.state = restoredState === undefined ? game.setup(this.ctx()) : restoredState;
     this.scheduleTimer();
   }
 
@@ -60,7 +65,7 @@ export class GameRunner {
   /** Returns an error string, or null on success */
   submit(seat: Seat, move: unknown): string | null {
     if (this.result) return 'The game is over';
-    if (!this.active.includes(seat)) return 'Not your turn';
+    if (!this.active.includes(seat) && !this.game.canSubmitOutsideTurn?.(this.state, seat, move)) return 'Not your turn';
     let next: unknown;
     try {
       next = this.game.move(this.state, seat, move, this.ctx());
@@ -73,10 +78,15 @@ export class GameRunner {
     return null;
   }
 
-  restart(options?: GameOptions) {
-    if (options) this.options = { ...defaultOptions(this.game), ...options };
+  restart(options?: GameOptions): string | null {
+    const nextOptions = options ? { ...defaultOptions(this.game), ...options } : this.options;
+    const error = this.game.validateOptions?.(this.players.length, nextOptions);
+    if (error) return error;
+    const nextState = this.game.setup({ ...this.ctx(), options: nextOptions });
+    this.options = nextOptions;
     this.clearBots();
-    this.setState(this.game.setup(this.ctx()));
+    this.setState(nextState);
+    return null;
   }
 
   /** Pick up a saved game (the host reloaded the page) */

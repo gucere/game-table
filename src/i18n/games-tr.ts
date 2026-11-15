@@ -1,5 +1,13 @@
 /** Turkish taglines and rules for every game. */
 export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> = {
+  garbage: {
+    tagline: 'Kapalı kartlarını astan ona kadar sırayla aç.',
+    rules: 'On kartı iki sıra halinde kapalı diz; kimse bakamaz. Desteden çek veya kullanabileceğin açık kartı al. As birinci, sayılar kendi yuvasına gider. Vale joker görevi görür; istersen Papazı joker seçebilirsin. Yerleştirdiğin kartın altındaki kapalı kartı açıp onunla devam et. Gerçek sayı kartıyla jokerin yerini değiştirip jokeri başka kapalı yuvada kullanabilirsin. Oynayamadığın kartı atınca sıran biter. Tüm yuvalarını ilk dolduran eli kazanır, sonraki ele bir kart eksik başlar ve ilk oynar. Son tek kartlık eli kazanan maçı kazanır. Hızlı oyun altı yuvaya düşünce, tek el seçeneği ise ilk el bitince sona erer.',
+  },
+  'dost-kazigi': {
+    tagline: 'Kartları eşleştir, cezaları arkadaşlarına yükle.',
+    rules: 'Tek desteyle oynanır; ortaya dört açık kart, herkese dört kart dağıtılır. Elinde eşleşme varsa kullanmalısın: bir kartını aynı değerdeki tek bir masa kartıyla veya ceza yığınının üstündeki aynı değerli grubun tamamıyla birleştir. Grubu kendin ve kaynak yığının sahibi dışında bir oyuncuya ver. Kendi cezanı da başkasına aktarabilirsin. Hiç eşleşmen yoksa bir kartı masaya bırak. Eller boşalınca dörder kart dağıtılır. Deste bitince ceza yığınları sayılır: 3 = 30, Vale = 20, As/Kız/Papaz = 10, diğerleri sayı değeri. Masada eşleşmeden kalanlar sayılmaz. Seçilen el sayısı sonunda toplam cezası en az olan kazanır; eşitlikte zafer paylaşılır. Sıra oturma sırasıyla ilerler.',
+  },
   batak: {
     tagline: 'El için ihale yap, kozu seç, batma.',
     rules:
@@ -145,7 +153,7 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
   durak: {
     tagline: 'Rus klasiği: kartları elinde kalan son kişi olma.',
     rules:
-      '36 kart (6’dan asa), herkese 6 kart. Destenin en altındaki kart kozu belirler. Saldıran bir kart atar; savunan onu aynı renkten daha büyük bir kartla ya da herhangi bir kozla kesmeli, yoksa hepsini alır. Diğer oyuncular masada olan değerlerde kart ekleyebilir (en fazla 6). Hepsi kesilirse sıradaki saldırıyı savunan yapar; alırsa saldırı sırasını kaçırır. Herkes desteden 6’ya tamamlar. Deste bitince elini bitiren kurtulur. Kartları elinde kalan son kişi duraktır. Aktarmalı çeşitte, savunan hiçbir şey kesmeden önce aynı değerde bir kart ekleyerek saldırıyı bir sonraki oyuncuya aktarabilir (yeterli kartı varsa).',
+      '36 kart (6’dan asa), herkese 6 kart. Bütün kartlar dağıtılsa bile destenin en altındaki kart kozu belirler. Saldıran bir kart atar; savunan onu aynı renkten daha büyük bir kartla veya kozla keser, yapamazsa masadakilerin hepsini alır. Varsayılan Arkadaş kurallarında yalnızca ana saldırgan ve savunandan sonra gelen, hâlâ oyunda olan yan saldırgan kart ekleyebilir. Aktarmalı ve Kart eklemeli türlerde savunan dışındaki herkes ekleyebilir; “Kimler saldırabilir” ayarı bunu değiştirebilir. Eklenen kartın değeri masadaki bir kartla aynı olmalıdır; saldırı en fazla 6 karttır ve savunanın elindeki kart sayısını aşamaz. Arkadaş kurallarında ve Aktarmalı türde savunan, hiçbir kartı kesmeden önce aynı değerde herhangi bir renkten kart ekleyerek bütün saldırıyı sıradaki oyuncuya aktarabilir; o oyuncunun yeterli kartı olmalıdır. Aktaran oyuncu ana saldırgan olur, yan saldırgan yeni savunana göre değişir. Kart eklemeli türde aktarma yoktur. Bütün kartları kesen oyuncu sonraki saldırıyı yapar; kartları alan oyuncu ise saldırı sırasını kaçırır. Herkes desteden elini 6 karta tamamlar. Deste bitince elini boşaltan kurtulur. Elinde kart kalan son oyuncu duraktır.',
   },
   bluff: {
     tagline: 'Yüzünü bozmadan yalan söyle. Yalancıları yakala.',
@@ -155,7 +163,7 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
   'vampir-koylu': {
     tagline: 'Gizli roller, gece ısırıkları, gündüz oylamaları. Vampir kim?',
     rules:
-      'Herkese gizlice bir rol verilir. Gece: vampirler ısıracak birini seçer, Doktor bir kişiyi korur, Gözcü bir kişinin vampir olup olmadığını öğrenir, sıradan köylüler gözlerini kapatır. Gündüz: gecenin kurbanı açıklanır, sonra herkes konuşur (çevrim içinde 💬 sohbeti kullan) ve oy verir. En çok oyu alan köyden kovulur; beraberlikte kimse kovulmaz. Bütün vampirler gidince köy kazanır; vampirler diğerlerinin sayısına ulaşınca vampirler kazanır. Tek cihazda gece ve oylamada cihazı dolaştırın; çevrim içinde arkadaşlarla sesli görüşerek oynamak en iyisi.',
+      'Herkese gizlice bir rol verilir; oda sahibi her rolden kaç tane olacağını seçer (ya da oyuncu sayısına göre öneriyi kullanır). Gece vampirler bir kurban seçer, özel roller güçlerini kullanır, diğer herkes gözünü kapatır. Gündüz gecenin haberi açıklanır, herkes konuşur (çevrim içinde 💬 sohbet ya da görüşme) ve oy verir. En çok oyu alan köyden atılır; eşitlikte kimse gitmez. Bütün vampirler (ve varsa Katil) gidince köy kazanır; vampir tarafı geri kalanlar kadar olunca vampirler kazanır. Soytarı gündüz oylanıp atılırsa tek başına kazanır ve oyun biter; Katil son iki kişiden biri olursa kazanır. Her rolün gücü kurulum ekranındaki kartında yazar.',
   },
   tombala: {
     tagline: 'Yılbaşı tombalası: çinko, çinko, TOMBALA!',
@@ -217,7 +225,7 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
     tagline: 'Izgarayı doldur: her satır, sütun ve kutuda 1–9.',
     rules: 'Her satır, sütun ve 3×3’lük kutuda 1’den 9’a kadar sayılar birer kez bulunmalı. Bir kare, sonra bir sayı seç. Not modu küçük kurşun kalem işaretleri ekler. Klavye: 1–9, oklar, Backspace, notlar için N.',
   },
-  minesweeper: {
+  'mayin-tarlasi': {
     tagline: 'Mayına basmadan tarlayı temizle.',
     rules: 'Sayılar o kareye kaç mayının değdiğini gösterir. Kazanmak için her mayını bayrakla ve her güvenli kareyi aç. İlk tıklaman her zaman güvenlidir.',
   },
@@ -312,5 +320,25 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
     tagline: 'Casus dışında herkes mekânı biliyor. Sor, blöf yap, casusu bul.',
     rules:
       'Bir oyuncu, yani casus, dışında herkes aynı gizli mekânı görür; casus hiçbir şey görmez. Sırayla birbirinize mekânla ilgili sesli sorular sorun (“Burada ne giyilir?”); casusa yardım etmeyecek kadar belirsiz ama mekânı bildiğinizi gösterecek kadar net cevap verin. Herkes oyun başına bir kez birini suçlayabilir: diğer herkes kabul ederse suçlanan açıklanır. Casus yakalanırsa diğerleri kazanır; masum biri suçlanırsa casus kazanır. Casus istediği an kendini açık edip mekânı tahmin edebilir: doğruysa kazanır, yanlışsa kaybeder. Süre dolunca herkes oy verir; casus en çok oyu alırsa mekânı tahmin etmek için son bir hakkı olur. Aynı odada ya da sesli sohbet açıkken, herkes kendi telefonundan oynayın.',
+  },
+  trash: {
+    tagline: 'Dört kişi, her sıra tek kart: yığını geç, 10 ile çöpe at, ilk sen bitir.',
+    rules:
+      'Her zaman dört oyuncu (boş yerlere bot oturur) ve tek deste. Herkese 3 kapalı kart, bunların üstüne 3 açık kart ve elde 4 kart; kalan 12 kart destedir. Oyundan önce elindeki kartlarla açık kartlarını istediğin gibi değiştir, sonra Hazır’a bas. Her eli rastgele bir oyuncu başlatır. Sıra sende yığındakine eşit ya da daha büyük tam bir kart at (3 4 5 6 7 9 V K P A) ya da bütün yığını al. Özel kartlar her şeyin üstüne atılır: 2 sıfırlar (sonra her kart olur), 8 altındaki kartı kopyalar (8’lerin altına bakılır), 10 bütün yığını çöpe atar ve sıradaki yeni bir yığın başlatır. Kart attıktan sonra destede kart varsa ve elinde 3 ya da daha az kart kaldıysa bir kart çek. Elin boşalıp deste de bitince açık kartlarını oyna (uyan varsa onu; hiçbiri uymuyorsa biri gösterilir ve onunla birlikte yığını alırsın), sonra kapalı kartlarını körlemesine aç (uymazsa gösterilir ve yığını alırsın). Kartsız kalan ilk oyuncu eli kazanır. Galibiyetler her koltuk için el el sayılır.',
+  },
+  'sohbet-odasi': {
+    tagline: 'Yazışmak, konuşmak, birbirinizi görmek ve ekran paylaşmak için özel bir oda.',
+    rules:
+      'Bir oda aç ve kodu ya da bağlantıyı arkadaşlarınla paylaş. Herkes yazışabilir (emoji, en fazla 8 MB resim ve dosya), sesli görüşmeye katılabilir, kamerasını açabilir ya da ekranını paylaşabilir. Görüşmeler doğrudan tarayıcılar arasında olur; çok kişiyle yavaş bağlantılarda ağırlaşabilir; ekran paylaşımı bilgisayarlarda çalışır. Hiçbir şey kaydedilmez ya da saklanmaz.',
+  },
+  kemps: {
+    tagline: 'Dörtlüyü topla ve eşine işaret ver, diğer takım fark etmeden.',
+    rules:
+      'İkişer kişilik iki takım; eşler karşılıklı oturur. Herkesin elinde dört kart, ortada da açık dört kart var. Sıra yok: istediğin an elindeki bir kartı ortadakiyle değiştir. Ortadaki kartları kimse istemeyince herkes “Ortaya yeni kartlar”a basar ve yeni dört kart açılır. Amaç: aynı değerde dört kart. Her takıma altı işaret emojisinden biri gizlice verilir; dörtlün olduğunu eşine söylemek için onu gönder, diğerlerini şaşırtmaca olarak kullan. Eşinde dörtlü olduğunu düşünüyorsan “Kemps!” de; rakipte olduğunu düşünüyorsan ona “Dur!” de. Doğru çağrı takımına bir harf kazandırır, yanlışı diğer takıma; el her durumda biter. K-E-M-P-S kelimesini ilk tamamlayan takım kazanır. En güzeli sesli görüşme açıkken, herkes kendi telefonundan.',
+  },
+  bric: {
+    tagline: 'Klasik eşli oyun: bir kontrat deklare et, sonra tut.',
+    rules:
+      'Dört oyuncu iki eş çifti: Kuzey–Güney ile Doğu–Batı; eşler karşılıklı oturur. 52 kartın hepsi dağıtılır. Deklare: dağıtandan başlayarak herkes ya deklare yapar (altının üstünde kaç löve alınacağı, 1–7, ve koz rengi ya da Kozsuz), ya pas der, ya rakibin deklaresine kontr ya da kontra sürkontr der. Her deklare bir öncekinden yüksek olmalı (♣ < ♦ < ♥ < ♠ < NT). Bir deklareden sonra üç pas deklareyi bitirir; son deklare kontrattır. O taraftan rengi ilk söyleyen deklaranstır, eşi yerdir. Deklaransın solundaki ilk kartı atar; sonra yerin kartları açılır ve onları deklarans oynar. Renge uymak zorunludur; en büyük koz, yoksa açılan rengin en büyüğü löveyi alır. Kontratı tutan taraf puanını yazar (oyun, şlem, kontr ve fazla löve primleriyle); tutamazsa diğer taraf ceza puanı yazar. Puanlama düplike usulüdür ve eller boyunca toplanır; kırmızı 🔴 zonda olan tarafı gösterir.',
   },
 };

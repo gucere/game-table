@@ -1,4 +1,5 @@
 import type { GameOptions, GameResult, PlayerInfo, Seat } from './types';
+import type { FileMeta, LocalAttachment } from './attachments';
 
 export interface ChatMsg {
   id: number;
@@ -9,6 +10,7 @@ export interface ChatMsg {
   /** Host clock */
   time: number;
   system?: boolean;
+  attachment?: FileMeta;
 }
 
 export interface VoteInfo {
@@ -39,6 +41,16 @@ export interface VoiceState {
   on: boolean;
   muted: boolean;
   error?: string;
+  microphone?: boolean;
+  camera?: boolean;
+  screen?: boolean;
+  pending?: boolean;
+  suppressed?: boolean;
+  audioBlocked?: boolean;
+  /** Browser-local media references. Never sent as game state or persisted. */
+  localCamera?: MediaStream | null;
+  localScreen?: MediaStream | null;
+  videos?: { id: string; peerId: string; name: string; kind: 'camera' | 'screen'; stream: MediaStream }[];
 }
 
 export interface SessionSnapshot {
@@ -71,6 +83,10 @@ export interface SessionSnapshot {
   spectators?: string[];
   reactions?: Reaction[];
   voice?: VoiceState;
+  attachments?: Record<string, LocalAttachment>;
+  fileProgress?: { name: string; sent: number; total: number } | null;
+  fileError?: string;
+  publicLounge?: boolean;
   /** Lost the host for a moment and trying to get back in */
   reconnecting?: boolean;
 }
@@ -83,6 +99,8 @@ export interface Session {
   leave(): void;
   // Online only:
   sendChat?(text: string): void;
+  sendFile?(file: File): Promise<void>;
+  requestFile?(id: string): void;
   startVote?(target: Seat): void;
   castVote?(yes: boolean): void;
   react?(emoji: string): void;
@@ -93,6 +111,12 @@ export interface Session {
   voiceJoin?(): void;
   voiceLeave?(): void;
   voiceMute?(muted: boolean): void;
+  voiceListen?(): void;
+  cameraStart?(): Promise<void>;
+  cameraStop?(): void;
+  screenStart?(): Promise<void>;
+  screenStop?(): void;
+  resumeAudio?(): void;
   // Host / local only:
   restart?(): void;
   start?(): void;

@@ -18,7 +18,8 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
   const [copied, setCopied] = useState(false);
   const code = snap.roomCode ?? '';
   const n = snap.players.length;
-  const canStart = !!game && n >= game.minPlayers && n <= game.maxPlayers;
+  const optionsError = game?.validateOptions?.(n, snap.options);
+  const canStart = !!game && n >= game.minPlayers && n <= game.maxPlayers && !optionsError;
 
   const copy = async () => {
     try {
@@ -71,7 +72,7 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
         )}
       </label>
 
-      {game && <OptionsForm game={game} options={snap.options} readOnly={!snap.isHost} onChange={(id, v) => session.setOption?.(id, v)} />}
+      {game && <OptionsForm game={game} numPlayers={n} options={snap.options} readOnly={!snap.isHost} onChange={(id, v) => session.setOption?.(id, v)} />}
 
       <div>
         <p className="muted small">
@@ -123,7 +124,7 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
             </button>
           )}
           <button className="btn primary grow" disabled={!canStart} onClick={() => session.start?.()}>
-            {canStart ? t('Start game') : n < (game?.minPlayers ?? 2) ? t('Waiting for players…') : t('Too many players for this game')}
+            {n < (game?.minPlayers ?? 2) ? t('Waiting for players…') : n > (game?.maxPlayers ?? 12) ? t('Too many players for this game') : t('Start game')}
           </button>
         </div>
       ) : (

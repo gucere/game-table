@@ -6,10 +6,13 @@
  * players. The host's browser runs the rules and sends each player only the
  * view they are allowed to see.
  *
- * Also here: chat, emoji reactions, vote to remove, spectators, voice chat,
+ * Also here: chat (with pictures and files), emoji reactions, vote to remove, spectators,
+ * voice and video calls with screen sharing,
  * and getting back into a room after a refresh (guests and the host).
  */
-import { Peer, type DataConnection, type MediaConnection } from 'peerjs';
+import { Peer, type DataConnection } from 'peerjs';
+import { AttachmentCache, FileReceiver, cleanFileMeta, newFileId, sendFilePackets, type FileMeta, type FilePacket } from './attachments';
+import { RoomMedia } from './roomMedia';
 import { getGame } from '../games';
 import { holdRoom, loadHostedRoom, saveHostedRoom, saveLastRoom, type HostedRoom } from './rejoin';
 import { GameRunner } from './runner';
@@ -78,7 +81,8 @@ type ToHost =
   | { t: 'vote'; yes: boolean }
   | { t: 'follow'; seat: Seat }
   | { t: 'sit' }
-  | { t: 'voice'; on: boolean };
+  | { t: 'voice'; on: boolean }
+  | FilePacket;
 
 interface ClientState {
   phase: 'lobby' | 'playing';
@@ -105,7 +109,8 @@ type ToClient =
   | { t: 'chat'; msg: ChatMsg }
   | { t: 'chatlog'; msgs: ChatMsg[] }
   | { t: 'react'; r: Reaction }
-  | { t: 'closed'; reason: string };
+  | { t: 'closed'; reason: string }
+  | FilePacket;
 
 function peerErrorMessage(err: { type?: string; message?: string }) {
   switch (err.type) {
@@ -120,112 +125,6 @@ function peerErrorMessage(err: { type?: string; message?: string }) {
       return 'Could not reach the matchmaking server. Check your internet connection and try again.';
     default:
       return err.message || 'Connection error';
-  }
-}
-
-// ---------------------------------------------------------------- Voice
-
-/**
- * Voice chat as a mesh: everyone in the voice chat holds an audio call with everyone else.
- * Whoever joins calls the people already there; they answer automatically.
- */
-class Voice {
-  private stream: MediaStream | null = null;
-  private calls = new Map<string, MediaConnection>();
-  private audios = new Map<string, HTMLAudioElement>();
-  on = false;
-  muted = false;
-  error?: string;
-
-  constructor(
-    private peer: () => Peer | null,
-    private changed: () => void,
-  ) {}
-
-  /** Hook the peer's incoming calls (call again whenever the peer object is replaced) */
-  attach(p: Peer) {
-    p.on('call', (call) => {
-      if (!this.on || !this.stream) {
-        call.close();
-        return;
-      }
-      call.answer(this.stream);
-      this.track(call.peer, call);
-    });
-  }
-
-  async join(others: string[]): Promise<boolean> {
-    if (this.on) return true;
-    try {
-      this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
-    } catch {
-      this.error = 'Microphone access was blocked. Allow it in your browser to join voice chat.';
-      this.changed();
-      return false;
-    }
-    this.on = true;
-    this.muted = false;
-    this.error = undefined;
-    for (const id of others) this.call(id);
-    this.changed();
-    return true;
-  }
-
-  private call(id: string) {
-    const p = this.peer();
-    if (!p || !this.stream || this.calls.has(id) || id === p.id) return;
-    this.track(id, p.call(id, this.stream));
-  }
-
-  private track(id: string, call: MediaConnection) {
-    this.calls.get(id)?.close();
-    this.calls.set(id, call);
-    call.on('stream', (remote) => {
-      let audio = this.audios.get(id);
-      if (!audio) {
-        audio = new Audio();
-        audio.autoplay = true;
-        audio.setAttribute('playsinline', '');
-        this.audios.set(id, audio);
-      }
-      audio.srcObject = remote;
-      audio.play().catch(() => {
-        /* the browser may wait for the next tap to play audio */
-      });
-    });
-    call.on('close', () => this.drop(id));
-    call.on('error', () => this.drop(id));
-  }
-
-  /** Hang up on anyone who is no longer in the voice chat */
-  sync(members: string[]) {
-    for (const id of [...this.calls.keys()]) if (!members.includes(id)) this.drop(id);
-  }
-
-  private drop(id: string) {
-    const c = this.calls.get(id);
-    this.calls.delete(id);
-    c?.close();
-    const a = this.audios.get(id);
-    if (a) {
-      a.pause();
-      a.srcObject = null;
-      this.audios.delete(id);
-    }
-  }
-
-  setMuted(m: boolean) {
-    this.muted = m;
-    this.stream?.getAudioTracks().forEach((t) => (t.enabled = !m));
-    this.changed();
-  }
-
-  leave() {
-    this.on = false;
-    for (const id of [...this.calls.keys()]) this.drop(id);
-    this.stream?.getTracks().forEach((t) => t.stop());
-    this.stream = null;
-    this.changed();
   }
 }
 
@@ -284,8 +183,12 @@ export class HostSession implements Session {
   private reactionId = 0;
   /** Voice chat members: peer id → name */
   private voiceRoster = new Map<string, string>();
-  private voice: Voice;
+  private voice: RoomMedia;
   private restoring: HostedRoom | null;
+  /** Files people send in the chat: assembled here, then passed on to everyone */
+  private receiver = new FileReceiver();
+  private files = new AttachmentCache();
+  private fileError?: string;
 
   constructor(gameId: string, hostName: string, restore: HostedRoom | null = null) {
     this.restoring = restore;
@@ -303,7 +206,7 @@ export class HostSession implements Session {
       this.seatNames = [this.hostName];
     }
     this.conns = this.seats.map(() => null);
-    this.voice = new Voice(
+    this.voice = new RoomMedia(
       () => this.peer,
       () => this.refresh(),
     );
@@ -360,7 +263,7 @@ export class HostSession implements Session {
     const r = this.restoring!;
     this.restoring = null;
     if (r.phase === 'playing') {
-      this.runner = new GameRunner(this.game, [...this.seats], this.options);
+      this.runner = new GameRunner(this.game, [...this.seats], this.options, r.state);
       this.runner.onChange(() => this.refresh());
       this.runner.restoreState(r.state);
       this.phase = 'playing';
@@ -444,10 +347,56 @@ export class HostSession implements Session {
           if (err) this.send(conn, { t: 'error', message: err });
           return;
         }
+        case 'file-begin': {
+          if ((from < 0 && !spec) || !this.allow(conn)) return;
+          const err = this.receiver.begin(conn.peer, msg.file);
+          if (err) this.send(conn, { t: 'error', message: err });
+          return;
+        }
+        case 'file-chunk': {
+          const err = this.receiver.chunk(conn.peer, msg.id, msg.index, msg.bytes);
+          if (err) this.send(conn, { t: 'error', message: err });
+          return;
+        }
+        case 'file-end': {
+          const done = this.receiver.finish(conn.peer, msg.id);
+          if (!done) return;
+          const who = from >= 0 ? { seat: from as Seat | null, name: this.seats[from].name } : { seat: null, name: `👀 ${spec?.name ?? ''}` };
+          void this.shareFile(done.file, done.blob, conn, who);
+          return;
+        }
       }
     });
-    conn.on('close', () => this.onDisconnect(conn));
+    conn.on('close', () => {
+      this.receiver.clear(conn.peer);
+      this.onDisconnect(conn);
+    });
     conn.on('error', () => this.onDisconnect(conn));
+  }
+
+  /** Keep a file here, send it on to everyone else, and post it in the chat */
+  private async shareFile(file: FileMeta, blob: Blob, from: DataConnection | null, who: { seat: Seat | null; name: string }) {
+    await this.files.add(file, blob);
+    // Show it on the host's own screen too
+    if (this.snapshot) this.snapshot = { ...this.snapshot, attachments: this.files.snapshot() };
+    for (const c of this.everyone()) {
+      if (c === from) continue;
+      sendFilePackets(c, file, blob, () => !this.closed && c.open).catch(() => {});
+    }
+    this.addChat({ seat: who.seat, name: who.name, text: `📎 ${file.name}`, attachment: file });
+  }
+
+  async sendFile(f: File) {
+    const file = cleanFileMeta({ id: newFileId(), name: f.name, size: f.size, mime: f.type || 'application/octet-stream' });
+    if (!file) {
+      this.fileError = 'Choose a file between 1 byte and 8 MB.';
+      this.refresh();
+      return;
+    }
+    if (!this.allow('host')) return;
+    this.fileError = undefined;
+    await this.shareFile(file, f, null, { seat: 0, name: this.seats[0].name });
+    this.refresh();
   }
 
   private admit(conn: DataConnection, name: string, id: string | null) {
@@ -574,6 +523,7 @@ export class HostSession implements Session {
   private chatFrom(seat: Seat, text: unknown) {
     const clean = cleanChat(text);
     if (!clean || !this.seats[seat]) return;
+    if (this.runner && this.game.canChat && !this.game.canChat(this.runner.view(seat))) return;
     this.addChat({ seat, name: this.seats[seat].name, text: clean });
   }
 
@@ -598,6 +548,7 @@ export class HostSession implements Session {
 
   private addReaction(seat: Seat | null, name: string, emoji: string) {
     if (!REACTIONS.includes(emoji)) return;
+    if (seat !== null && this.runner && this.game.canChat && !this.game.canChat(this.runner.view(seat))) return;
     const r: Reaction = { id: ++this.reactionId, seat, name, emoji, time: Date.now() };
     this.reactions = [...this.reactions, r].slice(-12);
     this.everyone().forEach((c) => this.send(c, { t: 'react', r }));
@@ -730,13 +681,21 @@ export class HostSession implements Session {
 
   // ------------------------------------------------------------ voice
 
-  async voiceJoin() {
+  /** Put the host on the call list (with or without a microphone) */
+  private enterCall() {
     const myId = this.peer?.id;
     if (!myId) return;
-    if (await this.voice.join([...this.voiceRoster.keys()])) {
-      this.voiceRoster.set(myId, this.seats[0].name);
-      this.refresh();
-    }
+    this.voiceRoster.set(myId, this.seats[0].name);
+    this.refresh();
+  }
+
+  async voiceJoin() {
+    if (await this.voice.join()) this.enterCall();
+  }
+
+  voiceListen() {
+    this.voice.listen();
+    this.enterCall();
   }
 
   voiceLeave() {
@@ -747,6 +706,28 @@ export class HostSession implements Session {
 
   voiceMute(m: boolean) {
     this.voice.setMuted(m);
+  }
+
+  async cameraStart() {
+    if (!this.voice.on) this.voiceListen();
+    await this.voice.startVisual('camera');
+  }
+
+  cameraStop() {
+    this.voice.stop('camera');
+  }
+
+  async screenStart() {
+    if (!this.voice.on) this.voiceListen();
+    await this.voice.startVisual('screen');
+  }
+
+  screenStop() {
+    this.voice.stop('screen');
+  }
+
+  resumeAudio() {
+    void this.voice.resumeAudio();
   }
 
   // ------------------------------------------------------------ state
@@ -760,7 +741,7 @@ export class HostSession implements Session {
   }
 
   private voiceState(): VoiceState {
-    return { members: [...this.voiceRoster.values()], on: this.voice.on, muted: this.voice.muted, error: this.voice.error };
+    return this.voice.state();
   }
 
   private refresh() {
@@ -769,7 +750,7 @@ export class HostSession implements Session {
     const players = [...this.seats];
     const views: Record<number, unknown> = {};
     if (r) views[0] = r.view(0);
-    this.voice.sync([...this.voiceRoster.keys()]);
+    this.voice.sync([...this.voiceRoster.entries()].map(([peerId, name]) => ({ peerId, name })));
     this.snapshot = {
       phase: this.phase,
       error: this.error,
@@ -791,6 +772,8 @@ export class HostSession implements Session {
       spectators: this.spectators.map((s) => s.name),
       reactions: this.reactions,
       voice: this.voiceState(),
+      attachments: this.files.snapshot(),
+      fileError: this.fileError,
     };
     this.broadcast();
     this.save();
@@ -863,6 +846,7 @@ export class HostSession implements Session {
   setOption(id: string, value: string) {
     if (this.phase !== 'lobby' && this.phase !== 'playing') return;
     this.options = { ...this.options, [id]: value };
+    this.notice = undefined;
     this.refresh();
   }
 
@@ -888,6 +872,12 @@ export class HostSession implements Session {
     const g = this.game;
     if (this.phase !== 'lobby') return;
     if (this.seats.length < g.minPlayers || this.seats.length > g.maxPlayers || g.localOnly) return;
+    const error = g.validateOptions?.(this.seats.length, this.options);
+    if (error) {
+      this.notice = error;
+      this.refresh();
+      return;
+    }
     this.runner = new GameRunner(g, [...this.seats], this.options);
     this.runner.onChange(() => this.refresh());
     this.phase = 'playing';
@@ -898,7 +888,11 @@ export class HostSession implements Session {
 
   restart() {
     this.notice = undefined;
-    this.runner?.restart(this.options);
+    const error = this.runner?.restart(this.options);
+    if (error) {
+      this.notice = error;
+      this.refresh();
+    }
   }
 
   backToLobby() {
@@ -924,6 +918,7 @@ export class HostSession implements Session {
     saveHostedRoom(null);
     if (this.vote) clearTimeout(this.vote.timer);
     this.voice.leave();
+    this.files.clear();
     this.everyone().forEach((c) => this.send(c, { t: 'closed', reason: 'The host closed the room.' }));
     this.runner?.dispose();
     setTimeout(() => this.peer?.destroy(), 300);
@@ -947,8 +942,10 @@ export class ClientSession implements Session {
   private everConnected = false;
   private tries = 0;
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
-  private voice: Voice;
+  private voice: RoomMedia;
   private voicePeers: { peerId: string; name: string }[] = [];
+  private receiver = new FileReceiver();
+  private files = new AttachmentCache();
 
   constructor(
     private code: string,
@@ -978,7 +975,7 @@ export class ClientSession implements Session {
         this.fail('Could not connect to the room. Some networks block direct connections; try another network or a phone hotspot.');
       }
     }, CONNECT_TIMEOUT_MS);
-    this.voice = new Voice(
+    this.voice = new RoomMedia(
       () => this.peer,
       () => this.update({ voice: this.voiceState() }),
     );
@@ -1049,7 +1046,7 @@ export class ClientSession implements Session {
   }
 
   private voiceState(): VoiceState {
-    return { members: this.voicePeers.map((v) => v.name), on: this.voice.on, muted: this.voice.muted, error: this.voice.error };
+    return this.voice.state();
   }
 
   private onMessage(msg: ToClient) {
@@ -1061,7 +1058,7 @@ export class ClientSession implements Session {
       this.everConnected = true;
       this.tries = 0;
       this.voicePeers = s.voice ?? [];
-      this.voice.sync(this.voicePeers.map((v) => v.peerId));
+      this.voice.sync(this.voicePeers);
       const watching = s.spectate !== null && s.spectate !== undefined;
       this.update({
         phase: s.phase,
@@ -1091,6 +1088,13 @@ export class ClientSession implements Session {
       this.update({ notice: msg.message });
     } else if (msg.t === 'closed') {
       this.fail(msg.reason);
+    } else if (msg.t === 'file-begin') {
+      this.receiver.begin('host', msg.file);
+    } else if (msg.t === 'file-chunk') {
+      this.receiver.chunk('host', msg.id, msg.index, msg.bytes);
+    } else if (msg.t === 'file-end') {
+      const done = this.receiver.finish('host', msg.id);
+      if (done) void this.files.add(done.file, done.blob).then(() => this.update({ attachments: this.files.snapshot() }));
     }
   }
 
@@ -1130,7 +1134,12 @@ export class ClientSession implements Session {
   }
 
   async voiceJoin() {
-    if (await this.voice.join(this.voicePeers.map((v) => v.peerId))) this.sendToHost({ t: 'voice', on: true });
+    if (await this.voice.join()) this.sendToHost({ t: 'voice', on: true });
+  }
+
+  voiceListen() {
+    this.voice.listen();
+    this.sendToHost({ t: 'voice', on: true });
   }
 
   voiceLeave() {
@@ -1142,6 +1151,47 @@ export class ClientSession implements Session {
     this.voice.setMuted(m);
   }
 
+  async cameraStart() {
+    if (!this.voice.on) this.voiceListen();
+    await this.voice.startVisual('camera');
+  }
+
+  cameraStop() {
+    this.voice.stop('camera');
+  }
+
+  async screenStart() {
+    if (!this.voice.on) this.voiceListen();
+    await this.voice.startVisual('screen');
+  }
+
+  screenStop() {
+    this.voice.stop('screen');
+  }
+
+  resumeAudio() {
+    void this.voice.resumeAudio();
+  }
+
+  /** Send a picture or file to everyone in the room (through the host) */
+  async sendFile(f: File) {
+    const file = cleanFileMeta({ id: newFileId(), name: f.name, size: f.size, mime: f.type || 'application/octet-stream' });
+    const conn = this.conn;
+    if (!file || !conn?.open) {
+      this.update({ fileError: file ? 'Not connected to the room.' : 'Choose a file between 1 byte and 8 MB.' });
+      return;
+    }
+    // Our own copy shows right away
+    await this.files.add(file, f);
+    this.update({ attachments: this.files.snapshot(), fileError: undefined, fileProgress: { name: file.name, sent: 0, total: file.size } });
+    try {
+      await sendFilePackets(conn, file, f, () => !this.left && conn.open, (sent) => this.update({ fileProgress: { name: file.name, sent, total: file.size } }));
+      this.update({ fileProgress: null });
+    } catch (e) {
+      this.update({ fileProgress: null, fileError: e instanceof Error ? e.message : 'File transfer interrupted. Please try again.' });
+    }
+  }
+
   leave() {
     this.left = true;
     this.unlock();
@@ -1149,6 +1199,7 @@ export class ClientSession implements Session {
     clearTimeout(this.timeout);
     if (this.retryTimer) clearTimeout(this.retryTimer);
     this.voice.leave();
+    this.files.clear();
     this.conn?.close();
     setTimeout(() => this.peer.destroy(), 300);
   }

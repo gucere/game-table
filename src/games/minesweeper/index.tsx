@@ -68,7 +68,7 @@ function Board({ view: v, canMove, onMove }: BoardProps<L.MineView, L.MineMove>)
 }
 
 export const minesweeper: GameDef<L.MineState, L.MineMove, L.MineView> = {
-  id: 'minesweeper',
+  id: 'mayin-tarlasi',
   name: 'Mayın Tarlası',
   tagline: 'Clear the field without hitting a mine.',
   icon: '💣',

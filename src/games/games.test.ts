@@ -133,8 +133,10 @@ describe('Coin flip', () => {
 
 describe('every game', () => {
   const levels: BotLevel[] = ['easy', 'normal', 'hard'];
-  // Kelime Ustası loads its word list asynchronously; wordtiles.test.ts plays it with bots instead
-  for (const g of (GAMES as GameDef[]).filter((x) => x.bot && x.id !== 'kelime-ustasi')) {
+  // Tested with bots in their own files: Kelime Ustası (word list loads asynchronously),
+  // Trash (a table that keeps going round after round), Kemps (bots sometimes wait)
+  const ownTests = ['kelime-ustasi', 'trash', 'kemps'];
+  for (const g of (GAMES as GameDef[]).filter((x) => x.bot && !ownTests.includes(x.id))) {
     // Chess bots search deeply; play the quick level so the test stays fast
     const lv: BotLevel[] = g.id === 'satranc' ? ['easy'] : levels;
     it(`${g.name}: bots can finish a game without illegal moves`, () => {

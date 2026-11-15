@@ -1,8 +1,10 @@
 /**
- * Durak ("podkidnoy" / throw-in version), 2–6 players, 36-card deck (6..A).
- * The bottom card of the deck sets trump. Attackers lead, the defender beats each card,
- * attackers may throw in more cards of ranks already on the table (max 6, and no more
- * than the defender held). Last player holding cards is the durak (fool).
+ * Durak, 2–6 players, 36-card deck (6..A). The bottom card of the deck sets trump.
+ * The attacker leads, the defender beats each card, and attackers may throw in more cards
+ * of ranks already on the table (max 6, and no more than the defender held). By default only
+ * the attacker and the side attacker (the player on the defender's other side) may attack,
+ * and the defender may pass the attack on with a card of the same rank. Last player holding
+ * cards is the durak (fool).
  */
 import type { BotCtx, GameCtx, GameResult, Seat } from '../../engine/types';
 import { deck, rankOf, remove, shuffle, suitOf, type Card, type Suit } from '../cards/cards';
@@ -33,6 +35,8 @@ export interface DurakState {
   lastBout: { defender: Seat; took: boolean } | null;
   /** "Perevodnoy": the defender may pass the attack on with a card of the same rank */
   transfer?: boolean;
+  /** Only the attacker and the side attacker may attack (otherwise everyone but the defender) */
+  sideOnly?: boolean;
 }
 
 export interface DurakView extends Omit<DurakState, 'deck' | 'hands'> {
@@ -56,8 +60,8 @@ const nextLive = (s: { n: number; out: boolean[] }, seat: Seat, skip: Seat[] = [
   return seat;
 };
 
-/** Attackers in throw order: main attacker, then everyone else after the defender */
-export function throwers(s: Pick<DurakState, 'n' | 'out' | 'attacker' | 'defender' | 'hands'> | DurakView): Seat[] {
+/** Everyone but the defender, main attacker first, then round from the defender (refill order) */
+function others(s: Pick<DurakState, 'n' | 'out' | 'attacker' | 'defender'>): Seat[] {
   const list: Seat[] = [s.attacker];
   let t = s.defender;
   for (let k = 0; k < s.n; k++) {
@@ -67,6 +71,19 @@ export function throwers(s: Pick<DurakState, 'n' | 'out' | 'attacker' | 'defende
   return list;
 }
 
+/** The player on the defender's other side (null when that is the attacker) */
+export function sideAttacker(s: Pick<DurakState, 'n' | 'out' | 'attacker' | 'defender'>): Seat | null {
+  const side = nextLive(s, s.defender);
+  return side === s.attacker || side === s.defender ? null : side;
+}
+
+/** Who may attack, in throw order: the attacker, then the side attacker (or everyone else) */
+export function throwers(s: Pick<DurakState, 'n' | 'out' | 'attacker' | 'defender' | 'sideOnly'> | DurakView): Seat[] {
+  if (!s.sideOnly) return others(s);
+  const side = sideAttacker(s);
+  return side === null ? [s.attacker] : [s.attacker, side];
+}
+
 export function tableRanks(table: Pair[]) {
   return new Set(table.flatMap((p) => (p.d === null ? [rankOf(p.a)] : [rankOf(p.a), rankOf(p.d)])));
 }
@@ -74,10 +91,13 @@ export function tableRanks(table: Pair[]) {
 export function setup(ctx: Pick<GameCtx, 'numPlayers' | 'random'> & { options?: Record<string, string> }): DurakState {
   const n = ctx.numPlayers;
   const cards = shuffle(deck(6), ctx.random);
+  // With six players every card is dealt, including the face-up trump.
+  const trumpCard = cards[0];
   const hands: Card[][] = Array.from({ length: n }, () => []);
   for (let r = 0; r < 6; r++) for (let i = 0; i < n; i++) hands[i].push(cards.pop()!);
-  const trumpCard = cards[0];
   const trump = suitOf(trumpCard);
+  const mode = ctx.options?.mode ?? 'friends';
+  const attackers = ctx.options?.attackers ?? 'variant';
   // Lowest trump starts
   let attacker: Seat = 0;
   let low = 99;
@@ -110,7 +130,8 @@ export function setup(ctx: Pick<GameCtx, 'numPlayers' | 'random'> & { options?: 
     durak: null,
     discarded: 0,
     lastBout: null,
-    transfer: ctx.options?.mode === 'transfer',
+    transfer: mode === 'friends' || mode === 'transfer',
+    sideOnly: attackers === 'side' || (attackers === 'variant' && mode === 'friends'),
   };
 }
 
@@ -137,7 +158,7 @@ function endBout(s: DurakState): DurakState {
   else discarded += tableCards.length;
   // Draw back up to 6: attackers first, defender last
   const deckCards = s.deck.slice();
-  for (const t of [...throwers(s), s.defender]) {
+  for (const t of [...others(s), s.defender]) {
     while (hands[t].length < 6 && deckCards.length) hands[t].push(deckCards.pop()!);
   }
   const out = s.out.slice();

@@ -2041,3 +2041,140 @@
   border-radius: 14px;
   background: rgba(242, 193, 78, 0.18);
 }
+
+/* Trash */
+.tp-slots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.tp-slot {
+  position: relative;
+  display: inline-block;
+  min-width: 44px;
+  min-height: 60px;
+}
+.tp-up {
+  position: absolute;
+  left: 4px;
+  top: 6px;
+}
+.tp-pile {
+  display: flex;
+  justify-content: center;
+  min-height: 90px;
+  align-items: center;
+}
+.tp-reveal {
+  font-weight: 700;
+  color: #ffd166;
+}
+
+/* Briç */
+.br-auction {
+  border-collapse: collapse;
+  min-width: 260px;
+}
+.br-auction th,
+.br-auction td {
+  padding: 4px 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--surface-2);
+}
+.br-bidbox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+.br-bids {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(42px, 1fr));
+  gap: 4px;
+}
+.br-compass {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas: 'top top top' 'left trick right';
+  gap: 10px;
+  align-items: center;
+}
+.br-top {
+  grid-area: top;
+  justify-self: center;
+}
+.br-left {
+  grid-area: left;
+}
+.br-right {
+  grid-area: right;
+}
+.br-seat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 12px;
+}
+.br-seat.active {
+  box-shadow: 0 0 0 2px var(--accent, #f2c14e);
+}
+.br-trick {
+  grid-area: trick;
+  position: relative;
+  width: 170px;
+  height: 160px;
+}
+.br-slot {
+  position: absolute;
+}
+.br-slot-top {
+  top: 0;
+  left: 60px;
+}
+.br-slot-bottom {
+  bottom: 0;
+  left: 60px;
+}
+.br-slot-left {
+  left: 0;
+  top: 45px;
+}
+.br-slot-right {
+  right: 0;
+  top: 45px;
+}
+
+/* Kemps */
+.km-center {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.km-signals {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.km-signals button {
+  font-size: 1.5rem;
+  padding: 4px 10px;
+}
+.km-log {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.km-letters {
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.2em;
+  font-weight: 800;
+}
+.hangout .big {
+  font-size: 2.5rem;
+  margin: 0;
+}

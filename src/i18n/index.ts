@@ -10,6 +10,8 @@ import { GAME_NAMES, GAME_TEXT_TR } from './games';
 import { TR } from './tr';
 import { TR_BOARDS } from './tr-boards';
 import { TR_MORE } from './tr-more';
+import { TR_SOCIAL } from './tr-social';
+import { TR_NEW_CARDS } from './tr-new-cards';
 
 export type Lang = 'en' | 'tr';
 export const LANGS: { id: Lang; name: string; flag: string }[] = [
@@ -17,7 +19,7 @@ export const LANGS: { id: Lang; name: string; flag: string }[] = [
   { id: 'tr', name: 'Türkçe', flag: '🇹🇷' },
 ];
 
-const DICTS: Record<Lang, Record<string, string>> = { en: {}, tr: { ...TR_BOARDS, ...TR_MORE, ...TR } };
+const DICTS: Record<Lang, Record<string, string>> = { en: {}, tr: { ...TR_BOARDS, ...TR_MORE, ...TR, ...TR_SOCIAL, ...TR_NEW_CARDS } };
 
 export type Vars = Record<string, string | number | null | undefined>;
 

@@ -3,6 +3,12 @@
  * one (so "Kızma Birader" shows as "Ludo" in English, with the Turkish name beside it).
  */
 export const GAME_NAMES: Record<string, { en: string; tr: string }> = {
+  garbage: { en: 'Garbage (Ace to Ten)', tr: 'As’tan On’a' },
+  bric: { en: 'Bridge', tr: 'Briç' },
+  kemps: { en: 'Kemps', tr: 'Kemps' },
+  trash: { en: 'Trash', tr: 'Trash' },
+  'sohbet-odasi': { en: 'Chat & Call Room', tr: 'Sohbet Odası' },
+  'dost-kazigi': { en: 'Dost Kazığı', tr: 'Dost Kazığı' },
   batak: { en: 'Batak', tr: 'Batak' },
   'balayi-batagi': { en: 'Honeymoon Batak', tr: 'Balayı Batağı' },
   '3-5-8': { en: '3-5-8', tr: '3-5-8' },
@@ -51,7 +57,7 @@ export const GAME_NAMES: Record<string, { en: string; tr: string }> = {
   birlestir: { en: 'Merge', tr: 'Birleştir' },
   solitaire: { en: 'Solitaire', tr: 'Solitaire (İskambil Falı)' },
   sudoku: { en: 'Sudoku', tr: 'Sudoku' },
-  minesweeper: { en: 'Minefield', tr: 'Mayın Tarlası' },
+  'mayin-tarlasi': { en: 'Minefield', tr: 'Mayın Tarlası' },
   'kelime-avi': { en: 'Word Search', tr: 'Kelime Avı' },
   nonogram: { en: 'Nonogram', tr: 'Nonogram' },
   kakuro: { en: 'Kakuro', tr: 'Kakuro' },

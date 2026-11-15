@@ -2,8 +2,21 @@ import { useEffect, useRef, useState } from 'react';
 import type { ChatMsg, Session, SessionSnapshot } from '../engine/session';
 import type { Seat } from '../engine/types';
 import { useT } from '../i18n';
+import { getGame } from '../games';
 
 const QUICK = ['👍', '😂', '😮', '😡', '👏', 'GG', 'İyi oyunlar!'];
+
+/** The emoji picker, grouped */
+const EMOJI: [string, string][] = [
+  ['Faces', '😀 😃 😄 😁 😆 😅 🤣 😂 🙂 😉 😊 😇 🥰 😍 🤩 😘 😋 😛 😜 🤪 🤗 🤭 🤫 🤔 🤐 🤨 😐 😑 😶 😏 😒 🙄 😬 😌 😔 😪 😴 😷 🤒 🤕 🤢 🥵 🥶 😵 🤯 🤠 🥳 😎 🤓 🧐 😕 😟 🙁 😮 😯 😲 😳 🥺 😦 😧 😨 😰 😥 😢 😭 😱 😖 😣 😞 😓 😩 😫 🥱 😤 😡 😠 🤬 😈 💀 🤡 👻 👽 🤖 💩'],
+  ['Hands', '👍 👎 👏 🙌 👐 🤝 🙏 ✌️ 🤞 🤟 🤘 👌 🤌 👈 👉 👆 👇 ☝️ ✋ 🤚 👋 💪 🫶 ✍️'],
+  ['Love', '❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝'],
+  ['Games', '🎉 🎊 🏆 🥇 🥈 🥉 🎯 🎲 🃏 ♠️ ♥️ ♦️ ♣️ 🀄 ♟️ 🎮 🧩 ⚽ 🏀 🎳 🔥 ⭐ ✨ 💯 ✅ ❌ ⏳ 💤 💡 🍀'],
+  ['Food', '☕ 🍵 🧋 🍕 🍔 🍟 🌭 🥙 🍿 🍩 🍪 🎂 🍰 🍫 🍬 🍉 🍓 🍒 🍌 🍎 🥨 🧀 🍻 🥂'],
+  ['Animals', '🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🐦 🦆 🦉 🐺 🐴 🦄 🐝 🦋 🐢 🐍 🐙 🐬 🐳'],
+];
+
+const formatSize = (n: number) => (n < 1024 * 1024 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`);
 
 function canVoteOn(snap: SessionSnapshot, seat: Seat) {
   const me = snap.localSeats[0];
@@ -16,9 +29,14 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
   const t = useT();
   const chat = snap.chat ?? [];
   const me = snap.localSeats[0];
+  const game = getGame(snap.gameId);
+  const chatAllowed = snap.phase !== 'playing' || !game?.canChat || !snap.views[me] || game.canChat(snap.views[me]);
   const lastId = chat.length ? chat[chat.length - 1].id : 0;
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<'chat' | 'people'>('chat');
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const attachments = snap.attachments ?? {};
   const [text, setText] = useState('');
   const [seen, setSeen] = useState(lastId);
   const [peek, setPeek] = useState<ChatMsg | null>(null);
@@ -47,9 +65,10 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
   const unread = chat.filter((m) => m.id > seen && !m.system && m.seat !== me).length;
 
   const send = (t: string) => {
-    if (!t.trim()) return;
+    if (!t.trim() || !chatAllowed) return;
     session.sendChat?.(t);
     setText('');
+    setEmojiOpen(false);
   };
 
   if (!open) {
@@ -94,15 +113,57 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
                     {t(m.text)}
                   </p>
                 ) : (
-                  <p key={m.id} className={'chat-msg' + (m.seat === me ? ' mine' : '')}>
-                    <strong style={{ color: m.seat !== null ? `var(--p${m.seat})` : undefined }}>{m.seat === me ? t('You') : m.name}</strong> {m.text}
-                  </p>
+                  <div key={m.id} className={'chat-msg' + (m.seat === me ? ' mine' : '')}>
+                    <strong style={{ color: m.seat !== null ? `var(--p${m.seat})` : undefined }}>{m.seat === me ? t('You') : m.name}</strong>{' '}
+                    {m.attachment ? (
+                      attachments[m.attachment.id] ? (
+                        attachments[m.attachment.id].preview ? (
+                          <a href={attachments[m.attachment.id].url} target="_blank" rel="noreferrer" className="chat-image">
+                            <img src={attachments[m.attachment.id].url} alt={m.attachment.name} />
+                          </a>
+                        ) : (
+                          <a href={attachments[m.attachment.id].url} download={m.attachment.name} className="chat-file">
+                            📎 {m.attachment.name} <span className="muted small">({formatSize(m.attachment.size)})</span>
+                          </a>
+                        )
+                      ) : Date.now() - (m.time + snap.clockOffset) > 30000 ? (
+                        // Sent before this person joined (files aren't kept for latecomers)
+                        <span className="muted small">📎 {m.attachment.name} · {t('not available')}</span>
+                      ) : (
+                        <span className="muted small">📎 {m.attachment.name} · {t('receiving…')}</span>
+                      )
+                    ) : (
+                      m.text
+                    )}
+                  </div>
                 ),
               )}
             </div>
+            {snap.fileProgress && (
+              <p className="small muted chat-progress">
+                {t('Sending {name}… {p}%', { name: snap.fileProgress.name, p: Math.round((snap.fileProgress.sent / snap.fileProgress.total) * 100) })}
+              </p>
+            )}
+            {snap.fileError && <p className="small notice">{t(snap.fileError)}</p>}
+            {emojiOpen && (
+              <div className="emoji-picker" role="dialog" aria-label={t('Emoji')}>
+                {EMOJI.map(([group, list]) => (
+                  <div key={group}>
+                    <p className="small muted">{t(group)}</p>
+                    <div className="emoji-grid">
+                      {list.split(' ').map((e) => (
+                        <button key={e} type="button" onClick={() => setText((x) => (x + e).slice(0, 200))} aria-label={e}>
+                          {e}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="chat-quick">
               {QUICK.map((q) => (
-                <button key={q} onClick={() => send(q)}>
+                <button key={q} disabled={!chatAllowed} onClick={() => send(q)}>
                   {q}
                 </button>
               ))}
@@ -114,9 +175,30 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
                 send(text);
               }}
             >
+              <button type="button" className="icon-btn" aria-label={t('Emoji')} aria-expanded={emojiOpen} onClick={() => setEmojiOpen((o) => !o)} disabled={!chatAllowed}>
+                😀
+              </button>
+              {session.sendFile && (
+                <>
+                  <button type="button" className="icon-btn" aria-label={t('Send a picture or file')} title={t('Send a picture or file (up to 8 MB)')} onClick={() => fileInput.current?.click()} disabled={!chatAllowed || !!snap.fileProgress}>
+                    📎
+                  </button>
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    hidden
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      e.target.value = '';
+                      if (f) void session.sendFile?.(f);
+                    }}
+                  />
+                </>
+              )}
               <input
                 className="input"
                 value={text}
+                disabled={!chatAllowed}
                 maxLength={200}
                 placeholder={t('Message…')}
                 aria-label={t('Message…')}
@@ -125,7 +207,7 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
                 onKeyDown={(e) => e.stopPropagation()}
                 autoFocus
               />
-              <button className="btn primary small" disabled={!text.trim()}>
+              <button className="btn primary small" disabled={!text.trim() || !chatAllowed}>
                 {t('Send')}
               </button>
             </form>
