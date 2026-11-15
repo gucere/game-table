@@ -11,6 +11,7 @@ import { FIREBASE_CONFIG } from './config';
 import { AVATARS, MAX_PICTURE, currentProfile, deleteProfile, getProfile, isSafePicture, onProfilesChange, upsertProfile, avatarById, type Profile } from '../profile/profile';
 import { cleanStats, getStats, mergeStats, onStatsChange, restoreStats } from '../profile/stats';
 import { getSettings } from '../theme/settings';
+import { purgeSocial, startSocial, stopSocial } from './social';
 
 export type SyncState = 'idle' | 'saving' | 'saved' | 'offline' | 'error';
 
@@ -48,11 +49,11 @@ export const accountsEnabled = () => !!FIREBASE_CONFIG;
 
 // ---------------------------------------------------------------- Firebase, loaded on demand
 
-type Fb = Awaited<ReturnType<typeof loadFirebase>>;
+export type Fb = Awaited<ReturnType<typeof loadFirebase>>;
 let fb: Promise<Fb> | null = null;
 
 async function loadFirebase() {
-  const [{ initializeApp }, auth, store] = await Promise.all([import('firebase/app'), import('firebase/auth'), import('firebase/firestore/lite')]);
+  const [{ initializeApp }, auth, store] = await Promise.all([import('firebase/app'), import('firebase/auth'), import('firebase/firestore')]);
   const app = initializeApp(FIREBASE_CONFIG!);
   return { auth, store, a: auth.getAuth(app), db: store.getFirestore(app) };
 }
@@ -133,6 +134,15 @@ async function onUser(f: Fb, user: import('firebase/auth').User | null) {
   unsubs.forEach((u) => u());
   unsubs = [];
   if (!user) {
+    stopSocial();
+    // Signed in before, but the account is gone (deleted, or reset by the site owner):
+    // remove its copy from this device too
+    try {
+      const old = localStorage.getItem(FLAG);
+      if (old) forget(old);
+    } catch {
+      /* ignore */
+    }
     set({ status: 'signed-out', uid: undefined, email: undefined, sync: 'idle' });
     return;
   }
@@ -158,6 +168,7 @@ async function onUser(f: Fb, user: import('firebase/auth').User | null) {
     saveTimer = setTimeout(() => void push(), 2500);
   };
   unsubs = [onStatsChange(later), onProfilesChange(later)];
+  startSocial(f, user.uid);
 }
 
 async function push() {
@@ -245,6 +256,7 @@ export async function signOut() {
   const uid = state.uid;
   if (saveTimer) clearTimeout(saveTimer);
   if (uid) await push();
+  stopSocial();
   await run((f) => f.auth.signOut(f.a));
   forget(uid);
 }
@@ -265,6 +277,7 @@ export async function deleteAccount() {
   const ok = await run(async (f) => {
     const user = f.a.currentUser;
     if (!user) return;
+    await purgeSocial();
     await f.store.deleteDoc(f.store.doc(f.db, 'players', uid));
     await f.auth.deleteUser(user);
   });

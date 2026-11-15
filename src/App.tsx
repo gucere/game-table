@@ -13,6 +13,9 @@ import { SessionScreen } from './ui/SessionScreen';
 import { SettingsPage } from './ui/SettingsPage';
 import { ProfilePage } from './ui/ProfilePage';
 import { PrivacyPage } from './ui/PrivacyPage';
+import { FriendsPage } from './ui/FriendsPage';
+import { useAccount } from './account/account';
+import { useSocial } from './account/social';
 import { Avatar, Toasts } from './ui/Avatar';
 import { useProfiles } from './profile/profile';
 import { Setup } from './ui/Setup';
@@ -24,6 +27,7 @@ type Route =
   | { page: 'settings' }
   | { page: 'profile' }
   | { page: 'privacy' }
+  | { page: 'friends' }
   | { page: 'santa' }
   | { page: 'santa-reveal'; token: string }
   | { page: 'trivia'; token: string };
@@ -35,6 +39,7 @@ function parseHash(): Route {
   if (parts[0] === 'settings') return { page: 'settings' };
   if (parts[0] === 'profile') return { page: 'profile' };
   if (parts[0] === 'privacy') return { page: 'privacy' };
+  if (parts[0] === 'friends') return { page: 'friends' };
   if (parts[0] === 'trivia' && parts[1]) return { page: 'trivia', token: parts[1] };
   if (parts[0] === 'santa') return parts[1] === 'r' && parts[2] ? { page: 'santa-reveal', token: parts[2] } : { page: 'santa' };
   return { page: 'home' };
@@ -55,6 +60,19 @@ function LangSwitch() {
         </option>
       ))}
     </select>
+  );
+}
+
+function FriendsLink() {
+  const tr = useT();
+  const acct = useAccount();
+  const { unread } = useSocial();
+  if (acct.status !== 'signed-in') return null;
+  return (
+    <a href="#/friends" className="friends-link">
+      {tr('Friends')}
+      {unread > 0 && <span className="chat-badge static">{unread > 9 ? '9+' : unread}</span>}
+    </a>
   );
 }
 
@@ -104,6 +122,7 @@ export function App() {
   else if (route.page === 'settings') content = <SettingsPage />;
   else if (route.page === 'profile') content = <ProfilePage />;
   else if (route.page === 'privacy') content = <PrivacyPage />;
+  else if (route.page === 'friends') content = <FriendsPage />;
   else if (route.page === 'santa') content = <SantaPage />;
   else if (route.page === 'santa-reveal') content = <SantaReveal token={route.token} />;
   else if (route.page === 'trivia') content = <TriviaImport token={route.token} />;
@@ -127,6 +146,7 @@ export function App() {
         <nav className="topnav">
           {!session && <a href="#/join">{tr('Join a room')}</a>}
           {!session && <a href="#/settings">{tr('Customize')}</a>}
+          {!session && <FriendsLink />}
           {!session && <ProfileLink />}
           <LangSwitch />
         </nav>

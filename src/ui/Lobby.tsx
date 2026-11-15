@@ -7,6 +7,7 @@ import { QrCode } from './RoomExtras';
 import { OptionsForm } from './Setup';
 import { Avatar } from './Avatar';
 import { NightBoard, NightPicker } from './PlayExtras';
+import { InviteFriend } from './FriendsPage';
 
 function joinLink(code: string) {
   const base = window.location.href.split('#')[0];
@@ -49,6 +50,7 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
               {copied ? t('Link copied ✓') : t('Copy invite link')}
             </button>
             <span className="muted small break">{joinLink(code)}</span>
+            {!snap.publicLounge && <InviteFriend link={joinLink(code)} />}
           </div>
         )}
         {code && (

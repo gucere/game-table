@@ -1,11 +1,18 @@
 rules_version = '2';
 // Paste into Firebase console → Firestore Database → Rules, then Publish.
-// Each signed-in player can only read, write and delete their own row; everything else is closed.
+// Each player can only touch their own data. Friends can read each other's name card and,
+// while they are friends, their shared messages. Everything else is closed.
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+
+    // Private profile and stats
     match /players/{uid} {
-      allow read, delete: if request.auth != null && request.auth.uid == uid;
-      allow create, update: if request.auth != null && request.auth.uid == uid
+      allow read, delete: if signedIn() && me() == uid;
+      allow create, update: if signedIn() && me() == uid
         && request.resource.data.keys().hasOnly(['name', 'avatar', 'picture', 'stats', 'updatedAt'])
         && request.resource.data.name is string
         && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 20
@@ -14,6 +21,79 @@ service cloud.firestore {
             || (request.resource.data.picture is string && request.resource.data.picture.size() <= 20000))
         && request.resource.data.stats is map;
     }
+
+    // Friend code → player. Can be looked up one at a time, never listed.
+    match /codes/{code} {
+      allow get: if signedIn();
+      allow create: if signedIn() && code.matches('^[A-Z0-9]{6}$')
+        && request.resource.data.keys().hasOnly(['uid']) && request.resource.data.uid == me();
+      allow delete: if signedIn() && resource.data.uid == me();
+    }
+
+    // Public name card: name and avatar only
+    match /cards/{uid} {
+      allow get: if signedIn();
+      allow create, update: if signedIn() && me() == uid
+        && request.resource.data.keys().hasOnly(['name', 'avatar', 'code'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 20
+        && request.resource.data.avatar is string && request.resource.data.avatar.size() <= 20
+        && request.resource.data.code is string && request.resource.data.code.size() == 6;
+      allow delete: if signedIn() && me() == uid;
+    }
+
+    // Friendship between two players; id is "<smaller uid>_<larger uid>"
+    match /friendships/{pair} {
+      function members() { return resource.data.users; }
+
+      allow get: if signedIn() && (resource == null || me() in members());
+      allow list: if signedIn() && me() in members();
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['users', 'status', 'from', 'at', 'last', 'read'])
+        && request.resource.data.users is list && request.resource.data.users.size() == 2
+        && me() in request.resource.data.users
+        && request.resource.data.users[0] < request.resource.data.users[1]
+        && pair == request.resource.data.users[0] + '_' + request.resource.data.users[1]
+        && request.resource.data.status == 'pending'
+        && request.resource.data.from == me()
+        && request.resource.data.at == request.time
+        && request.resource.data.last == null
+        && request.resource.data.read is map && request.resource.data.read.size() == 0;
+
+      allow update: if signedIn() && me() in members() && (
+        // The other person accepts a request
+        (resource.data.status == 'pending' && me() != resource.data.from
+          && request.resource.data.status == 'accepted' && changed().hasOnly(['status']))
+        // Either one blocks the other
+        || (resource.data.status != 'blocked'
+          && request.resource.data.status == 'blocked' && request.resource.data.blockedBy == me()
+          && changed().hasOnly(['status', 'blockedBy']))
+        // Friends: last-message preview and "read up to" marks
+        || (resource.data.status == 'accepted' && changed().hasOnly(['last', 'read'])
+          && (!('last' in changed()) || (request.resource.data.last.keys().hasOnly(['from', 'text', 'at'])
+              && request.resource.data.last.from == me()
+              && request.resource.data.last.text is string && request.resource.data.last.text.size() <= 80
+              && request.resource.data.last.at == request.time))
+          && (!('read' in changed()) || request.resource.data.read.diff(resource.data.read).affectedKeys().hasOnly([me()])))
+      );
+
+      // Decline, cancel, unfriend; a block can only be lifted by the one who blocked
+      allow delete: if signedIn() && me() in members()
+        && (resource.data.status != 'blocked' || resource.data.blockedBy == me());
+
+      match /messages/{message} {
+        function parent() { return get(/databases/$(database)/documents/friendships/$(pair)).data; }
+        allow read, delete: if signedIn() && me() in parent().users;
+        allow create: if signedIn() && me() in parent().users && parent().status == 'accepted'
+          && request.resource.data.keys().hasOnly(['from', 'text', 'at'])
+          && request.resource.data.from == me()
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 500
+          && request.resource.data.at == request.time;
+      }
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

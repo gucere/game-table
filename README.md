@@ -24,6 +24,7 @@ Free, open-source classic games that run entirely in the browser.
 - **Two languages:** English and Türkçe (switch at the top right; Turkish browsers start in Turkish). Every game shows its international name too, e.g. "Kızma Birader · Ludo". Adding a language is one dictionary file in `src/i18n`.
 - **Profiles (optional):** play as a guest like before, or make a profile on your device with a name and one of 30 ready-made avatars, or your own picture. Your picture is shrunk, kept on your device, and shown only to friends in private rooms; public rooms always show the avatar. Several people can keep their own profile on a shared device.
 - **Stats and achievements:** games played and won per game, win streaks and 21 achievements, kept on your device for each profile. A backup code copies them to another device.
+- **Friends and messages:** signed-in players get a friend code. Add friends with it, accept requests, and send each other messages (they arrive live, with a sound and a badge). Room lobbies get an "Invite a friend" button that sends the room link. Remove or block anyone; that deletes your messages with them.
 - **Accounts (optional):** sign in with Google or an email and password, and your profile, picture, stats and achievements follow you to every device. Devices are merged automatically. "Delete my account" on the profile page erases everything. See the privacy note on the site (`#/privacy`).
 - **Hints and Teach me:** 💡 asks the computer for a move (in words for chess, draughts, Go, Reversi, Gomoku, Four in a Row, XOX, Mangala, Bridge and Kelime Ustası), and "Play it for me" makes it. 🎓 Teach me adds tips about the position in front of you (atari in Go, a hanging piece in chess, your points in a bridge auction…). Both work on one device or against bots, not against friends online.
 - **Turn timers and rematch votes:** the host can give every turn 15 seconds to 2 minutes; when time runs out, the computer makes a simple move for that player. After a game online, anyone can ask for a rematch and it starts when most of the table agrees.
@@ -140,7 +141,7 @@ To set up your own:
 2. **Security → Authentication → Get started → Sign-in method:** turn on **Google** and **Email/Password** (leave "Email link" off: the free plan only sends 5 of those a day).
 3. **Authentication → Settings → Authorized domains:** add your site's domain (e.g. `gucere.github.io`).
 4. **Databases & Storage → Firestore Database → Create database:** Standard edition, location `europe-west3` (Frankfurt), production mode.
-5. **Firestore → Rules:** paste [`firebase/firestore.rules`](firebase/firestore.rules) and **Publish**. Each player can only read, change and delete their own row.
+5. **Firestore → Rules:** paste [`firebase/firestore.rules`](firebase/firestore.rules) and **Publish** (again whenever that file changes). Each player can only touch their own data; friends can read each other's name card and their shared messages, nothing else.
 6. **Project Overview → Add app → Web:** copy the `firebaseConfig` values into `src/account/config.ts`. They are public by design; the rules protect the data.
 
 Free limits are far above what a group of friends needs (about 50,000 database reads and 20,000 writes a day). If they're ever reached, syncing waits until the next day and the games keep working.
