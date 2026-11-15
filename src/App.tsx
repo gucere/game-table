@@ -12,6 +12,7 @@ import { PublicLounge } from './engine/lounge';
 import { SessionScreen } from './ui/SessionScreen';
 import { SettingsPage } from './ui/SettingsPage';
 import { ProfilePage } from './ui/ProfilePage';
+import { PrivacyPage } from './ui/PrivacyPage';
 import { Avatar, Toasts } from './ui/Avatar';
 import { useProfiles } from './profile/profile';
 import { Setup } from './ui/Setup';
@@ -22,6 +23,7 @@ type Route =
   | { page: 'join'; code: string }
   | { page: 'settings' }
   | { page: 'profile' }
+  | { page: 'privacy' }
   | { page: 'santa' }
   | { page: 'santa-reveal'; token: string }
   | { page: 'trivia'; token: string };
@@ -32,6 +34,7 @@ function parseHash(): Route {
   if (parts[0] === 'join') return { page: 'join', code: parts[1] ?? '' };
   if (parts[0] === 'settings') return { page: 'settings' };
   if (parts[0] === 'profile') return { page: 'profile' };
+  if (parts[0] === 'privacy') return { page: 'privacy' };
   if (parts[0] === 'trivia' && parts[1]) return { page: 'trivia', token: parts[1] };
   if (parts[0] === 'santa') return parts[1] === 'r' && parts[2] ? { page: 'santa-reveal', token: parts[2] } : { page: 'santa' };
   return { page: 'home' };
@@ -100,6 +103,7 @@ export function App() {
   else if (route.page === 'join') content = <Join key={route.code} initialCode={route.code} onJoin={setSession} />;
   else if (route.page === 'settings') content = <SettingsPage />;
   else if (route.page === 'profile') content = <ProfilePage />;
+  else if (route.page === 'privacy') content = <PrivacyPage />;
   else if (route.page === 'santa') content = <SantaPage />;
   else if (route.page === 'santa-reveal') content = <SantaReveal token={route.token} />;
   else if (route.page === 'trivia') content = <TriviaImport token={route.token} />;
@@ -139,6 +143,8 @@ export function App() {
           <a href="https://github.com/gucere/game-table" target="_blank" rel="noreferrer">
             {tr('Source code on GitHub')}
           </a>
+          {' · '}
+          <a href="#/privacy">{tr('Privacy')}</a>
         </p>
       </footer>
     </div>

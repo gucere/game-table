@@ -184,6 +184,64 @@ export function recordNight(): AchievementDef[] {
   return unlocked;
 }
 
+export function onStatsChange(fn: () => void) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+const newest = (s: Stats) => Math.max(0, ...Object.values(s.games).map((g) => g.last));
+
+/**
+ * Combines the stats of one person kept on two devices. Counters take the larger value and
+ * achievements and days are joined, so merging the same data again changes nothing.
+ */
+export function mergeStats(a: Stats, b: Stats): Stats {
+  const games: Record<string, GameStat> = {};
+  for (const id of new Set([...Object.keys(a.games), ...Object.keys(b.games)])) {
+    const x = a.games[id];
+    const y = b.games[id];
+    if (!x || !y) {
+      games[id] = { ...(x ?? y)! };
+      continue;
+    }
+    const later = x.last >= y.last ? x : y;
+    games[id] = { played: Math.max(x.played, y.played), won: Math.max(x.won, y.won), drawn: Math.max(x.drawn, y.drawn), streak: later.streak, best: Math.max(x.best, y.best), last: later.last };
+  }
+  const achievements: Record<string, number> = { ...b.achievements };
+  for (const [k, t] of Object.entries(a.achievements)) achievements[k] = achievements[k] ? Math.min(achievements[k], t) : t;
+  const max = (k: 'bestStreak' | 'online' | 'hardWins' | 'bigTables' | 'nights' | 'hintsUsed') => Math.max(a[k] ?? 0, b[k] ?? 0);
+  return {
+    games,
+    streak: (newest(a) >= newest(b) ? a : b).streak,
+    bestStreak: max('bestStreak'),
+    days: [...new Set([...a.days, ...b.days])].sort().slice(-60),
+    online: max('online'),
+    hardWins: max('hardWins'),
+    bigTables: max('bigTables'),
+    nights: max('nights'),
+    hintsUsed: max('hintsUsed'),
+    achievements,
+  };
+}
+
+/** Clean stats from outside (the account database): wrong shapes become empty */
+export function cleanStats(raw: unknown): Stats {
+  const s = emptyStats();
+  if (!raw || typeof raw !== 'object') return s;
+  const r = raw as Partial<Stats>;
+  const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.floor(v) : 0);
+  if (r.games && typeof r.games === 'object')
+    for (const [id, g] of Object.entries(r.games).slice(0, 300)) {
+      if (!g || typeof g !== 'object') continue;
+      s.games[id.slice(0, 40)] = { played: num(g.played), won: num(g.won), drawn: num(g.drawn), streak: num(g.streak), best: num(g.best), last: num(g.last) };
+    }
+  for (const k of ['streak', 'bestStreak', 'online', 'hardWins', 'bigTables', 'nights', 'hintsUsed'] as const) s[k] = num(r[k]);
+  if (Array.isArray(r.days)) s.days = r.days.filter((d) => typeof d === 'string' && /^\d{4}-\d\d-\d\d$/.test(d)).slice(-60);
+  if (r.achievements && typeof r.achievements === 'object')
+    for (const [k, t] of Object.entries(r.achievements)) if (ACHIEVEMENTS.some((a) => a.id === k)) s.achievements[k] = num(t) || Date.now();
+  return s;
+}
+
 export function resetStats(owner = statsOwner()) {
   write(owner, emptyStats());
 }

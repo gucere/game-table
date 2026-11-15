@@ -5,6 +5,7 @@ import { AVATARS, MAX_PROFILES, deleteProfile, newProfileId, resizePicture, save
 import { ACHIEVEMENTS, backupCode, readBackup, resetStats, restoreStats, useStats } from '../profile/stats';
 import { useSettings } from '../theme/settings';
 import { Avatar } from './Avatar';
+import { AccountPanel } from './AccountPanel';
 
 function Editor({ start, onDone }: { start: Profile; onDone: () => void }) {
   const t = useT();
@@ -67,7 +68,7 @@ function Editor({ start, onDone }: { start: Profile; onDone: () => void }) {
         <button className="btn ghost" onClick={onDone}>
           {t('Cancel')}
         </button>
-        {!isNew && (
+        {!isNew && !start.account && (
           <button
             className="btn ghost danger"
             onClick={() => {
@@ -136,12 +137,14 @@ export function ProfilePage() {
       </a>
       <h1>{t('Profile')}</h1>
 
+      <AccountPanel />
+
       <section className="stack-sm">
         <div className="row profile-now">
           <Avatar name={me?.name ?? settings.name ?? '?'} avatar={me?.avatar} picture={me?.picture} size={56} />
           <div className="grow">
             <strong>{me ? me.name : t('Guest')}</strong>
-            <p className="small muted">{me ? t('Your stats and achievements are saved with this profile on this device.') : t('You’re playing as a guest. Make a profile to get an avatar and keep your stats apart from others on this device.')}</p>
+            <p className="small muted">{me?.account ? t('Your profile, picture, stats and achievements are saved to your account and come with you to every device where you sign in.') : me ? t('Your stats and achievements are saved with this profile on this device.') : t('You’re playing as a guest. Make a profile to get an avatar and keep your stats apart from others on this device.')}</p>
           </div>
           {me && !editing && (
             <button className="btn small" onClick={() => setEditing(me)}>
@@ -160,6 +163,7 @@ export function ProfilePage() {
             {profiles.map((p) => (
               <button key={p.id} className={'chip-btn' + (p.id === current ? ' on' : '')} onClick={() => switchProfile(p.id)}>
                 <Avatar name={p.name} avatar={p.avatar} picture={p.picture} size={22} /> {p.name}
+                {p.account && <span aria-label={t('Account')}> ☁️</span>}
               </button>
             ))}
             {profiles.length < MAX_PROFILES && (

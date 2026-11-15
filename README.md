@@ -4,7 +4,7 @@ Free, open-source classic games that run entirely in the browser.
 
 **Play:** https://gucere.github.io/game-table/
 
-> **Not for profit.** This is a just-for-fun project: no ads, no accounts, no payments, no tracking. Anyone is welcome to play it, share it, fork it and use the code.
+> **Not for profit.** This is a just-for-fun project: no ads, no payments, no tracking, and accounts are optional. Anyone is welcome to play it, share it, fork it and use the code.
 >
 > **Vibe-coded.** The whole thing was built by chatting with an AI coding assistant (Claude) rather than written line by line by hand. It's tested, but expect the odd rough edge, and bug reports or fixes are welcome.
 >
@@ -24,6 +24,7 @@ Free, open-source classic games that run entirely in the browser.
 - **Two languages:** English and Türkçe (switch at the top right; Turkish browsers start in Turkish). Every game shows its international name too, e.g. "Kızma Birader · Ludo". Adding a language is one dictionary file in `src/i18n`.
 - **Profiles (optional):** play as a guest like before, or make a profile on your device with a name and one of 30 ready-made avatars, or your own picture. Your picture is shrunk, kept on your device, and shown only to friends in private rooms; public rooms always show the avatar. Several people can keep their own profile on a shared device.
 - **Stats and achievements:** games played and won per game, win streaks and 21 achievements, kept on your device for each profile. A backup code copies them to another device.
+- **Accounts (optional):** sign in with Google or an email and password, and your profile, picture, stats and achievements follow you to every device. Devices are merged automatically. "Delete my account" on the profile page erases everything. See the privacy note on the site (`#/privacy`).
 - **Hints and Teach me:** 💡 asks the computer for a move (in words for chess, draughts, Go, Reversi, Gomoku, Four in a Row, XOX, Mangala, Bridge and Kelime Ustası), and "Play it for me" makes it. 🎓 Teach me adds tips about the position in front of you (atari in Go, a hanging piece in chess, your points in a bridge auction…). Both work on one device or against bots, not against friends online.
 - **Turn timers and rematch votes:** the host can give every turn 15 seconds to 2 minutes; when time runs out, the computer makes a simple move for that player. After a game online, anyone can ask for a rematch and it starts when most of the table agrees.
 - **Game night:** pick a few games that fit your table and play them in a row with one scoreboard (3 points a win, 1 a draw). Works on one device and online.
@@ -128,6 +129,21 @@ To send every email automatically with one button, deploy the small Google Apps 
 3. Copy the web app URL (`https://script.google.com/macros/s/…/exec`) into `SANTA_MAIL_URL` in `src/santa/config.ts` and push. The **Draw and email everyone** button appears.
 
 Limits: 3–40 people per draw, names and messages can't contain links, at most 120 emails an hour across the whole site, and Google's own quota (about 100 emails a day for a free account).
+
+## Accounts (Firebase, free)
+
+Accounts use a free Firebase project (Spark plan, no card). Its settings are in `src/account/config.ts`; set `FIREBASE_CONFIG` to `null` to turn accounts off. The site loads Firebase only on the profile page or for someone who is signed in.
+
+To set up your own:
+
+1. [console.firebase.google.com](https://console.firebase.google.com): create a project (Google Analytics off). Stay on the free Spark plan.
+2. **Security → Authentication → Get started → Sign-in method:** turn on **Google** and **Email/Password** (leave "Email link" off: the free plan only sends 5 of those a day).
+3. **Authentication → Settings → Authorized domains:** add your site's domain (e.g. `gucere.github.io`).
+4. **Databases & Storage → Firestore Database → Create database:** Standard edition, location `europe-west3` (Frankfurt), production mode.
+5. **Firestore → Rules:** paste [`firebase/firestore.rules`](firebase/firestore.rules) and **Publish**. Each player can only read, change and delete their own row.
+6. **Project Overview → Add app → Web:** copy the `firebaseConfig` values into `src/account/config.ts`. They are public by design; the rules protect the data.
+
+Free limits are far above what a group of friends needs (about 50,000 database reads and 20,000 writes a day). If they're ever reached, syncing waits until the next day and the games keep working.
 
 ## How online play works
 

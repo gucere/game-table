@@ -56,6 +56,8 @@ export interface Profile {
   /** Your own picture, small JPEG as a data URL. Shown only in private rooms. */
   picture?: string;
   createdAt: number;
+  /** Set for the profile of a signed-in account (its email): synced across devices */
+  account?: string;
 }
 
 interface Store {
@@ -121,10 +123,27 @@ export function newProfileId() {
 export function saveProfile(p: Profile) {
   const clean: Profile = { ...p, name: p.name.trim().slice(0, 20) || 'Player', picture: p.picture && p.picture.length <= MAX_PICTURE ? p.picture : undefined };
   const exists = store.profiles.some((x) => x.id === p.id);
-  const profiles = exists ? store.profiles.map((x) => (x.id === p.id ? clean : x)) : [...store.profiles, clean].slice(0, MAX_PROFILES);
+  const profiles = exists ? store.profiles.map((x) => (x.id === p.id ? { ...clean, account: x.account } : x)) : [...store.profiles, clean].slice(0, MAX_PROFILES);
   save({ profiles, current: clean.id });
   // The name is what other players see online
   if (getSettings().name !== clean.name) updateSettings({ name: clean.name });
+}
+
+/** Adds or replaces a profile without touching the online name unless it becomes current */
+export function upsertProfile(p: Profile, makeCurrent: boolean) {
+  const exists = store.profiles.some((x) => x.id === p.id);
+  const profiles = exists ? store.profiles.map((x) => (x.id === p.id ? p : x)) : [...store.profiles, p];
+  save({ profiles, current: makeCurrent ? p.id : store.current });
+  if (makeCurrent && getSettings().name !== p.name) updateSettings({ name: p.name });
+}
+
+export function getProfile(id: string) {
+  return store.profiles.find((p) => p.id === id) ?? null;
+}
+
+export function onProfilesChange(fn: () => void) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
 }
 
 export function switchProfile(id: string | null) {
