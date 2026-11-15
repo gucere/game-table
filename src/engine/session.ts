@@ -1,5 +1,6 @@
 import type { GameOptions, GameResult, PlayerInfo, Seat } from './types';
 import type { FileMeta, LocalAttachment } from './attachments';
+import type { NightState } from './night';
 
 export interface ChatMsg {
   id: number;
@@ -89,6 +90,13 @@ export interface SessionSnapshot {
   publicLounge?: boolean;
   /** Lost the host for a moment and trying to get back in */
   reconnecting?: boolean;
+  /** Turn timers: host-clock time by when each seat must move */
+  deadlines?: Record<number, number>;
+  /** After a game online: who wants a rematch */
+  rematch?: { votes: Seat[]; needed: number } | null;
+  night?: NightState | null;
+  /** Players' own pictures by name (private rooms only) */
+  pictures?: Record<string, string>;
 }
 
 /** What the UI talks to, whether the game is local, hosted, or joined */
@@ -127,6 +135,12 @@ export interface Session {
   setGame?(gameId: string): void;
   setOption?(id: string, value: string): void;
   backToLobby?(): void;
+  /** Online, after a game: ask for a rematch (majority starts it) */
+  voteRematch?(): void;
+  /** Game night (host / local only) */
+  startNight?(queue: string[]): void;
+  nextNight?(): void;
+  endNight?(): void;
 }
 
 export class Emitter {

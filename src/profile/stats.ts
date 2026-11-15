@@ -1,0 +1,211 @@
+/**
+ * Game stats and achievements, kept on this device for each profile (or for guests).
+ * Nothing leaves the device unless you copy a backup code yourself.
+ */
+import { useSyncExternalStore } from 'react';
+import { SECTIONS } from '../games/sections';
+import { statsOwner } from './profile';
+
+export interface GameStat {
+  played: number;
+  won: number;
+  drawn: number;
+  /** Current winning streak in this game */
+  streak: number;
+  best: number;
+  last: number;
+}
+
+export interface Stats {
+  games: Record<string, GameStat>;
+  /** Winning streak across all games */
+  streak: number;
+  bestStreak: number;
+  /** Days (YYYY-MM-DD) with at least one finished game, newest last, at most 60 */
+  days: string[];
+  online: number;
+  hardWins: number;
+  bigTables: number;
+  nights: number;
+  hintsUsed: number;
+  /** Achievement id → when it was earned */
+  achievements: Record<string, number>;
+}
+
+export interface FinishedGame {
+  gameId: string;
+  won: boolean;
+  draw: boolean;
+  /** A game for one (puzzles): "won" means solved */
+  solo: boolean;
+  online: boolean;
+  /** A hard bot was at the table and you won */
+  beatHardBot: boolean;
+  players: number;
+}
+
+const WORD_GAMES = ['bes-harf', 'kelime-ustasi', 'adam-asmaca', 'kelime-avi', 'kelime-zinciri', 'kelimeyi-anlat', 'isim-sehir-hayvan'];
+const PUZZLES = ['sudoku', 'kakuro', 'nonogram', 'mayin-tarlasi', 'zeka-kupu', 'birlestir', 'solitaire', 'tas-esle', 'hafiza', 'kelime-avi'];
+const CARD_GAMES = SECTIONS[0].ids;
+const BOARD_GAMES = SECTIONS[1].ids.filter((id) => !id.includes('okey') && id !== 'kelime-ustasi' && id !== 'esli-101');
+
+export interface AchievementDef {
+  id: string;
+  icon: string;
+  name: string;
+  description: string;
+  check(s: Stats): boolean;
+}
+
+const wins = (s: Stats, ids?: string[]) => Object.entries(s.games).reduce((n, [id, g]) => n + (!ids || ids.includes(id) ? g.won : 0), 0);
+const played = (s: Stats) => Object.values(s.games).reduce((n, g) => n + g.played, 0);
+const kinds = (s: Stats) => Object.values(s.games).filter((g) => g.played > 0).length;
+
+export const ACHIEVEMENTS: AchievementDef[] = [
+  { id: 'first-game', icon: '🎲', name: 'First game', description: 'Finish any game.', check: (s) => played(s) >= 1 },
+  { id: 'first-win', icon: '🏆', name: 'First win', description: 'Win a game or solve a puzzle.', check: (s) => wins(s) >= 1 },
+  { id: 'wins-10', icon: '🥉', name: 'Ten wins', description: 'Win 10 times.', check: (s) => wins(s) >= 10 },
+  { id: 'wins-50', icon: '🥈', name: 'Fifty wins', description: 'Win 50 times.', check: (s) => wins(s) >= 50 },
+  { id: 'wins-200', icon: '🥇', name: 'Two hundred wins', description: 'Win 200 times.', check: (s) => wins(s) >= 200 },
+  { id: 'streak-3', icon: '🔥', name: 'On fire', description: 'Win 3 games in a row.', check: (s) => s.bestStreak >= 3 },
+  { id: 'streak-7', icon: '☄️', name: 'Unstoppable', description: 'Win 7 games in a row.', check: (s) => s.bestStreak >= 7 },
+  { id: 'variety-5', icon: '🧭', name: 'Explorer', description: 'Play 5 different games.', check: (s) => kinds(s) >= 5 },
+  { id: 'variety-20', icon: '🗺️', name: 'Globetrotter', description: 'Play 20 different games.', check: (s) => kinds(s) >= 20 },
+  { id: 'hard-bot', icon: '🤖', name: 'Bot beater', description: 'Win against a hard bot.', check: (s) => s.hardWins >= 1 },
+  { id: 'hard-bot-10', icon: '🦾', name: 'Machine tamer', description: 'Win against hard bots 10 times.', check: (s) => s.hardWins >= 10 },
+  { id: 'online', icon: '🌐', name: 'Connected', description: 'Finish a game online.', check: (s) => s.online >= 1 },
+  { id: 'online-25', icon: '📡', name: 'Regular', description: 'Finish 25 games online.', check: (s) => s.online >= 25 },
+  { id: 'big-table', icon: '👥', name: 'Full house', description: 'Play a game with 6 or more players.', check: (s) => s.bigTables >= 1 },
+  { id: 'night', icon: '🌙', name: 'Night owl', description: 'Finish a game night.', check: (s) => s.nights >= 1 },
+  { id: 'words', icon: '📚', name: 'Wordsmith', description: 'Win 10 word games.', check: (s) => wins(s, WORD_GAMES) >= 10 },
+  { id: 'puzzles', icon: '🧩', name: 'Puzzle solver', description: 'Solve 10 puzzles.', check: (s) => wins(s, PUZZLES) >= 10 },
+  { id: 'cards', icon: '🃏', name: 'Card shark', description: 'Win 10 card games.', check: (s) => wins(s, CARD_GAMES) >= 10 },
+  { id: 'boards', icon: '♟️', name: 'Strategist', description: 'Win 10 board games.', check: (s) => wins(s, BOARD_GAMES) >= 10 },
+  { id: 'days-7', icon: '📅', name: 'Week of play', description: 'Play on 7 different days.', check: (s) => s.days.length >= 7 },
+  { id: 'learner', icon: '💡', name: 'Quick learner', description: 'Use a hint, then win that game.', check: () => false },
+];
+
+export function emptyStats(): Stats {
+  return { games: {}, streak: 0, bestStreak: 0, days: [], online: 0, hardWins: 0, bigTables: 0, nights: 0, hintsUsed: 0, achievements: {} };
+}
+
+const key = (owner: string) => 'oyun-masasi:stats:' + owner;
+
+function read(owner: string): Stats {
+  try {
+    const raw = localStorage.getItem(key(owner));
+    if (raw) return { ...emptyStats(), ...JSON.parse(raw) };
+  } catch {
+    /* ignore */
+  }
+  return emptyStats();
+}
+
+const listeners = new Set<() => void>();
+let cache: { owner: string; stats: Stats } | null = null;
+
+export function getStats(owner = statsOwner()): Stats {
+  if (!cache || cache.owner !== owner) cache = { owner, stats: read(owner) };
+  return cache.stats;
+}
+
+function write(owner: string, s: Stats) {
+  cache = { owner, stats: s };
+  try {
+    localStorage.setItem(key(owner), JSON.stringify(s));
+  } catch {
+    /* ignore */
+  }
+  listeners.forEach((fn) => fn());
+}
+
+export function useStats(owner: string): Stats {
+  return useSyncExternalStore(
+    (fn) => {
+      listeners.add(fn);
+      return () => listeners.delete(fn);
+    },
+    () => getStats(owner),
+  );
+}
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+/** Pure: the stats after one finished game, and the achievements it unlocked */
+export function applyGame(prev: Stats, g: FinishedGame, usedHint = false, now = Date.now(), day = today()): { stats: Stats; unlocked: AchievementDef[] } {
+  const s: Stats = { ...prev, games: { ...prev.games }, achievements: { ...prev.achievements } };
+  const old = s.games[g.gameId] ?? { played: 0, won: 0, drawn: 0, streak: 0, best: 0, last: 0 };
+  const gs: GameStat = { ...old, played: old.played + 1, last: now };
+  if (g.won) {
+    gs.won++;
+    gs.streak++;
+    gs.best = Math.max(gs.best, gs.streak);
+  } else {
+    if (g.draw) gs.drawn++;
+    gs.streak = 0;
+  }
+  s.games[g.gameId] = gs;
+  // Puzzles don't break the overall streak when you give up; games against others do
+  if (g.won) {
+    s.streak++;
+    s.bestStreak = Math.max(s.bestStreak, s.streak);
+  } else if (!g.solo) s.streak = 0;
+  if (!s.days.includes(day)) s.days = [...s.days, day].slice(-60);
+  if (g.online) s.online++;
+  if (g.beatHardBot) s.hardWins++;
+  if (g.players >= 6) s.bigTables++;
+  if (usedHint) s.hintsUsed++;
+  const unlocked: AchievementDef[] = [];
+  for (const a of ACHIEVEMENTS) {
+    if (s.achievements[a.id]) continue;
+    const ok = a.id === 'learner' ? usedHint && g.won : a.check(s);
+    if (ok) {
+      s.achievements[a.id] = now;
+      unlocked.push(a);
+    }
+  }
+  return { stats: s, unlocked };
+}
+
+export function recordGame(g: FinishedGame, usedHint = false): AchievementDef[] {
+  const owner = statsOwner();
+  const { stats, unlocked } = applyGame(getStats(owner), g, usedHint);
+  write(owner, stats);
+  return unlocked;
+}
+
+export function recordNight(): AchievementDef[] {
+  const owner = statsOwner();
+  const s = { ...getStats(owner), achievements: { ...getStats(owner).achievements } };
+  s.nights++;
+  const unlocked = ACHIEVEMENTS.filter((a) => !s.achievements[a.id] && a.id !== 'learner' && a.check(s));
+  unlocked.forEach((a) => (s.achievements[a.id] = Date.now()));
+  write(owner, s);
+  return unlocked;
+}
+
+export function resetStats(owner = statsOwner()) {
+  write(owner, emptyStats());
+}
+
+// --- Backup codes: copy your profile and stats to another device by hand
+
+export function backupCode(profile: object | null, owner = statsOwner()): string {
+  const json = JSON.stringify({ v: 1, profile, stats: getStats(owner) });
+  return btoa(String.fromCharCode(...new TextEncoder().encode(json)));
+}
+
+export function readBackup(code: string): { profile: Record<string, unknown> | null; stats: Stats } | null {
+  try {
+    const json = new TextDecoder().decode(Uint8Array.from(atob(code.trim()), (c) => c.charCodeAt(0)));
+    const d = JSON.parse(json);
+    if (d?.v !== 1 || typeof d.stats !== 'object' || typeof d.stats.games !== 'object') return null;
+    return { profile: d.profile && typeof d.profile === 'object' ? d.profile : null, stats: { ...emptyStats(), ...d.stats } };
+  } catch {
+    return null;
+  }
+}
+
+export function restoreStats(owner: string, stats: Stats) {
+  write(owner, stats);
+}

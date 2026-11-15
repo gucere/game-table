@@ -13,6 +13,15 @@ export interface Settings {
   tiles: string;
   /** Interface language */
   lang: 'en' | 'tr';
+  /** Colorblind-friendly colors (players, word-game marks) */
+  colorblind: boolean;
+  /** Sound effects on/off and loudness (0–1) */
+  sound: boolean;
+  volume: number;
+  /** Buzz the phone on your turn and at the end of a game */
+  vibrate: boolean;
+  /** Teach-me mode: tips and suggested moves while you play */
+  teach: boolean;
 }
 
 const KEY = 'oyun-masasi:settings';
@@ -25,7 +34,7 @@ function browserLang(): 'en' | 'tr' {
   }
 }
 
-const DEFAULTS: Settings = { theme: 'felt', pieces: 'classic', name: '', cardBack: 'red', cardFace: 'two', tiles: 'ivory', lang: browserLang() };
+const DEFAULTS: Settings = { theme: 'felt', pieces: 'classic', name: '', cardBack: 'red', cardFace: 'two', tiles: 'ivory', lang: browserLang(), colorblind: false, sound: true, volume: 0.6, vibrate: true, teach: false };
 
 function load(): Settings {
   try {
@@ -51,14 +60,14 @@ export function updateSettings(patch: Partial<Settings>) {
   } catch {
     /* ignore */
   }
-  applyTheme(current.theme, current.pieces);
+  applyTheme(current.theme, current.pieces, current.colorblind);
   document.documentElement.lang = current.lang;
   document.title = current.lang === 'tr' ? 'Oyun Masası' : 'Game Table';
   listeners.forEach((fn) => fn());
 }
 
 export function initSettings() {
-  applyTheme(current.theme, current.pieces);
+  applyTheme(current.theme, current.pieces, current.colorblind);
   document.documentElement.lang = current.lang;
   document.title = current.lang === 'tr' ? 'Oyun Masası' : 'Game Table';
 }

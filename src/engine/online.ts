@@ -18,6 +18,8 @@ import { holdRoom, loadHostedRoom, saveHostedRoom, saveLastRoom, type HostedRoom
 import { GameRunner } from './runner';
 import { Emitter, type ChatMsg, type Reaction, type Session, type SessionSnapshot, type VoiceState, type VoteInfo } from './session';
 import { defaultOptions, type GameOptions, type GameResult, type PlayerInfo, type Seat } from './types';
+import { newNight, nextNight, nightFits, scoreNight, type NightState } from './night';
+import { avatarById, isSafePicture, myLook } from '../profile/profile';
 
 const PREFIX = 'oyunmasasi-v1-';
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -75,7 +77,8 @@ export function clientId() {
 }
 
 type ToHost =
-  | { t: 'hello'; name: string; id?: string }
+  | { t: 'hello'; name: string; id?: string; avatar?: string; pic?: string }
+  | { t: 'rematch' }
   | { t: 'move'; move: unknown }
   | { t: 'chat'; text: string }
   | { t: 'react'; emoji: string }
@@ -103,6 +106,9 @@ interface ClientState {
   spectators: string[];
   /** Peer ids and names of everyone in the voice chat */
   voice: { peerId: string; name: string }[];
+  deadlines?: Record<number, number>;
+  rematch?: { votes: Seat[]; needed: number } | null;
+  night?: NightState | null;
 }
 
 type ToClient =
@@ -112,6 +118,7 @@ type ToClient =
   | { t: 'chatlog'; msgs: ChatMsg[] }
   | { t: 'react'; r: Reaction }
   | { t: 'closed'; reason: string }
+  | { t: 'pics'; pics: Record<string, string> }
   | FilePacket;
 
 function peerErrorMessage(err: { type?: string; message?: string }) {
@@ -194,6 +201,10 @@ export class HostSession implements Session {
 
   /** A public room: fixed code, chat and calls only, nothing saved for reopening */
   private lounge: boolean;
+  /** Players' own pictures by name (never in public rooms) */
+  private pictures: Record<string, string> = {};
+  private rematchVotes = new Set<Seat>();
+  private night: NightState | null = null;
 
   constructor(gameId: string, hostName: string, restore: HostedRoom | null = null, opts: { code?: string; lounge?: boolean } = {}) {
     this.lounge = !!opts.lounge;
@@ -207,7 +218,9 @@ export class HostSession implements Session {
       this.seatIds = restore.seatIds.slice();
       this.seatNames = restore.seats.map((p) => p.name.replace(/ \(bot\)$/, ''));
     } else {
-      this.seats = [{ name: this.hostName, kind: 'human', connected: true }];
+      const look = myLook(!this.lounge);
+      this.seats = [{ name: this.hostName, kind: 'human', connected: true, avatar: look.avatar }];
+      if (look.picture) this.pictures[this.hostName] = look.picture;
       this.seatIds = [null];
       this.seatNames = [this.hostName];
     }
@@ -280,7 +293,7 @@ export class HostSession implements Session {
     this.restoring = null;
     if (r.phase === 'playing') {
       this.runner = new GameRunner(this.game, [...this.seats], this.options, r.state);
-      this.runner.onChange(() => this.refresh());
+      this.runner.onChange(() => this.runnerChanged());
       this.runner.restoreState(r.state);
       this.phase = 'playing';
       setTimeout(() => this.botForMissing(), RETURN_GRACE_MS);
@@ -320,7 +333,7 @@ export class HostSession implements Session {
         greeted = true;
         const id = typeof msg.id === 'string' ? msg.id.slice(0, 64) : null;
         if (id) this.clientIds.set(conn, id);
-        this.admit(conn, cleanName(msg.name), id);
+        this.admit(conn, cleanName(msg.name), id, { avatar: msg.avatar, pic: msg.pic });
         return;
       }
       const from = this.conns.indexOf(conn);
@@ -338,6 +351,9 @@ export class HostSession implements Session {
           return;
         case 'votekick':
           if (from >= 0) this.beginVote(from, Number(msg.target));
+          return;
+        case 'rematch':
+          if (from >= 0) this.rematchFrom(from);
           return;
         case 'vote':
           if (from >= 0) this.voteFrom(from, !!msg.yes);
@@ -424,7 +440,15 @@ export class HostSession implements Session {
     this.refresh();
   }
 
-  private admit(conn: DataConnection, name: string, id: string | null) {
+  /** Everyone gets the latest pictures (they're too big to send with every move) */
+  private sendPics() {
+    if (this.lounge) return;
+    for (const c of this.everyone()) this.send(c, { t: 'pics', pics: this.pictures });
+  }
+
+  private admit(conn: DataConnection, name: string, id: string | null, look: { avatar?: unknown; pic?: unknown } = {}) {
+    const avatar = typeof look.avatar === 'string' && avatarById(look.avatar) ? look.avatar : undefined;
+    const pic = !this.lounge && isSafePicture(look.pic) ? look.pic : undefined;
     if (id && this.banned.has(id)) {
       this.reject(conn, 'You were voted out of this room.');
       return;
@@ -432,7 +456,8 @@ export class HostSession implements Session {
     // A player coming back (after a refresh or a dropped connection) gets their own seat back
     const back = id ? this.seatIds.findIndex((s, i) => i > 0 && s === id && !this.conns[i]?.open) : -1;
     if (back > 0) {
-      const info: PlayerInfo = { name: this.seatNames[back] ?? name, kind: 'remote', connected: true };
+      const info: PlayerInfo = { name: this.seatNames[back] ?? name, kind: 'remote', connected: true, avatar };
+      if (pic) this.pictures[info.name] = pic;
       this.conns[back] = conn;
       this.seats[back] = info;
       if (this.runner) this.runner.players = this.runner.players.map((p, i) => (i === back ? info : p));
@@ -440,12 +465,14 @@ export class HostSession implements Session {
       this.refresh();
       this.send(conn, { t: 'chatlog', msgs: this.chatLog });
       this.system(`${info.name} is back.`);
+      this.sendPics();
       return;
     }
     // Two people with the same name get told apart: "Ayla", "Ayla 2"
     const taken = new Set([...this.seats.map((p) => p.name), ...this.spectators.map((s) => s.name)]);
     for (let k = 2; taken.has(name); k++) name = `${name.replace(/ \d+$/, '')} ${k}`;
-    const info: PlayerInfo = { name, kind: 'remote', connected: true };
+    const info: PlayerInfo = { name, kind: 'remote', connected: true, avatar };
+    if (pic) this.pictures[name] = pic;
     if (this.phase === 'playing' && this.game.openSeats && this.seats.length < this.game.maxPlayers) {
       this.seats.push(info);
       this.conns.push(conn);
@@ -470,12 +497,14 @@ export class HostSession implements Session {
       this.refresh();
       this.send(conn, { t: 'chatlog', msgs: this.chatLog });
       this.system(`${name} is watching.`);
+      this.sendPics();
       return;
     }
     this.notice = `${name} joined the room.`;
     this.refresh();
     this.send(conn, { t: 'chatlog', msgs: this.chatLog });
     this.system(`${name} joined the room.`);
+    this.sendPics();
   }
 
   private seatSpectator(spec: Spectator) {
@@ -814,6 +843,10 @@ export class HostSession implements Session {
       attachments: this.files.snapshot(),
       fileError: this.fileError,
       publicLounge: this.lounge,
+      deadlines: r ? Object.fromEntries(r.deadlines) : {},
+      rematch: this.rematchInfo(),
+      night: this.night,
+      pictures: this.pictures,
     };
     this.broadcast();
     this.save();
@@ -851,6 +884,9 @@ export class HostSession implements Session {
       vote: this.snapshot.vote ?? null,
       spectators: this.spectators.map((s) => s.name),
       voice: [...this.voiceRoster.entries()].map(([peerId, name]) => ({ peerId, name })),
+      deadlines: this.snapshot.deadlines,
+      rematch: this.snapshot.rematch,
+      night: this.night,
     };
     this.conns.forEach((conn, seat) => {
       if (conn) this.send(conn, { t: 'state', state: { ...base, seat, spectate: null, view: r ? r.view(seat) : null } });
@@ -919,15 +955,78 @@ export class HostSession implements Session {
       return;
     }
     this.runner = new GameRunner(g, [...this.seats], this.options);
-    this.runner.onChange(() => this.refresh());
+    this.runner.onChange(() => this.runnerChanged());
     this.phase = 'playing';
     this.notice = undefined;
     this.refresh();
     this.runner.scheduleBots();
   }
 
+  private runnerChanged() {
+    if (this.night && this.runner) this.night = scoreNight(this.night, this.runner.players, this.runner.result);
+    if (!this.runner?.result) this.rematchVotes.clear();
+    this.refresh();
+  }
+
+  private rematchInfo(): { votes: Seat[]; needed: number } | null {
+    if (this.phase !== 'playing' || !this.runner?.result) return null;
+    const people = this.seats.flatMap((p, i) => (p.kind !== 'bot' && p.connected !== false ? [i] : []));
+    return { votes: [...this.rematchVotes].filter((s) => people.includes(s)), needed: Math.floor(people.length / 2) + 1 };
+  }
+
+  private rematchFrom(seat: Seat) {
+    if (!this.runner?.result) return;
+    this.rematchVotes.add(seat);
+    const info = this.rematchInfo();
+    if (info && info.votes.length >= info.needed) {
+      this.system('Rematch!');
+      this.restart();
+    } else this.refresh();
+  }
+
+  voteRematch() {
+    this.rematchFrom(0);
+  }
+
+  startNight(queue: string[]) {
+    const games = queue.filter((id) => {
+      const g = getGame(id);
+      return g && nightFits(g, this.seats, true);
+    });
+    if (!games.length || this.lounge) return;
+    this.night = newNight(games, this.seats);
+    this.system('Game night started!');
+    this.launchNight(games[0]);
+  }
+
+  nextNight() {
+    if (!this.night) return;
+    this.night = nextNight(this.night);
+    if (this.night.finished) this.refresh();
+    else this.launchNight(this.night.queue[this.night.index]);
+  }
+
+  endNight() {
+    this.night = null;
+    this.refresh();
+  }
+
+  private launchNight(gameId: string) {
+    const turn = this.options._turn;
+    if (this.phase === 'playing') {
+      this.runner?.dispose();
+      this.runner = null;
+      this.phase = 'lobby';
+    }
+    this.setGame(gameId);
+    if (turn) this.options = { ...this.options, _turn: turn };
+    this.start();
+  }
+
   restart() {
     this.notice = undefined;
+    this.rematchVotes.clear();
+    if (this.night) this.night = { ...this.night, scored: false };
     const error = this.runner?.restart(this.options);
     if (error) {
       this.notice = error;
@@ -937,6 +1036,7 @@ export class HostSession implements Session {
 
   backToLobby() {
     if (this.phase !== 'playing') return;
+    this.rematchVotes.clear();
     this.runner?.dispose();
     this.runner = null;
     this.phase = 'lobby';
@@ -1050,7 +1150,8 @@ export class ClientSession implements Session {
   private connect() {
     const conn = this.peer.connect(PREFIX + this.code, { reliable: true });
     this.conn = conn;
-    conn.on('open', () => conn.send({ t: 'hello', name: cleanName(this.name), id: clientId() } satisfies ToHost));
+    const look = myLook(!this.lounge);
+    conn.on('open', () => conn.send({ t: 'hello', name: cleanName(this.name), id: clientId(), avatar: look.avatar, pic: look.picture } satisfies ToHost));
     conn.on('data', (raw) => this.onMessage(raw as ToClient));
     conn.on('close', () => {
       if (this.conn === conn && !this.left && this.snapshot.phase !== 'closed') this.retry();
@@ -1124,6 +1225,9 @@ export class ClientSession implements Session {
         reconnecting: false,
         error: undefined,
         publicLounge: this.lounge,
+        deadlines: s.deadlines ?? {},
+        rematch: s.rematch ?? null,
+        night: s.night ?? null,
       });
     } else if (msg.t === 'chat') {
       this.update({ chat: [...(this.snapshot.chat ?? []), msg.msg].slice(-CHAT_HISTORY) });
@@ -1135,6 +1239,11 @@ export class ClientSession implements Session {
       this.update({ notice: msg.message });
     } else if (msg.t === 'closed') {
       this.fail(msg.reason);
+    } else if (msg.t === 'pics') {
+      if (this.lounge || !msg.pics || typeof msg.pics !== 'object') return;
+      const pics: Record<string, string> = {};
+      for (const [k, v] of Object.entries(msg.pics).slice(0, 40)) if (isSafePicture(v)) pics[k] = v;
+      this.update({ pictures: pics });
     } else if (msg.t === 'file-begin') {
       this.receiver.begin('host', msg.file);
     } else if (msg.t === 'file-chunk') {
@@ -1153,6 +1262,10 @@ export class ClientSession implements Session {
 
   submit(_seat: Seat, move: unknown) {
     this.sendToHost({ t: 'move', move });
+  }
+
+  voteRematch() {
+    this.sendToHost({ t: 'rematch' });
   }
 
   sendChat(text: string) {

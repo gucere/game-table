@@ -40,6 +40,7 @@ export function LookSections({ parts = ALL_LOOKS }: { parts?: LookPart[] }) {
       )}
       {has('pieces') && (
         <Section title="Player colors">
+          {s.colorblind && <p className="small muted wide-note">{t('Colorblind-friendly colors are on (in Customize), so these are replaced.')}</p>}
           {PIECE_SETS.map((p) => (
             <button key={p.id} className={'swatch' + (s.pieces === p.id ? ' on' : '')} aria-pressed={s.pieces === p.id} onClick={() => updateSettings({ pieces: p.id })}>
               <span className="swatch-preview dots">

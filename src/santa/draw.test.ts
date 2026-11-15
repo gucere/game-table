@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkPeople, decodeReveal, drawCycle, encodeReveal } from './draw';
+import { checkPeople, decodeReveal, drawCycle, drawWithExclusions, encodeReveal } from './draw';
 
 function rng(seed = 1) {
   return () => {
@@ -47,5 +47,32 @@ describe('Secret Santa', () => {
     expect(checkPeople([...ok, { name: 'ayla', email: 'x@example.com' }])).toHaveLength(1);
     expect(checkPeople([...ok, { name: 'Zeynep', email: 'not-an-email' }])).toContain('Check the email addresses.');
     expect(checkPeople([...ok, { name: 'Zeynep', email: 'AYLA@example.com' }])).toContain('Two people have the same email address.');
+  });
+
+  it('respects pairs who may not draw each other, and reports impossible ones', () => {
+    for (let seed = 1; seed < 30; seed++) {
+      const ex: [number, number][] = [
+        [0, 1],
+        [2, 3],
+        [4, 0],
+      ];
+      const r = drawWithExclusions(6, ex, rng(seed))!;
+      expect([...r].sort()).toEqual([0, 1, 2, 3, 4, 5]);
+      r.forEach((x, g) => {
+        expect(x).not.toBe(g);
+        expect(ex.some(([a, b]) => (a === g && b === x) || (b === g && a === x))).toBe(false);
+      });
+    }
+    // Three people where 0 can't draw 1 or 2: impossible
+    expect(
+      drawWithExclusions(
+        3,
+        [
+          [0, 1],
+          [0, 2],
+        ],
+        rng(2),
+      ),
+    ).toBeNull();
   });
 });

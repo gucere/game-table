@@ -2,6 +2,8 @@ import { defaultOptions, type GameCtx, type GameDef, type GameOptions, type Game
 
 const BOT_DELAY_MS = 650;
 const BOT_RETRY_MS = 600;
+/** Room option holding the seconds per turn ('0' = off). Starts with _ so it never clashes with a game's own options. */
+export const TURN_OPTION = '_turn';
 
 /**
  * Holds the authoritative game state, runs the bots and game timers.
@@ -11,6 +13,9 @@ export class GameRunner {
   state: unknown;
   private botTimers = new Map<Seat, ReturnType<typeof setTimeout>>();
   private gameTimer: ReturnType<typeof setTimeout> | null = null;
+  private turnTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Turn timers: by when each person has to move (host clock) */
+  deadlines = new Map<Seat, number>();
   private listeners = new Set<() => void>();
   private random = () => Math.random();
   options: GameOptions;
@@ -28,6 +33,54 @@ export class GameRunner {
     if (error) throw new Error(error);
     this.state = restoredState === undefined ? game.setup(this.ctx()) : restoredState;
     this.scheduleTimer();
+    this.updateDeadlines(null);
+  }
+
+  /** Seconds per turn from the room options (0 = no timer) */
+  get turnSeconds(): number {
+    if (!this.game.bot || this.game.noTurnTimer) return 0;
+    const n = Number(this.options[TURN_OPTION]);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+
+  /**
+   * Turn timers: a person who just started their turn (or just moved and still has to move)
+   * gets a fresh deadline. When it passes, the computer makes a simple move for them.
+   */
+  private updateDeadlines(moved: Seat | null) {
+    if (this.turnTimer) clearTimeout(this.turnTimer);
+    this.turnTimer = null;
+    const secs = this.turnSeconds;
+    if (!secs || this.result) {
+      this.deadlines.clear();
+      return;
+    }
+    const people = new Set(this.active.filter((s) => this.players[s]?.kind !== 'bot'));
+    for (const s of [...this.deadlines.keys()]) if (!people.has(s)) this.deadlines.delete(s);
+    const now = Date.now();
+    for (const s of people) if (!this.deadlines.has(s) || s === moved) this.deadlines.set(s, now + secs * 1000);
+    if (!this.deadlines.size) return;
+    const next = Math.min(...this.deadlines.values());
+    this.turnTimer = setTimeout(() => this.timeUp(), Math.max(0, next - now) + 50);
+  }
+
+  private timeUp() {
+    this.turnTimer = null;
+    const now = Date.now();
+    const late = [...this.deadlines.entries()].filter(([, at]) => at <= now).map(([s]) => s);
+    for (const seat of late) {
+      if (this.result || !this.active.includes(seat)) continue;
+      let move: unknown = null;
+      try {
+        move = this.game.bot!(this.view(seat), seat, { random: this.random, level: 'easy' });
+      } catch (e) {
+        console.error('Turn timer move failed', e);
+      }
+      if (move !== null && !this.submit(seat, move)) continue;
+      // No move possible right now: try again shortly
+      this.deadlines.set(seat, now + 3000);
+    }
+    if (!this.turnTimer) this.updateDeadlines(null);
   }
 
   private ctx(): GameCtx {
@@ -55,8 +108,9 @@ export class GameRunner {
     return this.game.view(this.state, seat);
   }
 
-  private setState(next: unknown) {
+  private setState(next: unknown, moved: Seat | null = null) {
     this.state = next;
+    this.updateDeadlines(moved);
     this.emit();
     this.scheduleTimer();
     this.scheduleBots();
@@ -74,7 +128,7 @@ export class GameRunner {
       return 'Invalid move';
     }
     if (typeof next === 'string') return next;
-    this.setState(next);
+    this.setState(next, seat);
     return null;
   }
 
@@ -85,6 +139,7 @@ export class GameRunner {
     const nextState = this.game.setup({ ...this.ctx(), options: nextOptions });
     this.options = nextOptions;
     this.clearBots();
+    this.deadlines.clear();
     this.setState(nextState);
     return null;
   }
@@ -148,6 +203,7 @@ export class GameRunner {
   dispose() {
     this.clearBots();
     if (this.gameTimer) clearTimeout(this.gameTimer);
+    if (this.turnTimer) clearTimeout(this.turnTimer);
     this.listeners.clear();
   }
 }

@@ -341,4 +341,19 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
     rules:
       'Dört oyuncu iki eş çifti: Kuzey–Güney ile Doğu–Batı; eşler karşılıklı oturur. 52 kartın hepsi dağıtılır. Deklare: dağıtandan başlayarak herkes ya deklare yapar (altının üstünde kaç löve alınacağı, 1–7, ve koz rengi ya da Kozsuz), ya pas der, ya rakibin deklaresine kontr ya da kontra sürkontr der. Her deklare bir öncekinden yüksek olmalı (♣ < ♦ < ♥ < ♠ < NT). Bir deklareden sonra üç pas deklareyi bitirir; son deklare kontrattır. O taraftan rengi ilk söyleyen deklaranstır, eşi yerdir. Deklaransın solundaki ilk kartı atar; sonra yerin kartları açılır ve onları deklarans oynar. Renge uymak zorunludur; en büyük koz, yoksa açılan rengin en büyüğü löveyi alır. Kontratı tutan taraf puanını yazar (oyun, şlem, kontr ve fazla löve primleriyle); tutamazsa diğer taraf ceza puanı yazar. Puanlama düplike usulüdür ve eller boyunca toplanır; kırmızı 🔴 zonda olan tarafı gösterir.',
   },
+  go: {
+    tagline: 'Rakibinden daha çok alanı çevrele.',
+    rules:
+      'Siyah (ilk oyuncu) ve Beyaz sırayla boş bir noktaya taş koyar. Çizgiler boyunca yan yana duran taşlar bir grup oluşturur; grubun yanındaki boş noktalar onun nefesleridir. Bir grubun son nefesini alırsan o grubu esir edersin. Hiç nefesi kalmayacak bir taş koyamazsın (esir almıyorsa) ve bir ko’yu hemen geri alamazsın. Taş koymak yerine pas diyebilirsin; ikiniz üst üste pas deyince oyun sayılır: tahtadaki taşların ve yalnızca senin çevrelediğin boş noktalar. Beyaz ikinci oynadığı için komi puanı alır. Sonda tahtada kalan her taş sayılır, o yüzden pas demeden önce ölü taşları esir et.',
+  },
+  'tugla-kirma': {
+    tagline: 'Topu sektir, bütün tuğlaları kır.',
+    rules:
+      'Topu raketinle oyunda tut ve bir sonraki bölüme geçmek için bütün tuğlaları kır. Topun rakete nereden çarptığı açısını belirler: kenarlara yakın vurursan geniş açıyla gider. Numaralı tuğlalar birden çok vuruş ister. Kırılan tuğlalardan bazen güçlendirme düşer: ↔ daha geniş raket, ✳ iki top daha, 🐢 daha yavaş top ya da ❤ fazladan can. Üç canın var ve her bölüm bir öncekinden hızlı.',
+  },
+  'kelime-zinciri': {
+    tagline: 'Her kelime bir öncekinin son harfiyle başlar.',
+    rules:
+      'Sırayla, bir önceki kelimenin son harfiyle başlayan bir kelime söyleyin: kalem → masa → armut… Bir kelime iki kez kullanılamaz ve kelime listesinde olmalı. Türkçede ğ ile başlayan kelime olmadığı için ğ ile biten bir kelimeden (dağ) sonra gelen kelime ondan önceki harfle (a) başlar. Süre biterse ya da pes edersen bir can kaybedersin. Canı kalan son oyuncu kazanır; oynadığın her harf bir puan. Tek başına ne kadar uzun bir zincir kurabileceğini dene: 10 kelime galibiyet sayılır.',
+  },
 };

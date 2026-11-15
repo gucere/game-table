@@ -22,6 +22,13 @@ Free, open-source classic games that run entirely in the browser.
 - **Rejoin after a refresh:** if your page reloads or your connection drops, you get your seat back automatically (or with one tap). If the host's page reloads, the host can reopen the room with the game still in progress, and everyone reconnects.
 - **Vote to remove:** anyone in an online room can start a vote to remove a disruptive player. It passes when more than half of the other people agree; a bot takes the seat and that device can't rejoin the room. The host can't be voted out (the room runs in their browser).
 - **Two languages:** English and Türkçe (switch at the top right; Turkish browsers start in Turkish). Every game shows its international name too, e.g. "Kızma Birader · Ludo". Adding a language is one dictionary file in `src/i18n`.
+- **Profiles (optional):** play as a guest like before, or make a profile on your device with a name and one of 30 ready-made avatars, or your own picture. Your picture is shrunk, kept on your device, and shown only to friends in private rooms; public rooms always show the avatar. Several people can keep their own profile on a shared device.
+- **Stats and achievements:** games played and won per game, win streaks and 21 achievements, kept on your device for each profile. A backup code copies them to another device.
+- **Hints and Teach me:** 💡 asks the computer for a move (in words for chess, draughts, Go, Reversi, Gomoku, Four in a Row, XOX, Mangala, Bridge and Kelime Ustası), and "Play it for me" makes it. 🎓 Teach me adds tips about the position in front of you (atari in Go, a hanging piece in chess, your points in a bridge auction…). Both work on one device or against bots, not against friends online.
+- **Turn timers and rematch votes:** the host can give every turn 15 seconds to 2 minutes; when time runs out, the computer makes a simple move for that player. After a game online, anyone can ask for a rematch and it starts when most of the table agrees.
+- **Game night:** pick a few games that fit your table and play them in a row with one scoreboard (3 points a win, 1 a draw). Works on one device and online.
+- **Sounds and vibration:** small sound effects made in the browser (no sound files) for moves, your turn, wins, chat and achievements, and a buzz on phones. Volume and both switches are in Customize.
+- **Colorblind-friendly colors:** one switch in Customize gives player colors that stay apart for the common kinds of color blindness and turns word-game marks blue and orange.
 - **Customizable:** table backgrounds, player colors, card backs, two- or four-color card faces, and Okey tile styles, from the Customize page or the 🎨 button during a game. The host can also change the rules mid-game; they apply from the next round.
 
 ## Games
@@ -50,6 +57,7 @@ Free, open-source classic games that run entirely in the browser.
 | Fetih | 2–6 | ✅ | Original territory game on a new random hex map each time: villages, castles, armies + dice |
 | Mangala · Reversi · Gomoku · Dokuz Taş | 2 | ✅ | Turkish mancala, flip-the-discs, five in a row, nine men's morris |
 | Yılan Merdiven · Kutu Kapmaca | 1–6 · 2–4 | ✅ | Snakes & ladders on our own board; dots & boxes |
+| Go | 2 | ✅ | 9×9, 13×13 or 19×19; captures, ko, area scoring with komi. The bot plays thousands of quick random games to pick its move |
 | Satranç | 2 | ✅ | Full chess rules (castling, en passant, promotion, all draw rules); bot searches 1–3 moves deep |
 | Dama | 2 | ✅ | Turkish draughts: orthogonal moves, compulsory maximum capture, flying damas |
 | Amiral Battı | 2 | ✅ | Classic sea battle; optional extra shot on a hit |
@@ -70,6 +78,7 @@ Free, open-source classic games that run entirely in the browser.
 | Kelimeyi Anlat | 4–12 | – | Teams describe words against the clock without saying the forbidden ones; our own TR/EN cards |
 | Bilgi Yarışı | 1–12 | ✅ | Trivia race: everyone answers at once, faster right answers score more. Built-in TR/EN questions, your own question pack (saved in the browser, shareable as a link), or “Everyone writes some”, where players write questions for each other |
 | Hafıza | 1–6 | ✅ | Memory pairs: animals, food or things, 16–36 cards; bots remember more on harder levels |
+| Kelime Zinciri | 1–8 | ✅ | Word chain (TR/EN): each word starts with the last letter of the one before (after a final ğ, the letter before it). Timer and lives; uses the Kelime Ustası word lists |
 | Beş Harf | 1–8 | ✅ | Original five-letter word game (TR/EN): six guesses, colored hints, word of the day, or race friends on the same word. Guesses are checked against Turkish Wiktionary headwords ([atmanat/random-wordlist-tr](https://github.com/atmanat/random-wordlist-tr), Apache-2.0) and the public-domain ENABLE list |
 | Tombala | 1–12 | ✅ | Turkish bingo: numbers drawn automatically; first to press wins each çinko and the tombala |
 | İsim Şehir Hayvan | 2–10 | – | Online only; STOP gives everyone 5 seconds; players vote down bad answers |
@@ -83,10 +92,11 @@ Free, open-source classic games that run entirely in the browser.
 | Birleştir · Yılan · Kelime Avı | 1 | – | Sliding merge puzzle, snake, word search (TR/EN) |
 | Zeka Küpü | 1 | – | The twisty puzzle cube in 3D, 2×2 to 7×7: drag stickers or use U D L R F B keys. "Solve it for me" on 2×2 and 3×3 (Kociemba's two-phase algorithm via [cubejs](https://github.com/ldez/cubejs), MIT). Ported from my own [cube solver](https://github.com/gucere/Rubik-s-Cube-Solver-s-) |
 | Uzay Savunması | 1 | – | Original arcade shooter: marching drone waves that speed up, a hive boss every fifth wave, power-ups; works with touch, mouse or keys |
+| Tuğla Kırma | 1 | – | Original brick-breaking arcade game: levels that speed up, tougher bricks, wide paddle / multi-ball / slow-ball power-ups |
 | Taş Yağmuru | 1 | – | Original falling-tile game: steer pairs of Okey tiles, clear sets and runs, chain reactions |
 | Nonogram · Kakuro · Taş Eşle | 1 | – | Generated puzzles: nonograms solvable by logic alone, kakuros checked for a unique answer, tile matching with Okey tiles (every deal can be cleared) |
 
-**Tools:** 💬 **Sohbet Odası** (Chat & call room): a private room with no game, just chat, pictures and files, voice, camera and screen sharing; the host can still start any game from it. 🎅 **Secret Santa** (Yılbaşı Çekilişi): list names and emails, press the button, and everyone finds out who they're buying a present for. Nobody draws themselves, and everyone is in one big circle.
+**Tools:** 💬 **Sohbet Odası** (Chat & call room): a private room with no game, just chat, pictures and files, voice, camera and screen sharing; the host can still start any game from it. 🎅 **Secret Santa** (Yılbaşı Çekilişi): list names and emails, press the button, and everyone finds out who they're buying a present for. Nobody draws themselves, and everyone is in one big circle. You can also name pairs who shouldn't draw each other (couples, siblings).
 
 Only traditional or generic games are included. Trademarked games and names are left out on purpose.
 

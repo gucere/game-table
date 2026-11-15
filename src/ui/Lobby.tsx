@@ -5,6 +5,8 @@ import { gameName, useLang, useT } from '../i18n';
 import { CustomizeButton } from './CustomizeDrawer';
 import { QrCode } from './RoomExtras';
 import { OptionsForm } from './Setup';
+import { Avatar } from './Avatar';
+import { NightBoard, NightPicker } from './PlayExtras';
 
 function joinLink(code: string) {
   const base = window.location.href.split('#')[0];
@@ -16,6 +18,8 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
   const t = useT();
   const lang = useLang();
   const [copied, setCopied] = useState(false);
+  const [night, setNight] = useState(false);
+  const pictures = snap.publicLounge ? {} : (snap.pictures ?? {});
   const code = snap.roomCode ?? '';
   const n = snap.players.length;
   const optionsError = game?.validateOptions?.(n, snap.options);
@@ -82,6 +86,7 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
           {snap.players.map((p, i) => (
             <div className="seat-row" key={i}>
               <span className="seat-dot" style={{ background: `var(--p${i})` }} />
+              <Avatar name={p.name} avatar={p.avatar ?? (p.kind === 'bot' ? 'robot' : undefined)} picture={pictures[p.name]} size={28} seat={i} />
               <span className="grow">
                 {p.name}
                 {i === 0 && <span className="muted small"> · {t('host')}</span>}
@@ -115,12 +120,19 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
       )}
 
       {snap.notice && <p className="notice">{t(snap.notice)}</p>}
+      <NightBoard snap={snap} />
+      {night && <NightPicker session={session} snap={snap} onClose={() => setNight(false)} />}
 
       {snap.isHost ? (
         <div className="row">
           {game?.bot && n < game.maxPlayers && (
             <button className="btn ghost" onClick={() => session.addBot?.()}>
               + {t('Add bot')}
+            </button>
+          )}
+          {!snap.night && !night && n > 1 && (
+            <button className="btn ghost" onClick={() => setNight(true)}>
+              🌙 {t('Game night')}
             </button>
           )}
           <button className="btn primary grow" disabled={!canStart} onClick={() => session.start?.()}>

@@ -134,12 +134,20 @@ export const TILE_STYLES = [
   { id: 'dark', name: 'Dark' },
 ];
 
-export function applyTheme(themeId: string, piecesId: string) {
+/**
+ * Player colors that stay apart for the common kinds of color blindness
+ * (a well-known research palette: blue, orange, sky, vermilion, yellow, purple, green, grey).
+ */
+export const COLORBLIND_COLORS = ['#0072b2', '#e69f00', '#56b4e9', '#d55e00', '#f0e442', '#cc79a7', '#009e73', '#bbbbbb'];
+
+export function applyTheme(themeId: string, piecesId: string, colorblind = false) {
   const theme = THEMES.find((t) => t.id === themeId) ?? THEMES[0];
   const pieces = PIECE_SETS.find((p) => p.id === piecesId) ?? PIECE_SETS[0];
   const root = document.documentElement;
   for (const [k, v] of Object.entries(theme.vars)) root.style.setProperty(k, v);
-  pieces.colors.forEach((c, i) => root.style.setProperty(`--p${i}`, c));
+  (colorblind ? COLORBLIND_COLORS : pieces.colors).forEach((c, i) => root.style.setProperty(`--p${i}`, c));
+  if (colorblind) root.dataset.cb = '1';
+  else delete root.dataset.cb;
   const light = theme.vars['--text'].startsWith('#2');
   root.style.colorScheme = light ? 'light' : 'dark';
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', light ? '#efe5cf' : '#0f1720');

@@ -11,6 +11,9 @@ import { RejoinBanner } from './ui/RoomExtras';
 import { PublicLounge } from './engine/lounge';
 import { SessionScreen } from './ui/SessionScreen';
 import { SettingsPage } from './ui/SettingsPage';
+import { ProfilePage } from './ui/ProfilePage';
+import { Avatar, Toasts } from './ui/Avatar';
+import { useProfiles } from './profile/profile';
 import { Setup } from './ui/Setup';
 
 type Route =
@@ -18,6 +21,7 @@ type Route =
   | { page: 'game'; id: string }
   | { page: 'join'; code: string }
   | { page: 'settings' }
+  | { page: 'profile' }
   | { page: 'santa' }
   | { page: 'santa-reveal'; token: string }
   | { page: 'trivia'; token: string };
@@ -27,6 +31,7 @@ function parseHash(): Route {
   if (parts[0] === 'game' && parts[1] && getGame(parts[1])) return { page: 'game', id: parts[1] };
   if (parts[0] === 'join') return { page: 'join', code: parts[1] ?? '' };
   if (parts[0] === 'settings') return { page: 'settings' };
+  if (parts[0] === 'profile') return { page: 'profile' };
   if (parts[0] === 'trivia' && parts[1]) return { page: 'trivia', token: parts[1] };
   if (parts[0] === 'santa') return parts[1] === 'r' && parts[2] ? { page: 'santa-reveal', token: parts[2] } : { page: 'santa' };
   return { page: 'home' };
@@ -47,6 +52,18 @@ function LangSwitch() {
         </option>
       ))}
     </select>
+  );
+}
+
+function ProfileLink() {
+  const tr = useT();
+  const { profiles, current } = useProfiles();
+  const me = profiles.find((p) => p.id === current);
+  return (
+    <a href="#/profile" className="profile-link" aria-label={tr('Profile')}>
+      <Avatar name={me?.name ?? '?'} avatar={me?.avatar ?? 'ghost'} picture={me?.picture} size={26} />
+      <span className="profile-link-name">{me ? me.name : tr('Guest')}</span>
+    </a>
   );
 }
 
@@ -82,6 +99,7 @@ export function App() {
   else if (route.page === 'game') content = <Setup key={route.id} gameId={route.id} onStart={setSession} />;
   else if (route.page === 'join') content = <Join key={route.code} initialCode={route.code} onJoin={setSession} />;
   else if (route.page === 'settings') content = <SettingsPage />;
+  else if (route.page === 'profile') content = <ProfilePage />;
   else if (route.page === 'santa') content = <SantaPage />;
   else if (route.page === 'santa-reveal') content = <SantaReveal token={route.token} />;
   else if (route.page === 'trivia') content = <TriviaImport token={route.token} />;
@@ -105,6 +123,7 @@ export function App() {
         <nav className="topnav">
           {!session && <a href="#/join">{tr('Join a room')}</a>}
           {!session && <a href="#/settings">{tr('Customize')}</a>}
+          {!session && <ProfileLink />}
           <LangSwitch />
         </nav>
       </header>
@@ -112,6 +131,7 @@ export function App() {
         {!session && route.page !== 'santa-reveal' && <RejoinBanner onStart={setSession} />}
         {content}
       </main>
+      <Toasts />
       <footer className="site-footer">
         <p>{tr('Made for fun, not for profit. Free for everyone to play, share and use.')}</p>
         <p>

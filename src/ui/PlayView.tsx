@@ -4,6 +4,8 @@ import type { GameResult, PlayerInfo, Seat } from '../engine/types';
 import { getGame } from '../games';
 import { gameName, gameRules, t as tt, useLang, useT } from '../i18n';
 import { CustomizeButton } from './CustomizeDrawer';
+import { Avatar } from './Avatar';
+import { AfterGame, HintBar, NightBoard, secondsLeft, useNow, usePlayFeedback } from './PlayExtras';
 
 function resultText(r: GameResult, players: PlayerInfo[], you: Seat | null) {
   if (r.message) return tt(r.message);
@@ -50,6 +52,12 @@ export function PlayView({ session, snap, onLeave }: { session: Session; snap: S
   const watching = snap.spectating !== null && snap.spectating !== undefined;
   const canMove = !watching && !result && active.includes(seat) && players[seat]?.kind !== 'bot';
 
+  const usedHint = useRef(false);
+  usePlayFeedback(snap, game, seat, you, canMove, usedHint);
+  const timed = !result && Object.keys(snap.deadlines ?? {}).length > 0;
+  const left = secondsLeft(snap, useNow(timed, 500));
+  const pictures = snap.publicLounge ? {} : (snap.pictures ?? {});
+
   let status: string;
   if (result) status = resultText(result, players, you);
   else if (canMove && players.length === 1) status = '';
@@ -82,7 +90,9 @@ export function PlayView({ session, snap, onLeave }: { session: Session; snap: S
         {players.map((p, i) => (
           <span key={i} className={'player-chip' + (active.includes(i) && !result ? ' active' : '') + (result?.winners.includes(i) ? ' winner' : '')}>
             <span className="seat-dot" style={{ background: `var(--p${i})` }} />
+            <Avatar name={p.name} avatar={p.avatar ?? (p.kind === 'bot' ? 'robot' : undefined)} picture={pictures[p.name]} size={22} seat={i} />
             {p.name}
+            {left[i] !== undefined && active.includes(i) && <span className={'turn-clock' + (left[i] <= 5 ? ' low' : '')}>⏱ {left[i]}</span>}
             {p.kind === 'bot' && <span className="muted small"> 🤖</span>}
             {p.connected === false && <span className="muted small"> ({t('left')})</span>}
           </span>
@@ -93,6 +103,7 @@ export function PlayView({ session, snap, onLeave }: { session: Session; snap: S
         {status}
       </p>
       {snap.notice && <p className="notice">{t(snap.notice)}</p>}
+      <NightBoard snap={snap} />
 
       <div className="board-area">
         {needsPass ? (
@@ -121,6 +132,8 @@ export function PlayView({ session, snap, onLeave }: { session: Session; snap: S
         ) : null}
       </div>
 
+      {!needsPass && !watching && !result && <HintBar game={game} snap={snap} seat={seat} canMove={canMove} onMove={(m) => session.submit(seat, m)} usedHint={usedHint} />}
+
       {game.rules && (
         <details className="rules">
           <summary>{t('How to play')}</summary>
@@ -128,24 +141,7 @@ export function PlayView({ session, snap, onLeave }: { session: Session; snap: S
         </details>
       )}
 
-      {result && (
-        <div className="row center-row">
-          {snap.isHost ? (
-            <>
-              <button className="btn primary" onClick={() => session.restart?.()}>
-                {t('Play again')}
-              </button>
-              {snap.online && (
-                <button className="btn" onClick={() => session.backToLobby?.()}>
-                  {t('Back to lobby')}
-                </button>
-              )}
-            </>
-          ) : (
-            <p className="muted">{t('Waiting for the host to start the next game…')}</p>
-          )}
-        </div>
-      )}
+      {result && <AfterGame session={session} snap={snap} />}
     </div>
   );
 }

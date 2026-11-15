@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { playSound } from './sound';
 import type { ChatMsg, Session, SessionSnapshot } from '../engine/session';
 import type { Seat } from '../engine/types';
 import { useT } from '../i18n';
@@ -54,6 +55,15 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
     const el = list.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [lastId, open, tab]);
+
+  // A soft sound for new messages from others
+  const heard = useRef(lastId);
+  useEffect(() => {
+    const last = chat[chat.length - 1];
+    if (last && last.id > heard.current && !last.system && last.seat !== me && last.name !== snap.players[me]?.name) playSound('chat');
+    heard.current = lastId;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastId]);
 
   // Briefly show new messages from others while the chat is closed
   useEffect(() => {

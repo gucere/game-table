@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLang, useT } from '../i18n';
 import { SANTA_MAIL_URL } from './config';
-import { MAX_PEOPLE, checkPeople, decodeReveal, drawCycle, encodeReveal, type Person, type Reveal } from './draw';
+import { MAX_PEOPLE, checkPeople, decodeReveal, drawWithExclusions, encodeReveal, type Person, type Reveal } from './draw';
 
 const DRAFT_KEY = 'oyun-masasi:santa-draft';
 
@@ -10,6 +10,8 @@ interface Draft {
   budget: string;
   date: string;
   note: string;
+  /** Pairs (by name) who may not draw each other */
+  exclusions?: [string, string][];
 }
 
 function loadDraft(): Draft {
@@ -87,10 +89,20 @@ export function SantaPage() {
     return errs.length ? null : list;
   };
 
+  /** Exclusions as positions in the current list (pairs naming someone not on the list are ignored) */
+  const exclusionPairs = (list: Person[]): [number, number][] => {
+    const at = (name: string) => list.findIndex((p) => p.name.toLocaleLowerCase() === name.trim().toLocaleLowerCase());
+    return (draft.exclusions ?? []).map(([a, b]) => [at(a), at(b)] as [number, number]).filter(([a, b]) => a >= 0 && b >= 0 && a !== b);
+  };
+
   const drawLinks = () => {
     const list = validate();
     if (!list) return;
-    const receiver = drawCycle(list.length);
+    const receiver = drawWithExclusions(list.length, exclusionPairs(list));
+    if (!receiver) {
+      setErrors([t('These exclusions leave no possible draw. Remove one or add more people.')]);
+      return;
+    }
     const links = list.map((person, i) => ({
       person,
       url: `${siteUrl()}#/santa/r/${encodeReveal({ g: person.name, r: list[receiver[i]].name, b: draft.budget.trim() || undefined, d: draft.date || undefined, m: draft.note.trim() || undefined, l: lang })}`,
@@ -109,7 +121,7 @@ export function SantaPage() {
       const res = await fetch(SANTA_MAIL_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ people: list, budget: draft.budget.trim(), date: draft.date, dateText: niceDate(draft.date, lang), note: draft.note.trim(), lang }),
+        body: JSON.stringify({ people: list, exclusions: exclusionPairs(list), budget: draft.budget.trim(), date: draft.date, dateText: niceDate(draft.date, lang), note: draft.note.trim(), lang }),
       });
       const out = (await res.json()) as { ok: boolean; sent?: number; error?: string };
       if (!out.ok) throw new Error(out.error || 'failed');
@@ -264,6 +276,43 @@ export function SantaPage() {
           </div>
         </div>
       )}
+
+      <div className="stack-sm santa-exclusions">
+        <strong className="small">{t('Who shouldn’t draw each other? (optional)')}</strong>
+        <span className="small muted">{t('For couples, siblings or flatmates: neither will draw the other.')}</span>
+        {(draft.exclusions ?? []).map(([a, b], k) => (
+          <div key={k} className="row santa-ex-row">
+            {[a, b].map((v, side) => (
+              <select
+                key={side}
+                className="input"
+                value={v}
+                onChange={(e) =>
+                  setDraft((d) => ({
+                    ...d,
+                    exclusions: (d.exclusions ?? []).map((pair, i) => (i === k ? ((side ? [pair[0], e.target.value] : [e.target.value, pair[1]]) as [string, string]) : pair)),
+                  }))
+                }
+              >
+                <option value="">—</option>
+                {filled()
+                  .filter((p) => p.name)
+                  .map((p) => (
+                    <option key={p.name} value={p.name}>
+                      {p.name}
+                    </option>
+                  ))}
+              </select>
+            ))}
+            <button className="btn ghost small" aria-label={t('Remove')} onClick={() => setDraft((d) => ({ ...d, exclusions: (d.exclusions ?? []).filter((_, i) => i !== k) }))}>
+              ✕
+            </button>
+          </div>
+        ))}
+        <button className="btn small" onClick={() => setDraft((d) => ({ ...d, exclusions: [...(d.exclusions ?? []), ['', '']] }))}>
+          + {t('Add a pair')}
+        </button>
+      </div>
 
       <div className="santa-extras">
         <label>

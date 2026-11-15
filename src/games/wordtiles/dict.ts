@@ -40,6 +40,8 @@ export function loadDictionary(lang: Lang): Promise<void> {
 
 export const dictionaryReady = (lang: Lang) => !!sets[lang];
 export const hasWord = (lang: Lang, w: string) => !!sets[lang]?.has(w);
+/** The whole list once loaded (for other word games' bots) */
+export const wordList = (lang: Lang): string[] | null => lists[lang] ?? null;
 
 /**
  * A trie in flat arrays (first child / next sibling), built from the sorted list.

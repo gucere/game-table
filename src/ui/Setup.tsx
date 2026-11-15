@@ -6,6 +6,7 @@ import { defaultOptions, type BotLevel, type GameDef, type GameOptions, type Pla
 import { getGame } from '../games';
 import { gameName, gameRules, gameTagline, otherName, t as tt, useLang, useT } from '../i18n';
 import { getSettings, updateSettings } from '../theme/settings';
+import { TurnTimerField, hasTurnTimer } from './PlayExtras';
 
 interface SeatDraft {
   kind: 'human' | 'bot';
@@ -38,7 +39,7 @@ export function OptionsForm({
   numPlayers: number;
 }) {
   const t = useT();
-  if (!game.options?.length && !game.OptionsExtra) return null;
+  if (!game.options?.length && !game.OptionsExtra && !(numPlayers > 1 && hasTurnTimer(game))) return null;
   return (
     <div className="stack">
       {game.OptionsExtra && <game.OptionsExtra numPlayers={numPlayers} options={options} onChange={onChange} readOnly={readOnly} />}
@@ -59,6 +60,7 @@ export function OptionsForm({
           )}
         </label>
       ))}
+      {numPlayers > 1 && <TurnTimerField game={game} options={options} onChange={onChange} readOnly={readOnly} />}
     </div>
     </div>
   );

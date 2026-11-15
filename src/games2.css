@@ -1336,6 +1336,10 @@
   --fl-y: #e9a23b;
   --fl-x: #4a4f5c;
 }
+:root[data-cb] .fl {
+  --fl-g: #0072b2;
+  --fl-y: #e69f00;
+}
 .fl-grid {
   display: grid;
   gap: 6px;
@@ -2177,4 +2181,154 @@
 .hangout .big {
   font-size: 2.5rem;
   margin: 0;
+}
+
+/* Go */
+.go-board {
+  width: min(92vw, 560px);
+  touch-action: manipulation;
+}
+.go-wood {
+  fill: #dcb35c;
+}
+.go-line {
+  stroke: #3b2a12;
+  stroke-width: 0.18;
+}
+.go-star {
+  fill: #3b2a12;
+}
+.go-stone.b {
+  fill: #1b1b1b;
+  stroke: #000;
+  stroke-width: 0.15;
+}
+.go-stone.w {
+  fill: #f7f5ef;
+  stroke: #8a8270;
+  stroke-width: 0.15;
+}
+.go-ghost {
+  opacity: 0;
+}
+.go-pt.open {
+  cursor: pointer;
+}
+.go-pt.open:hover .go-ghost {
+  opacity: 0.35;
+}
+.go-ghost.b {
+  fill: #1b1b1b;
+}
+.go-ghost.w {
+  fill: #fff;
+}
+.go-terr.b {
+  fill: #1b1b1b;
+}
+.go-terr.w {
+  fill: #fff;
+  stroke: #555;
+  stroke-width: 0.1;
+}
+.go-last.onb {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 0.35;
+}
+.go-last.onw {
+  fill: none;
+  stroke: #111;
+  stroke-width: 0.35;
+}
+.go-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  vertical-align: -1px;
+}
+.go-dot.b {
+  background: #1b1b1b;
+  border: 1px solid #888;
+}
+.go-dot.w {
+  background: #f7f5ef;
+  border: 1px solid #888;
+}
+.chip.on {
+  outline: 2px solid var(--accent);
+}
+
+/* Kelime Zinciri */
+.chain {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.chain-players {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.chain-player {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 2px solid transparent;
+}
+.chain-player.on {
+  border-color: var(--accent);
+}
+.chain-player.out {
+  opacity: 0.5;
+}
+.chain-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  min-height: 2.2rem;
+}
+.chain-word {
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border-bottom: 3px solid;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.chain-word.last {
+  font-size: 1.2em;
+  background: var(--surface);
+}
+.chain-letter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.chain-letter strong {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  color: var(--accent);
+}
+.chain-timer {
+  width: min(100%, 360px);
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.chain-timer span {
+  display: block;
+  height: 100%;
+  transition: width 0.2s linear;
+}
+.chain-input {
+  width: min(60vw, 260px);
+  font-size: 1.2rem;
 }

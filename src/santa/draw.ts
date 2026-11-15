@@ -36,6 +36,38 @@ export function drawCycle(n: number, random: () => number = Math.random): number
   return receiver;
 }
 
+/**
+ * A draw where some pairs may not draw each other (couples, siblings…), either way round.
+ * Tries the single-circle draw first, then searches; null if the rules make it impossible.
+ */
+export function drawWithExclusions(n: number, exclusions: [number, number][], random: () => number = Math.random): number[] | null {
+  const banned = new Set(exclusions.flatMap(([a, b]) => [`${a}>${b}`, `${b}>${a}`]));
+  const ok = (g: number, r: number) => g !== r && !banned.has(`${g}>${r}`);
+  for (let k = 0; k < 200; k++) {
+    const r = drawCycle(n, random);
+    if (r.every((x, g) => ok(g, x))) return r;
+  }
+  // Backtracking over a random order of givers and candidates
+  const order = Array.from({ length: n }, (_, i) => i).sort(() => random() - 0.5);
+  const receiver = Array(n).fill(-1);
+  const used = new Set<number>();
+  const place = (k: number): boolean => {
+    if (k === n) return true;
+    const g = order[k];
+    const options = Array.from({ length: n }, (_, i) => i)
+      .filter((r) => !used.has(r) && ok(g, r))
+      .sort(() => random() - 0.5);
+    for (const r of options) {
+      receiver[g] = r;
+      used.add(r);
+      if (place(k + 1)) return true;
+      used.delete(r);
+    }
+    return false;
+  };
+  return place(0) ? receiver : null;
+}
+
 // The result is scrambled into the link so the organizer doesn't see it by accident while
 // sending. It is not encryption: anyone determined could decode a link they have.
 function keystream(salt: number, len: number) {

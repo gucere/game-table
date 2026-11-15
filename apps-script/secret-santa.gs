@@ -34,7 +34,8 @@ function doPost(e) {
       if (sentThisHour + people.length > MAX_EMAILS_PER_HOUR) throw new Error('busy: too many emails this hour, try again later');
       if (MailApp.getRemainingDailyQuota() < people.length) throw new Error('busy: the daily email limit is reached, try again tomorrow');
 
-      var receiver = drawCycle(people.length);
+      var receiver = drawWithExclusions(people.length, cleanExclusions(data.exclusions, people.length));
+      if (!receiver) throw new Error('these exclusions leave no possible draw');
       for (var i = 0; i < people.length; i++) {
         var msg = message(lang, people[i].name, people[receiver[i]].name, extras);
         MailApp.sendEmail({ to: people[i].email, subject: msg.subject, body: msg.body, name: SITE_NAME + ' 🎅' });
@@ -80,6 +81,26 @@ function clean(list) {
     seen[email] = true;
     return { name: name, email: email };
   });
+}
+
+/** Pairs of positions in the list who may not draw each other */
+function cleanExclusions(list, n) {
+  if (!Array.isArray(list)) return [];
+  return list.filter(function (p) {
+    return Array.isArray(p) && p.length === 2 && p.every(function (x) { return x === Math.floor(x) && x >= 0 && x < n; }) && p[0] !== p[1];
+  }).slice(0, 100);
+}
+
+/** Like drawCycle, but nobody draws someone they're paired with in the exclusions */
+function drawWithExclusions(n, exclusions) {
+  var banned = {};
+  exclusions.forEach(function (p) { banned[p[0] + '>' + p[1]] = true; banned[p[1] + '>' + p[0]] = true; });
+  var ok = function (g, r) { return g !== r && !banned[g + '>' + r]; };
+  for (var k = 0; k < 2000; k++) {
+    var r = drawCycle(n);
+    if (r.every(function (x, g) { return ok(g, x); })) return r;
+  }
+  return null;
 }
 
 /** receiver[i] = who person i buys for; one big circle, so nobody draws themselves */

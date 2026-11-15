@@ -77,6 +77,9 @@ export const GAME_NAMES: Record<string, { en: string; tr: string }> = {
   'kelimeyi-anlat': { en: 'Describe It', tr: 'Kelimeyi Anlat' },
   'gizli-gorev': { en: 'Secret Mission', tr: 'Gizli Görev' },
   'casus-kim': { en: 'Who’s the Spy?', tr: 'Casus Kim?' },
+  go: { en: 'Go', tr: 'Go' },
+  'tugla-kirma': { en: 'Brick Smash', tr: 'Tuğla Kırma' },
+  'kelime-zinciri': { en: 'Word Chain', tr: 'Kelime Zinciri' },
 };
 
 export { GAME_TEXT_TR } from './games-tr';

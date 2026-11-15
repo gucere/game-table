@@ -11,6 +11,8 @@ export interface PlayerInfo {
   kind: 'human' | 'remote' | 'bot';
   level?: BotLevel;
   connected?: boolean;
+  /** Ready-made avatar id (see profile/profile.ts) */
+  avatar?: string;
 }
 
 export interface GameResult {
@@ -114,6 +116,12 @@ export interface GameDef<S = any, M = any, V = any> {
   /** Host-clock timestamp when `onTimer` should fire, or null */
   timer?(state: S): number | null;
   onTimer?(state: S, ctx: GameCtx): S;
+  /** Turn timers make no sense here (real-time or solo games) */
+  noTurnTimer?: boolean;
+  /** Plain words for a move, used by hints ("Play e2 to e4") */
+  describeMove?(view: V, move: M, seat: Seat): string;
+  /** Teach-me mode: a tip about the position in front of this player, or null */
+  teach?(view: V, seat: Seat): string | null;
   Board: ComponentType<BoardProps<V, M>>;
   /** Extra panel on the setup screen (e.g. a question editor) */
   SetupExtra?: ComponentType;
