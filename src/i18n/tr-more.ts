@@ -1235,4 +1235,5 @@ export const TR_MORE: Record<string, string> = {
   'You can’t add this person.': 'Bu kişiyi ekleyemezsin.',
   'Request already sent. Waiting for them to accept.': 'İstek zaten gönderildi. Kabul etmesi bekleniyor.',
   'Sign in first.': 'Önce giriş yap.',
+  'Delete the profile “{name}” and its stats from this device?': '“{name}” profili ve istatistikleri bu cihazdan silinsin mi?',
 };

@@ -6,6 +6,19 @@ import { ACHIEVEMENTS, backupCode, readBackup, resetStats, restoreStats, useStat
 import { useSettings } from '../theme/settings';
 import { Avatar } from './Avatar';
 import { AccountPanel } from './AccountPanel';
+import { useAccount } from '../account/account';
+
+/** The profile of the account signed in right now can't be deleted here (sign out or delete the account instead) */
+function useLiveAccountId() {
+  const acct = useAccount();
+  return acct.status === 'signed-in' && acct.uid ? 'acct_' + acct.uid : null;
+}
+
+function confirmDelete(p: Profile, t: ReturnType<typeof useT>) {
+  if (!confirm(t('Delete the profile “{name}” and its stats from this device?', { name: p.name }))) return false;
+  deleteProfile(p.id);
+  return true;
+}
 
 function Editor({ start, onDone }: { start: Profile; onDone: () => void }) {
   const t = useT();
@@ -13,6 +26,7 @@ function Editor({ start, onDone }: { start: Profile; onDone: () => void }) {
   const [error, setError] = useState('');
   const file = useRef<HTMLInputElement>(null);
   const isNew = !useProfiles().profiles.some((x) => x.id === start.id);
+  const live = useLiveAccountId();
 
   const pick = async (f: File | undefined) => {
     if (!f) return;
@@ -68,7 +82,7 @@ function Editor({ start, onDone }: { start: Profile; onDone: () => void }) {
         <button className="btn ghost" onClick={onDone}>
           {t('Cancel')}
         </button>
-        {!isNew && !start.account && (
+        {!isNew && start.id !== live && (
           <button
             className="btn ghost danger"
             onClick={() => {
@@ -92,6 +106,7 @@ export function ProfilePage() {
   const { profiles, current } = useProfiles();
   const settings = useSettings();
   const me = profiles.find((p) => p.id === current) ?? null;
+  const live = useLiveAccountId();
   const owner = current ?? 'guest';
   const stats = useStats(owner);
   const [editing, setEditing] = useState<Profile | null>(null);
@@ -147,9 +162,16 @@ export function ProfilePage() {
             <p className="small muted">{me?.account ? t('Your profile, picture, stats and achievements are saved to your account and come with you to every device where you sign in.') : me ? t('Your stats and achievements are saved with this profile on this device.') : t('You’re playing as a guest. Make a profile to get an avatar and keep your stats apart from others on this device.')}</p>
           </div>
           {me && !editing && (
-            <button className="btn small" onClick={() => setEditing(me)}>
-              ✏️ {t('Edit')}
-            </button>
+            <div className="row">
+              <button className="btn small" onClick={() => setEditing(me)}>
+                ✏️ {t('Edit')}
+              </button>
+              {me.id !== live && (
+                <button className="btn small ghost danger" onClick={() => confirmDelete(me, t)}>
+                  🗑 {t('Delete')}
+                </button>
+              )}
+            </div>
           )}
         </div>
 
