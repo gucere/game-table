@@ -30,6 +30,10 @@ export interface Stats {
   hintsUsed: number;
   /** Achievement id → when it was earned */
   achievements: Record<string, number>;
+  /** Liked games: game id → when you liked it (positive) or un-liked it (negative), so devices agree on the latest */
+  likes: Record<string, number>;
+  /** Game id → when you last started it */
+  opened: Record<string, number>;
 }
 
 export interface FinishedGame {
@@ -86,7 +90,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 ];
 
 export function emptyStats(): Stats {
-  return { games: {}, streak: 0, bestStreak: 0, days: [], online: 0, hardWins: 0, bigTables: 0, nights: 0, hintsUsed: 0, achievements: {} };
+  return { games: {}, streak: 0, bestStreak: 0, days: [], online: 0, hardWins: 0, bigTables: 0, nights: 0, hintsUsed: 0, achievements: {}, likes: {}, opened: {} };
 }
 
 const key = (owner: string) => 'oyun-masasi:stats:' + owner;
@@ -191,6 +195,13 @@ export function onStatsChange(fn: () => void) {
 
 const newest = (s: Stats) => Math.max(0, ...Object.values(s.games).map((g) => g.last));
 
+/** The newer like / un-like wins for each game */
+function mergeLikes(a: Record<string, number>, b: Record<string, number>) {
+  const out = { ...b };
+  for (const [k, v] of Object.entries(a)) if (!(k in out) || Math.abs(v) > Math.abs(out[k])) out[k] = v;
+  return out;
+}
+
 /**
  * Combines the stats of one person kept on two devices. Counters take the larger value and
  * achievements and days are joined, so merging the same data again changes nothing.
@@ -221,6 +232,8 @@ export function mergeStats(a: Stats, b: Stats): Stats {
     nights: max('nights'),
     hintsUsed: max('hintsUsed'),
     achievements,
+    likes: mergeLikes(a.likes ?? {}, b.likes ?? {}),
+    opened: Object.fromEntries([...new Set([...Object.keys(a.opened ?? {}), ...Object.keys(b.opened ?? {})])].map((k) => [k, Math.max(a.opened?.[k] ?? 0, b.opened?.[k] ?? 0)])),
   };
 }
 
@@ -236,14 +249,54 @@ export function cleanStats(raw: unknown): Stats {
       s.games[id.slice(0, 40)] = { played: num(g.played), won: num(g.won), drawn: num(g.drawn), streak: num(g.streak), best: num(g.best), last: num(g.last) };
     }
   for (const k of ['streak', 'bestStreak', 'online', 'hardWins', 'bigTables', 'nights', 'hintsUsed'] as const) s[k] = num(r[k]);
+  const ids = (o: unknown) => (o && typeof o === 'object' ? Object.entries(o as Record<string, unknown>).slice(0, 300) : []);
+  for (const [k, v] of ids(r.likes)) if (typeof v === 'number' && Number.isFinite(v) && v !== 0) s.likes[k.slice(0, 40)] = Math.trunc(v);
+  for (const [k, v] of ids(r.opened)) if (num(v)) s.opened[k.slice(0, 40)] = num(v);
   if (Array.isArray(r.days)) s.days = r.days.filter((d) => typeof d === 'string' && /^\d{4}-\d\d-\d\d$/.test(d)).slice(-60);
   if (r.achievements && typeof r.achievements === 'object')
     for (const [k, t] of Object.entries(r.achievements)) if (ACHIEVEMENTS.some((a) => a.id === k)) s.achievements[k] = num(t) || Date.now();
   return s;
 }
 
+/** Clears stats and achievements; liked games stay */
 export function resetStats(owner = statsOwner()) {
-  write(owner, emptyStats());
+  const old = getStats(owner);
+  write(owner, { ...emptyStats(), likes: old.likes ?? {}, opened: old.opened ?? {} });
+}
+
+// ---- Liked and recently played games (kept with the stats, so they follow the profile and account)
+
+export const isLiked = (s: Stats, id: string) => (s.likes?.[id] ?? 0) > 0;
+
+export function toggleLike(id: string) {
+  const owner = statsOwner();
+  const s = getStats(owner);
+  const now = Date.now();
+  write(owner, { ...s, likes: { ...(s.likes ?? {}), [id]: isLiked(s, id) ? -now : now } });
+}
+
+export function markOpened(id: string) {
+  const owner = statsOwner();
+  const s = getStats(owner);
+  write(owner, { ...s, opened: { ...(s.opened ?? {}), [id]: Date.now() } });
+}
+
+/** Liked game ids, most recently liked first */
+export const likedIds = (s: Stats) =>
+  Object.entries(s.likes ?? {})
+    .filter(([, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1])
+    .map(([k]) => k);
+
+/** Recently started or finished games, newest first */
+export function recentIds(s: Stats, n = 8) {
+  const at: Record<string, number> = { ...(s.opened ?? {}) };
+  for (const [k, g] of Object.entries(s.games)) at[k] = Math.max(at[k] ?? 0, g.last);
+  return Object.entries(at)
+    .filter(([, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n)
+    .map(([k]) => k);
 }
 
 // --- Backup codes: copy your profile and stats to another device by hand

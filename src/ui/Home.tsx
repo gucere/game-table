@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import type { GameDef } from '../engine/types';
+import { NO_FILTERS, filtering, findGames, type Filters, type Mode } from '../games/finder';
+import { isLiked, likedIds, recentIds } from '../profile/stats';
+import { LikeButton, useMyStats } from './LikeButton';
 import { PUBLIC_ROOMS, acceptRules, rulesAccepted } from '../engine/lounge';
 import { GAMES, SECTIONS } from '../games';
 import { gameName, gameTagline, otherName, useLang, useT, type T } from '../i18n';
@@ -68,10 +72,77 @@ function PublicRooms({ onEnter }: { onEnter: (code: string) => void }) {
   );
 }
 
-export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void }) {
+function GameCard({ g }: { g: GameDef }) {
   const t = useT();
   const lang = useLang();
+  const aka = otherName(g, lang);
+  const name = gameName(g, lang);
+  return (
+    <div className="game-card-wrap">
+      <a className="game-card" href={`#/game/${g.id}`}>
+        <span className="game-icon" aria-hidden>
+          {g.icon}
+        </span>
+        <span className="game-name">
+          {name}
+          {aka && <span className="game-aka"> · {aka}</span>}
+        </span>
+        <span className="muted small">{gameTagline(g, lang)}</span>
+        <span className="row">
+          <span className="chip">{players(t, g.minPlayers, g.maxPlayers)}</span>
+          {g.onlineOnly && <span className="chip">{t('online')}</span>}
+          {g.bot && <span className="chip">{t('bots')}</span>}
+        </span>
+      </a>
+      <LikeButton id={g.id} name={name} />
+    </div>
+  );
+}
+
+function Row({ title, games }: { title: string; games: GameDef[] }) {
+  const t = useT();
+  if (!games.length) return null;
+  return (
+    <section>
+      <h2 className="section-title">{t(title)}</h2>
+      <div className="game-grid">
+        {games.map((g) => (
+          <GameCard key={g.id} g={g} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// Remembered while you look at a game and come back
+let lastFilters: Filters = NO_FILTERS;
+
+const MODES: { id: Mode; label: string }[] = [
+  { id: 'any', label: 'Any way' },
+  { id: 'bots', label: '🤖 Against bots' },
+  { id: 'device', label: '📱 On one device' },
+  { id: 'online', label: '🌐 Online' },
+];
+
+export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void }) {
+  const t = useT();
   const byId = new Map(GAMES.map((g) => [g.id, g]));
+  const stats = useMyStats();
+  const [f, setF] = useState<Filters>(lastFilters);
+  const update = (patch: Partial<Filters>) =>
+    setF((x) => {
+      lastFilters = { ...x, ...patch };
+      return lastFilters;
+    });
+  // Every game on the home page, in section order
+  const all = SECTIONS.flatMap((s) => s.ids.map((id) => byId.get(id)).filter((g): g is GameDef => !!g));
+  const liked = (id: string) => isLiked(stats, id);
+  const active = filtering(f);
+  const found = active ? findGames(all, f, liked) : all;
+  const pick = (id: string) => byId.get(id);
+  const likedGames = likedIds(stats).map(pick).filter((g): g is GameDef => !!g && all.includes(g));
+  const recent = recentIds(stats, 6).map(pick).filter((g): g is GameDef => !!g && all.includes(g));
+
   return (
     <div className="stack-lg">
       <section className="hero">
@@ -79,38 +150,77 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
         <p className="muted">{t('Play alone against bots, pass one device around, or play online with friends straight from the browser, peer to peer.')}</p>
       </section>
 
-      {SECTIONS.map((sec) => (
-        <section key={sec.title}>
-          <h2 className="section-title">{t(sec.title)}</h2>
-          <div className="game-grid">
-            {sec.ids
-              .map((id) => byId.get(id))
-              .filter((g) => !!g)
-              .map((g) => {
-                const aka = otherName(g!, lang);
-                return (
-                  <a key={g!.id} className="game-card" href={`#/game/${g!.id}`}>
-                    <span className="game-icon" aria-hidden>
-                      {g!.icon}
-                    </span>
-                    <span className="game-name">
-                      {gameName(g!, lang)}
-                      {aka && <span className="game-aka"> · {aka}</span>}
-                    </span>
-                    <span className="muted small">{gameTagline(g!, lang)}</span>
-                    <span className="row">
-                      <span className="chip">{players(t, g!.minPlayers, g!.maxPlayers)}</span>
-                      {g!.onlineOnly && <span className="chip">{t('online')}</span>}
-                      {g!.bot && <span className="chip">{t('bots')}</span>}
-                    </span>
-                  </a>
-                );
-              })}
-          </div>
-        </section>
-      ))}
+      <section className="finder stack-sm" aria-label={t('Find a game')}>
+        <div className="row finder-top">
+          <input
+            className="input finder-search"
+            type="search"
+            value={f.q}
+            placeholder={t('Search {n} games…', { n: all.length })}
+            aria-label={t('Search games')}
+            onChange={(e) => update({ q: e.target.value })}
+          />
+          <button
+            className="btn"
+            disabled={!found.length}
+            title={t('Open a random game from the ones shown')}
+            onClick={() => {
+              const g = found[Math.floor(Math.random() * found.length)];
+              if (g) window.location.hash = `/game/${g.id}`;
+            }}
+          >
+            🎲 {t('Surprise me')}
+          </button>
+        </div>
+        <div className="row finder-chips">
+          <span className="small muted">{t('Players')}:</span>
+          {[null, 1, 2, 3, 4, 5, 6].map((n) => (
+            <button key={String(n)} className={'chip-btn small-chip' + (f.players === n ? ' on' : '')} aria-pressed={f.players === n} onClick={() => update({ players: n })}>
+              {n === null ? t('Any') : n === 6 ? '6+' : n}
+            </button>
+          ))}
+        </div>
+        <div className="row finder-chips">
+          {MODES.map((m) => (
+            <button key={m.id} className={'chip-btn small-chip' + (f.mode === m.id ? ' on' : '')} aria-pressed={f.mode === m.id} onClick={() => update({ mode: m.id })}>
+              {t(m.label)}
+            </button>
+          ))}
+          <button className={'chip-btn small-chip' + (f.liked ? ' on' : '')} aria-pressed={f.liked} onClick={() => update({ liked: !f.liked })}>
+            ♥ {t('Liked')}
+          </button>
+          {active && (
+            <button className="btn ghost small" onClick={() => update(NO_FILTERS)}>
+              ✕ {t('Clear')}
+            </button>
+          )}
+        </div>
+      </section>
 
-      {onEnterPublic && <PublicRooms onEnter={onEnterPublic} />}
+      {active ? (
+        <section>
+          <h2 className="section-title">{found.length === 1 ? t('1 game') : t('{n} games', { n: found.length })}</h2>
+          {found.length ? (
+            <div className="game-grid">
+              {found.map((g) => (
+                <GameCard key={g.id} g={g} />
+              ))}
+            </div>
+          ) : (
+            <p className="muted">{f.liked && !likedGames.length ? t('No liked games yet. Tap ♡ on a game to like it.') : t('No games match. Try fewer filters or another word.')}</p>
+          )}
+        </section>
+      ) : (
+        <>
+          <Row title="♥ Liked" games={likedGames} />
+          <Row title="Recently played" games={recent} />
+          {SECTIONS.map((sec) => (
+            <Row key={sec.title} title={sec.title} games={sec.ids.map(pick).filter((g): g is GameDef => !!g)} />
+          ))}
+        </>
+      )}
+
+      {!active && onEnterPublic && <PublicRooms onEnter={onEnterPublic} />}
 
       <section>
         <h2 className="section-title">{t('Tools')}</h2>

@@ -7,6 +7,8 @@ import { getGame } from '../games';
 import { gameName, gameRules, gameTagline, otherName, t as tt, useLang, useT } from '../i18n';
 import { getSettings, updateSettings } from '../theme/settings';
 import { TurnTimerField, hasTurnTimer } from './PlayExtras';
+import { LikeButton } from './LikeButton';
+import { markOpened } from '../profile/stats';
 
 interface SeatDraft {
   kind: 'human' | 'bot';
@@ -97,12 +99,14 @@ export function Setup({ gameId, onStart }: { gameId: string; onStart: (s: Sessio
       kind: s.kind,
       level: s.kind === 'bot' ? s.level : undefined,
     }));
+    markOpened(game.id);
     onStart(new LocalSession(game, players, options));
   };
 
   const startOnline = () => {
     const name = myName.trim() || t('Host');
     updateSettings({ name: myName.trim() });
+    markOpened(game.id);
     onStart(new HostSession(game.id, name));
   };
 
@@ -122,6 +126,7 @@ export function Setup({ gameId, onStart }: { gameId: string; onStart: (s: Sessio
           </h1>
           <p className="muted">{gameTagline(game, lang)}</p>
         </div>
+        <LikeButton id={game.id} name={gameName(game, lang)} big />
       </div>
       {game.rules && <p className="small rules-text">{gameRules(game, lang)}</p>}
       {game.SetupExtra && <game.SetupExtra />}

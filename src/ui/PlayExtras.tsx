@@ -8,6 +8,8 @@ import { gameName, useLang, useT } from '../i18n';
 import { recordGame, recordNight } from '../profile/stats';
 import { updateSettings, useSettings } from '../theme/settings';
 import { showToast } from './Avatar';
+import { useMyStats } from './LikeButton';
+import { isLiked } from '../profile/stats';
 import { feedback, playSound } from './sound';
 
 /** Re-renders every `ms` while `on` */
@@ -231,7 +233,9 @@ export function TurnTimerField({ game, options, onChange, readOnly }: { game: Ga
 export function NightPicker({ session, snap, onClose }: { session: Session; snap: SessionSnapshot; onClose: () => void }) {
   const t = useT();
   const lang = useLang();
-  const fits = GAMES.filter((g) => nightFits(g, snap.players, snap.online));
+  const stats = useMyStats();
+  // Liked games first
+  const fits = GAMES.filter((g) => nightFits(g, snap.players, snap.online)).sort((a, b) => Number(isLiked(stats, b.id)) - Number(isLiked(stats, a.id)));
   const [queue, setQueue] = useState<string[]>(() => (fits.some((g) => g.id === snap.gameId) ? [snap.gameId] : []));
   const toggle = (id: string) => setQueue((q) => (q.includes(id) ? q.filter((x) => x !== id) : q.length < NIGHT_MAX_GAMES ? [...q, id] : q));
   return (
@@ -248,6 +252,7 @@ export function NightPicker({ session, snap, onClose }: { session: Session; snap
               <button key={g.id} className={'chip-btn' + (at >= 0 ? ' on' : '')} aria-pressed={at >= 0} onClick={() => toggle(g.id)}>
                 {at >= 0 && <span className="night-num">{at + 1}</span>}
                 {g.icon} {gameName(g, lang)}
+                {isLiked(stats, g.id) && <span aria-label={t('Liked')}> ♥</span>}
               </button>
             );
           })}

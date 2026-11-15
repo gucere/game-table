@@ -8,6 +8,8 @@ import { OptionsForm } from './Setup';
 import { Avatar } from './Avatar';
 import { NightBoard, NightPicker } from './PlayExtras';
 import { InviteFriend } from './FriendsPage';
+import { useMyStats } from './LikeButton';
+import { isLiked } from '../profile/stats';
 
 function joinLink(code: string) {
   const base = window.location.href.split('#')[0];
@@ -20,6 +22,9 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
   const lang = useLang();
   const [copied, setCopied] = useState(false);
   const [night, setNight] = useState(false);
+  const stats = useMyStats();
+  const roomGames = GAMES.filter((g) => g.maxPlayers >= 2 && !g.localOnly);
+  const likedGames = roomGames.filter((g) => isLiked(stats, g.id));
   const pictures = snap.publicLounge ? {} : (snap.pictures ?? {});
   const code = snap.roomCode ?? '';
   const n = snap.players.length;
@@ -65,11 +70,22 @@ export function Lobby({ session, snap, onLeave }: { session: Session; snap: Sess
         <span>{t('Game')}</span>
         {snap.isHost ? (
           <select className="input" value={snap.gameId} onChange={(e) => session.setGame?.(e.target.value)}>
-            {GAMES.filter((g) => g.maxPlayers >= 2 && !g.localOnly).map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.icon} {gameName(g, lang)} ({t('{n} players', { n: g.minPlayers === g.maxPlayers ? g.minPlayers : `${g.minPlayers}–${g.maxPlayers}` })})
-              </option>
-            ))}
+            {likedGames.length > 0 && (
+              <optgroup label={`♥ ${t('Liked')}`}>
+                {likedGames.map((g) => (
+                  <option key={'l' + g.id} value={g.id}>
+                    {g.icon} {gameName(g, lang)} ({t('{n} players', { n: g.minPlayers === g.maxPlayers ? g.minPlayers : `${g.minPlayers}–${g.maxPlayers}` })})
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            <optgroup label={t('All games')}>
+              {roomGames.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.icon} {gameName(g, lang)} ({t('{n} players', { n: g.minPlayers === g.maxPlayers ? g.minPlayers : `${g.minPlayers}–${g.maxPlayers}` })})
+                </option>
+              ))}
+            </optgroup>
           </select>
         ) : (
           <strong>

@@ -1720,3 +1720,98 @@ button.game-card.public-room {
 .dm-send {
   flex-wrap: nowrap;
 }
+
+/* Liked games and the game finder */
+.game-card-wrap {
+  position: relative;
+  display: flex;
+}
+.game-card-wrap > .game-card {
+  flex: 1;
+  padding-right: 40px;
+}
+.like-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.like-btn:hover {
+  color: #e5484d;
+}
+.like-btn.on {
+  color: #e5484d;
+}
+.like-btn.big {
+  position: static;
+  width: 44px;
+  height: 44px;
+  font-size: 1.5rem;
+  flex: none;
+  align-self: flex-start;
+}
+.setup-head .like-btn.big {
+  margin-left: auto;
+}
+.finder {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+}
+.finder-top {
+  flex-wrap: nowrap;
+}
+.finder-search {
+  flex: 1;
+  min-width: 0;
+  font-size: 1rem;
+}
+.finder-chips {
+  gap: 6px;
+}
+.small-chip {
+  padding: 3px 10px;
+  font-size: 0.85rem;
+}
+
+/* Small screens: the top bar wraps instead of pushing the page sideways */
+.topnav {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  row-gap: 6px;
+  min-width: 0;
+}
+@media (max-width: 560px) {
+  .topbar {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .topnav {
+    gap: 10px;
+    font-size: 0.85rem;
+  }
+  .topnav a {
+    white-space: nowrap;
+  }
+  .lang-select {
+    max-width: 4.2rem;
+  }
+  .finder-top .btn {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
