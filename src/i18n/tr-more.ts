@@ -1267,4 +1267,6 @@ export const TR_MORE: Record<string, string> = {
   '⚡ under 10 min': '⚡ 10 dk’dan kısa',
   '⏱ 10–30 min': '⏱ 10–30 dk',
   '⌛ 30+ min': '⌛ 30+ dk',
+  'Friends and messages': 'Arkadaşlar ve mesajlar',
+  'Sign in to keep your profile, stats and achievements on all your devices, and to add friends and send them messages. Without an account, everything stays on this device as before.': 'Profilini, istatistiklerini ve başarımlarını bütün cihazlarında tutmak, arkadaş ekleyip onlarla mesajlaşmak için giriş yap. Hesap olmadan her şey eskisi gibi bu cihazda kalır.',
 };

@@ -14,7 +14,7 @@ import { SettingsPage } from './ui/SettingsPage';
 import { ProfilePage } from './ui/ProfilePage';
 import { PrivacyPage } from './ui/PrivacyPage';
 import { FriendsPage } from './ui/FriendsPage';
-import { useAccount } from './account/account';
+import { accountsEnabled } from './account/account';
 import { useSocial } from './account/social';
 import { Avatar, Toasts } from './ui/Avatar';
 import { useProfiles } from './profile/profile';
@@ -65,9 +65,9 @@ function LangSwitch() {
 
 function FriendsLink() {
   const tr = useT();
-  const acct = useAccount();
   const { unread } = useSocial();
-  if (acct.status !== 'signed-in') return null;
+  // Always there, so people find it; signed out, the page explains how to start
+  if (!accountsEnabled()) return null;
   return (
     <a href="#/friends" className="friends-link">
       {tr('Friends')}

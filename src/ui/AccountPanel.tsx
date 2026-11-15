@@ -41,6 +41,9 @@ export function AccountPanel() {
           {t('Signed in as {email}.', { email: acct.email ?? '' })} {t('Your profile, picture, stats and achievements are saved to your account and come with you to every device where you sign in.')}
         </p>
         {acct.sync !== 'idle' && <p className="small muted">{t(SYNC_TEXT[acct.sync])}</p>}
+        <a className="btn small primary account-friends" href="#/friends">
+          👥 {t('Friends and messages')} →
+        </a>
         {acct.error && <p className="notice">{t(acct.error)}</p>}
         <div className="row wrap">
           <button className="btn small" disabled={busy} onClick={() => void go(signOut)}>
@@ -63,7 +66,7 @@ export function AccountPanel() {
   return (
     <section className="stack-sm account-panel">
       <h2 className="section-title">☁️ {t('Account (optional)')}</h2>
-      <p className="small muted">{t('Sign in to keep your profile, stats and achievements on all your devices. Without an account, everything stays on this device as before.')}</p>
+      <p className="small muted">{t('Sign in to keep your profile, stats and achievements on all your devices, and to add friends and send them messages. Without an account, everything stays on this device as before.')}</p>
       {acct.status === 'loading' ? (
         <p className="small muted">{t('Loading…')}</p>
       ) : (
