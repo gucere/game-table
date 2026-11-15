@@ -136,7 +136,7 @@ describe('every game', () => {
   // Tested with bots in their own files: Kelime Ustası (word list loads asynchronously),
   // Trash (a table that keeps going round after round), Kemps (bots sometimes wait),
   // Go (its bot thinks for a set time) and Kelime Zinciri (bots wait for the word list)
-  const ownTests = ['kelime-ustasi', 'trash', 'kemps', 'go', 'kelime-zinciri'];
+  const ownTests = ['kelime-ustasi', 'trash', 'kemps', 'go', 'kelime-zinciri', 'super-xox'];
   for (const g of (GAMES as GameDef[]).filter((x) => x.bot && !ownTests.includes(x.id))) {
     // Chess bots search deeply; play the quick level so the test stays fast
     const lv: BotLevel[] = g.id === 'satranc' ? ['easy'] : levels;

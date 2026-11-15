@@ -64,7 +64,7 @@ export const coinFlip: GameDef<L.CoinState, L.CoinMove, L.CoinState> = {
   id: 'coin-flip',
   name: 'Coin Flip',
   tagline: 'Settle it. Or race a friend to 3 correct calls.',
-  icon: '🪙',
+  icon: '₺',
   minPlayers: 1,
   maxPlayers: 2,
   hiddenInfo: false,

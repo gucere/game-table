@@ -3,8 +3,8 @@ import type { BoardProps, GameDef } from '../../engine/types';
 import * as L from './logic';
 import { t as tx } from '../../i18n';
 
-const PALETTE = ['#111111', '#ffffff', '#e63946', '#f4a261', '#ffd23f', '#2a9d8f', '#3a86ff', '#8338ec', '#ff70a6', '#8d6e63'];
-const SIZES = [4, 10, 24];
+export const PALETTE = ['#111111', '#ffffff', '#e63946', '#f4a261', '#ffd23f', '#2a9d8f', '#3a86ff', '#8338ec', '#ff70a6', '#8d6e63'];
+export const SIZES = [4, 10, 24];
 const SEND_EVERY_MS = 120;
 
 function drawStroke(ctx: CanvasRenderingContext2D, st: L.Stroke) {
@@ -26,7 +26,7 @@ function drawStroke(ctx: CanvasRenderingContext2D, st: L.Stroke) {
   ctx.stroke();
 }
 
-function Canvas({ strokes, canDraw, onStroke, color, size }: { strokes: L.Stroke[]; canDraw: boolean; onStroke: (s: L.Stroke) => void; color: string; size: number }) {
+export function Canvas({ strokes, canDraw, onStroke, color, size }: { strokes: L.Stroke[]; canDraw: boolean; onStroke: (s: L.Stroke) => void; color: string; size: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const cur = useRef<number[] | null>(null);
   const lastSent = useRef(0);

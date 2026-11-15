@@ -356,4 +356,19 @@ export const GAME_TEXT_TR: Record<string, { tagline: string; rules?: string }> =
     rules:
       'Sırayla, bir önceki kelimenin son harfiyle başlayan bir kelime söyleyin: kalem → masa → armut… Bir kelime iki kez kullanılamaz ve kelime listesinde olmalı. Türkçede ğ ile başlayan kelime olmadığı için ğ ile biten bir kelimeden (dağ) sonra gelen kelime ondan önceki harfle (a) başlar. Süre biterse ya da pes edersen bir can kaybedersin. Canı kalan son oyuncu kazanır; oynadığın her harf bir puan. Tek başına ne kadar uzun bir zincir kurabileceğini dene: 10 kelime galibiyet sayılır.',
   },
+  'super-xox': {
+    tagline: 'Dokuz XOX tahtası bir arada; her hamle rakibinin nerede oynayacağını seçer.',
+    rules:
+      'Büyük tahta dokuz küçük XOX tahtasından oluşur. Sırayla işaretinizi koyun. Küçük bir tahtada seçtiğin kare, rakibini aynı konumdaki küçük tahtaya gönderir: sağ üst kareye oynarsan rakibin sağ üst tahtada oynamak zorundadır. Küçük bir tahtada üçü yan yana getiren o tahtayı alır. Yan yana üç küçük tahtayı alan oyunu kazanır. Gönderildiğin tahta zaten alınmış ya da dolmuşsa açık tahtaların herhangi birinde oynayabilirsin. Hiç hamle kalmazsa oyun berabere biter.',
+  },
+  'yalanci-zar': {
+    tagline: 'Zarlarını sakla, cesurca söyle, yalancıları yakala.',
+    rules:
+      'Herkes zarlarını bardağın altında atar: yalnızca kendi zarlarını görürsün. Sırayla, bütün masada bir yüzün kaç zarda olduğuna dair iddiayı yükseltin; örneğin “dört tane 5”. Daha yüksek iddia daha çok zar ya da aynı sayıda daha büyük bir yüzdür. Yükseltmek yerine son iddiaya “Yalan!” diyebilirsin. O zaman bütün zarlar açılır: söylenen kadar ya da daha fazla varsa yalan diyen bir zar kaybeder; yoksa iddiayı yapan kaybeder. Herkes zarlarını yeniden atar ve kaybeden başlar. “1’ler joker” açıkken her 1, söylenen yüz yerine de sayılır (ve kimse 1 üzerine iddia yapmaz). Bütün zarlarını kaybeden oyundan çıkar; zarı kalan son kişi kazanır.',
+  },
+  'kulaktan-kulaga-cizim': {
+    tagline: 'Yaz, çiz, tahmin et, yeniden çiz… ve nereye vardığını gör.',
+    rules:
+      'Herkes aynı anda bir cümle yazar. Sonra her cümle sıradaki oyuncuya geçer ve o oyuncu onu çizer. Çizim bir sonrakine geçer; o da aslını görmeden çizimin ne olduğunu yazar. Sonraki oyuncu bu tahmini çizer ve bu böyle, her zincir herkesten bir kez geçene kadar sürer. Kazanan yok: sonunda her zincir, ilk cümleden vardığı yere kadar adım adım gösterilir. Süre biterse boş bir sayfa aktarılır.',
+  },
 };

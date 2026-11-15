@@ -80,6 +80,9 @@ export const GAME_NAMES: Record<string, { en: string; tr: string }> = {
   go: { en: 'Go', tr: 'Go' },
   'tugla-kirma': { en: 'Brick Smash', tr: 'Tuğla Kırma' },
   'kelime-zinciri': { en: 'Word Chain', tr: 'Kelime Zinciri' },
+  'super-xox': { en: 'Super Tic-Tac-Toe', tr: 'Süper XOX' },
+  'yalanci-zar': { en: 'Liar’s Dice', tr: 'Yalancı Zar' },
+  'kulaktan-kulaga-cizim': { en: 'Draw the Whisper', tr: 'Kulaktan Kulağa Çizim' },
 };
 
 export { GAME_TEXT_TR } from './games-tr';

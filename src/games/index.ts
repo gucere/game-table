@@ -67,6 +67,9 @@ import { xox } from './xox';
 import { go } from './go';
 import { bricks } from './bricks';
 import { wordChain } from './chain';
+import { superXox } from './superxox';
+import { liarsDice } from './liarsdice';
+import { telephone } from './telephone';
 import { addTeaching } from './teach';
 
 /** Playable games. To add one: write a GameDef in its own folder and list it here. */
@@ -148,6 +151,9 @@ export const GAMES: GameDef[] = [
   go,
   bricks,
   wordChain,
+  superXox,
+  liarsDice,
+  telephone,
 ];
 
 addTeaching(GAMES);

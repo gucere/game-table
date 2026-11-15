@@ -26,6 +26,9 @@ export const ADDED: Record<string, string> = {
   go: '2026-11-15',
   'tugla-kirma': '2026-11-15',
   'kelime-zinciri': '2026-11-15',
+  'super-xox': '2026-11-15',
+  'yalanci-zar': '2026-11-15',
+  'kulaktan-kulaga-cizim': '2026-11-15',
 };
 
 export const NEW_DAYS = 14;
@@ -85,6 +88,7 @@ export const LENGTH: Record<string, Length> = {
   noktalar: 'quick',
   'amiral-batti': 'medium',
   xox: 'quick',
+  'super-xox': 'medium',
   'four-in-a-row': 'quick',
   // Party
   'vampir-koylu': 'long',
@@ -102,6 +106,8 @@ export const LENGTH: Record<string, Length> = {
   'draw-guess': 'medium',
   'adam-asmaca': 'quick',
   generala: 'medium',
+  'yalanci-zar': 'medium',
+  'kulaktan-kulaga-cizim': 'medium',
   'sayi-bulmaca': 'quick',
   rps: 'quick',
   'coin-flip': 'quick',

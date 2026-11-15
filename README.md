@@ -91,6 +91,9 @@ Free, open-source classic games that run entirely in the browser.
 | Hava Hokeyi | 1–2 | ✅ | Air hockey on one screen: two players with a finger each (multi-touch), or against a bot. One device only |
 | Generala · Sayı Bulmaca | 1–6 · 1–2 | ✅ | Five-dice game; bulls & cows code-cracking |
 | XOX · Four in a Row · Rock Paper Scissors · Coin Flip | 1–2 | ✅ | |
+| Süper XOX | 2 | ✅ | Nine tic-tac-toe boards in one: the square you play picks the board your opponent must play next. Monte Carlo bot, hints in words |
+| Yalancı Zar | 2–6 | ✅ | Liar's dice: secret dice, rising bids, call “Liar!”; ones wild (optional), 3/5/6 dice each |
+| Kulaktan Kulağa Çizim | 3–10 | – | Online only. Write a phrase, the next player draws it, the next guesses the drawing… every chain passes through everyone and is revealed step by step at the end |
 | Solitaire · Sudoku · Mayın Tarlası (Minefield) | 1 | – | Klondike (draw 1/3, undo), generated sudokus with one solution, 3 sizes of minefield |
 | Birleştir · Yılan · Kelime Avı | 1 | – | Sliding merge puzzle, snake, word search (TR/EN) |
 | Zeka Küpü | 1 | – | The twisty puzzle cube in 3D, 2×2 to 7×7: drag stickers or use U D L R F B keys. "Solve it for me" on 2×2 and 3×3 (Kociemba's two-phase algorithm via [cubejs](https://github.com/ldez/cubejs), MIT). Ported from my own [cube solver](https://github.com/gucere/Rubik-s-Cube-Solver-s-) |
@@ -99,7 +102,7 @@ Free, open-source classic games that run entirely in the browser.
 | Taş Yağmuru | 1 | – | Original falling-tile game: steer pairs of Okey tiles, clear sets and runs, chain reactions |
 | Nonogram · Kakuro · Taş Eşle | 1 | – | Generated puzzles: nonograms solvable by logic alone, kakuros checked for a unique answer, tile matching with Okey tiles (every deal can be cleared) |
 
-**Tools:** 💬 **Sohbet Odası** (Chat & call room): a private room with no game, just chat, pictures and files, voice, camera and screen sharing; the host can still start any game from it. 🎅 **Secret Santa** (Yılbaşı Çekilişi): list names and emails, press the button, and everyone finds out who they're buying a present for. Nobody draws themselves, and everyone is in one big circle. You can also name pairs who shouldn't draw each other (couples, siblings).
+**Tools:** 💬 **Sohbet Odası** (Chat & call room): a private room with no game, just chat, pictures and files, voice, camera and screen sharing; the host can still start any game from it. 🎲 **Dice and coin**: roll 1–10 dice with 4, 6, 8, 10, 12, 20 or 100 sides (fair, from the browser's crypto random source), or flip a coin. 🎅 **Secret Santa** (Yılbaşı Çekilişi): list names and emails, press the button, and everyone finds out who they're buying a present for. Nobody draws themselves, and everyone is in one big circle. You can also name pairs who shouldn't draw each other (couples, siblings).
 
 Only traditional or generic games are included. Trademarked games and names are left out on purpose.
 

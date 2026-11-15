@@ -249,6 +249,16 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
               <span className="chip">🔒 {t('private')}</span>
             </span>
           </a>
+          <a className="game-card" href="#/dice">
+            <span className="game-icon" aria-hidden>
+              🎲
+            </span>
+            <span className="game-name">{t('Dice and coin')}</span>
+            <span className="muted small">{t('Roll 1 to 10 dice with 4 to 100 sides, or flip a coin, for games at home.')}</span>
+            <span className="row">
+              <span className="chip">d4 · d6 · d20 · ₺</span>
+            </span>
+          </a>
           <a className="game-card" href="#/santa">
             <span className="game-icon" aria-hidden>
               🎅
