@@ -30,6 +30,7 @@ export const AVATARS: AvatarDef[] = [
   { id: 'dog', emoji: '🐶', bg: '#bcaaa4' },
   { id: 'rabbit', emoji: '🐰', bg: '#f8bbd0' },
   { id: 'whale', emoji: '🐳', bg: '#4fc3f7' },
+  { id: 'otter', emoji: '🦦', bg: '#c8a27a' },
   { id: 'dragon', emoji: '🐲', bg: '#66bb6a' },
   { id: 'robot', emoji: '🤖', bg: '#9fa8da' },
   { id: 'alien', emoji: '👽', bg: '#aed581' },
