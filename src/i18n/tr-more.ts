@@ -1344,4 +1344,14 @@ export const TR_MORE: Record<string, string> = {
   'Tap a card from your hand (equal or higher), then Play. Or pick up the pile.': 'Elinden (eşit ya da büyük) bir kart seç, sonra Oyna’ya bas. Ya da yığını al.',
   'Your hand is empty: tap a face-up card, then Play.': 'Elin boş: açık kartlarından birini seç, sonra Oyna’ya bas.',
   'Tap one of your face-down cards, then Flip and play. If it doesn’t fit, it’s shown and you pick up the pile.': 'Kapalı kartlarından birini seç, sonra Aç ve oyna’ya bas. Uymazsa gösterilir ve yığını alırsın.',
+  // Leaderboards
+  'Leaderboard': 'Skor tablosu',
+  'Couldn’t load the leaderboard.': 'Skor tablosu yüklenemedi.',
+  'No scores yet. Be the first!': 'Henüz skor yok. İlk sen ol!',
+  'to put your scores on the leaderboard.': 've skorlarını tabloya ekle.',
+  'Your new best, {n}, is on the leaderboard!': 'Yeni rekorun {n} skor tablosunda!',
+  'Your best on the leaderboard is still {n}.': 'Tablodaki en iyi skorun hâlâ {n}.',
+  'Couldn’t save to the leaderboard. Try again later.': 'Skor tablosuna kaydedilemedi. Daha sonra tekrar dene.',
+  'Add {n} to the leaderboard': '{n} skorunu tabloya ekle',
+  'Always add my best scores (your name and avatar are shown to everyone)': 'En iyi skorlarımı hep ekle (adın ve avatarın herkese görünür)',
 };

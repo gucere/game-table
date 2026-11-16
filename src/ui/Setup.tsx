@@ -8,6 +8,7 @@ import { gameName, gameRules, gameTagline, otherName, t as tt, useLang, useT } f
 import { getSettings, updateSettings } from '../theme/settings';
 import { TurnTimerField, hasTurnTimer } from './PlayExtras';
 import { LikeButton } from './LikeButton';
+import { Leaderboard } from './Leaderboard';
 import { markOpened } from '../profile/stats';
 
 interface SeatDraft {
@@ -207,6 +208,7 @@ export function Setup({ gameId, onStart }: { gameId: string; onStart: (s: Sessio
           </button>
         </div>
       )}
+      {game.leaderboard && <Leaderboard game={game} options={options} />}
     </div>
   );
 }

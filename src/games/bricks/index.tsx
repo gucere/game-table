@@ -240,5 +240,6 @@ export const bricks: GameDef<BrickState, BrickMove, BrickState> = {
     s.score !== null ? 'Game over' : m?.type === 'score' && Number.isInteger(m.n) && m.n >= 0 ? { score: m.n, level: Number(m.level) || 1 } : 'Bad score',
   // Reaching level 3 counts as a win for the stats
   result: (s): GameResult | null => (s.score === null ? null : { winners: s.level >= 3 ? [0] : [], message: `Score: ${s.score} 🧱` }),
+  leaderboard: { score: (v) => v.score },
   Board,
 };

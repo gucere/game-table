@@ -38,6 +38,13 @@ const TEXT: Record<'en' | 'tr', { h: string; p: string[] }[]> = {
       ],
     },
     {
+      h: 'Leaderboards',
+      p: [
+        'Some solo games have a public leaderboard that anyone can see, even without an account. Your score goes on it only when you add it (or tick “Always add my best scores”). The leaderboard shows the name and avatar of your profile next to your best score; never your email or picture.',
+        'Each player has one entry per leaderboard, their best. Deleting your account removes your entries.',
+      ],
+    },
+    {
       h: 'Removing your data',
       p: [
         'Profile page → Delete my account erases your profile, stats, friends, messages and friend code from the database and deletes your sign-in. Signing out removes the account’s copy from that device.',
@@ -83,6 +90,13 @@ const TEXT: Record<'en' | 'tr', { h: string; p: string[] }[]> = {
         'Giriş yapan oyunculara rastgele bir arkadaş kodu verilir. Seni yalnızca bu kodla bulabilirler; oyuncu araması ya da listesi yoktur. Arkadaşların adını ve avatarını görür (e-postanı ya da resmini görmez).',
         'Arkadaşlık istekleri, arkadaş listen ve mesajların aynı veritabanında tutulur. Veritabanı kuralları mesajlarını yalnızca senin ve o arkadaşının, yalnızca arkadaş olduğunuz sürece okumasına izin verir. Bir arkadaşı çıkarmak ya da engellemek onunla olan mesajlarını siler.',
         'Site sahibi, her site sahibinin kendi sunucusunu görebildiği gibi, Firebase konsolunda veritabanını teknik olarak görebilir. Mesajları okumaz; konsolu yalnızca siteyi çalışır tutmak için kullanır.',
+      ],
+    },
+    {
+      h: 'Skor tabloları',
+      p: [
+        'Bazı tek kişilik oyunların, hesabı olmayanlar dahil herkesin görebildiği bir skor tablosu var. Skorun tabloya yalnızca sen eklersen (ya da “En iyi skorlarımı hep ekle”yi işaretlersen) girer. Tabloda en iyi skorunun yanında profilinin adı ve avatarı görünür; e-postan ya da resmin asla görünmez.',
+        'Her oyuncunun her tabloda tek bir kaydı, en iyi skoru vardır. Hesabını silmek kayıtlarını da kaldırır.',
       ],
     },
     {

@@ -120,6 +120,27 @@ await check('either friend can clear messages and remove the friendship', async 
   await assertSucceeds(deleteDoc(doc(db(B), 'friendships', pair, 'messages', m.id)));
   await assertSucceeds(deleteDoc(fr(A)));
 });
+// ---- leaderboards
+const lb = (uid, board = 'marti', who = uid) => doc(db(uid), 'leaderboards', board, 'scores', who);
+const entry = (score, extra = {}) => ({ name: 'Alice', avatar: 'otter', score, at: serverTimestamp(), ...extra });
+await check('leaderboards: anyone reads; you post your own best, only upwards', async () => {
+  await assertSucceeds(setDoc(lb(A), entry(12)));
+  await assertSucceeds(getDocs(collection(db(null), 'leaderboards', 'marti', 'scores')));
+  await assertSucceeds(setDoc(lb(A), entry(20)));
+  await assertFails(setDoc(lb(A), entry(5)));
+  await assertFails(setDoc(lb(B, 'marti', A), entry(999, { name: 'Bob' })));
+  await assertFails(setDoc(lb(null, 'marti', C), entry(3)));
+  await assertSucceeds(deleteDoc(lb(A)));
+});
+await check('leaderboards: scores and fields are checked', async () => {
+  await assertFails(setDoc(lb(A), entry(0)));
+  await assertFails(setDoc(lb(A), entry(1.5)));
+  await assertFails(setDoc(lb(A), entry(20000000)));
+  await assertFails(setDoc(lb(A), entry(5, { email: 'a@b.c' })));
+  await assertFails(setDoc(lb(A, 'Bad Board!'), entry(5)));
+  await assertSucceeds(setDoc(lb(A, 'yilan~walls~90'), entry(5)));
+});
+
 await check('everything else is closed', async () => {
   await assertFails(setDoc(doc(db(A), 'anything', 'x'), { a: 1 }));
   await assertFails(getDocs(collection(db(A), 'players')));

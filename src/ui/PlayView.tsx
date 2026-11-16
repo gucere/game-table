@@ -6,6 +6,7 @@ import { gameName, gameRules, t as tt, useLang, useT } from '../i18n';
 import { CustomizeButton } from './CustomizeDrawer';
 import { Avatar } from './Avatar';
 import { AfterGame, HintBar, NightBoard, secondsLeft, useNow, usePlayFeedback } from './PlayExtras';
+import { Leaderboard, ScorePost } from './Leaderboard';
 
 function resultText(r: GameResult, players: PlayerInfo[], you: Seat | null) {
   if (r.message) return tt(r.message);
@@ -141,6 +142,12 @@ export function PlayView({ session, snap, onLeave }: { session: Session; snap: S
         </details>
       )}
 
+      {result && game.leaderboard && you !== null && view !== undefined && (
+        <>
+          <ScorePost game={game} options={snap.options} score={game.leaderboard.score(view as never, you) ?? 0} />
+          <Leaderboard game={game} options={snap.options} />
+        </>
+      )}
       {result && <AfterGame session={session} snap={snap} />}
     </div>
   );

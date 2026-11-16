@@ -12,6 +12,7 @@ import { AVATARS, MAX_PICTURE, currentProfile, deleteProfile, getProfile, isSafe
 import { cleanStats, getStats, mergeStats, onStatsChange, restoreStats } from '../profile/stats';
 import { getSettings } from '../theme/settings';
 import { purgeSocial, startSocial, stopSocial } from './social';
+import { purgeScores } from './leaderboard';
 
 export type SyncState = 'idle' | 'saving' | 'saved' | 'offline' | 'error';
 
@@ -46,6 +47,9 @@ export function useAccount(): AccountState {
 }
 
 export const accountsEnabled = () => !!FIREBASE_CONFIG;
+/** Firebase for other modules (leaderboards); loads it if needed */
+export const getFirebase = (): Promise<Fb> => firebase();
+export const accountState = () => state;
 
 // ---------------------------------------------------------------- Firebase, loaded on demand
 
@@ -278,6 +282,7 @@ export async function deleteAccount() {
     const user = f.a.currentUser;
     if (!user) return;
     await purgeSocial();
+    await purgeScores(f, uid);
     await f.store.deleteDoc(f.store.doc(f.db, 'players', uid));
     await f.auth.deleteUser(user);
   });

@@ -107,5 +107,6 @@ export const merge: GameDef<L.MergeState, L.MergeMove, L.MergeState> = {
   view: (s) => s,
   move: (s, seat, m, ctx) => L.move(s, seat, m, ctx),
   result: L.result,
+  leaderboard: { score: (v) => (v.over ? v.score : null), boardOptions: ['size'] },
   Board,
 };

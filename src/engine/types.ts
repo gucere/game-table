@@ -122,6 +122,12 @@ export interface GameDef<S = any, M = any, V = any> {
   describeMove?(view: V, move: M, seat: Seat): string;
   /** Teach-me mode: a tip about the position in front of this player, or null */
   teach?(view: V, seat: Seat): string | null;
+  /** Games with a public leaderboard: the score this seat finished with (higher is better) */
+  leaderboard?: {
+    score(view: V, seat: Seat): number | null;
+    /** Options that change the difficulty get their own boards */
+    boardOptions?: string[];
+  };
   Board: ComponentType<BoardProps<V, M>>;
   /** Extra panel on the setup screen (e.g. a question editor) */
   SetupExtra?: ComponentType;

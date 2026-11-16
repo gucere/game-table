@@ -313,5 +313,6 @@ export const space: GameDef<SpaceState, SpaceMove, SpaceState> = {
   move: (s, _seat: Seat, m) =>
     s.score !== null ? 'Game over' : m?.type === 'score' && Number.isInteger(m.n) && m.n >= 0 ? { score: m.n, wave: Number(m.wave) || 0 } : 'Bad score',
   result: (s): GameResult | null => (s.score === null ? null : { winners: [0], message: `Score: ${s.score} 🚀` }),
+  leaderboard: { score: (v) => v.score },
   Board,
 };

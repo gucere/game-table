@@ -171,5 +171,6 @@ export const rain: GameDef<RainState, RainMove, RainState> = {
   view: (s) => s,
   move: (s, _seat: Seat, m) => (s.score !== null ? 'Game over' : m?.type === 'score' && Number.isInteger(m.n) && m.n >= 0 ? { ...s, score: m.n } : 'Bad score'),
   result: (s): GameResult | null => (s.score === null ? null : { winners: [0], message: `Score: ${s.score} 🌧️` }),
+  leaderboard: { score: (v) => v.score, boardOptions: ['numbers'] },
   Board,
 };

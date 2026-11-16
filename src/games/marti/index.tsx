@@ -296,5 +296,6 @@ export const marti: GameDef<L.MartiState, L.MartiMove, L.MartiState> = {
   result: L.result,
   bot: L.bot,
   botDelay: () => 2500,
+  leaderboard: { score: (v, seat) => v.scores[seat] ?? null },
   Board,
 };
