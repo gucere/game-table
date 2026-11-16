@@ -114,6 +114,32 @@ service cloud.firestore {
       allow delete: if signedIn() && me() == uid;
     }
 
+    // Likes: each signed-in player can like a game once; likeCounts/{game}.n is the total.
+    // A like (or unlike) and the count change must be written together, so the count can
+    // only move by one, and only alongside that player's own like.
+    match /likes/{game}/by/{uid} {
+      function countPath() { return /databases/$(database)/documents/likeCounts/$(game); }
+      function before() { return exists(countPath()) ? get(countPath()).data.n : 0; }
+      allow get: if signedIn() && me() == uid;
+      allow create: if signedIn() && me() == uid && game.matches('^[a-z0-9-]{1,40}$')
+        && request.resource.data.keys().hasOnly(['at']) && request.resource.data.at == request.time
+        && getAfter(countPath()).data.n == before() + 1;
+      allow delete: if signedIn() && me() == uid
+        && getAfter(countPath()).data.n == before() - 1;
+    }
+
+    match /likeCounts/{game} {
+      function likePath() { return /databases/$(database)/documents/likes/$(game)/by/$(me()); }
+      allow read: if true;
+      allow create: if signedIn() && game.matches('^[a-z0-9-]{1,40}$')
+        && request.resource.data.keys().hasOnly(['n']) && request.resource.data.n == 1
+        && existsAfter(likePath()) && !exists(likePath());
+      allow update: if signedIn() && request.resource.data.keys().hasOnly(['n']) && (
+        (request.resource.data.n == resource.data.n + 1 && existsAfter(likePath()) && !exists(likePath()))
+        || (request.resource.data.n == resource.data.n - 1 && !existsAfter(likePath()) && exists(likePath()))
+      );
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

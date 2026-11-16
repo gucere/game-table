@@ -13,6 +13,7 @@ import { cleanStats, getStats, mergeStats, onStatsChange, restoreStats } from '.
 import { getSettings } from '../theme/settings';
 import { purgeSocial, startSocial, stopSocial } from './social';
 import { purgeScores } from './leaderboard';
+import { purgeLikes, reconcileLikes } from './likes';
 
 export type SyncState = 'idle' | 'saving' | 'saved' | 'offline' | 'error';
 
@@ -162,6 +163,7 @@ async function onUser(f: Fb, user: import('firebase/auth').User | null) {
     set({ sync: 'saving' });
     apply(user.uid, email, await readRow(f, user.uid), seed);
     await push();
+    void reconcileLikes(f, user.uid, getStats(profileId(user.uid)).likes ?? {});
   } catch (e) {
     console.warn('Account sync failed', e);
     set({ sync: navigator.onLine ? 'error' : 'offline' });
@@ -207,7 +209,10 @@ async function pull() {
   try {
     const f = await fb;
     const row = await readRow(f, uid);
-    if (row) apply(uid, state.email ?? '', row, null);
+    if (row) {
+      apply(uid, state.email ?? '', row, null);
+      void reconcileLikes(f, uid, getStats(profileId(uid)).likes ?? {});
+    }
   } catch {
     /* offline: try next time */
   }
@@ -283,6 +288,7 @@ export async function deleteAccount() {
     if (!user) return;
     await purgeSocial();
     await purgeScores(f, uid);
+    await purgeLikes(f, uid, getStats(profileId(uid)).likes ?? {});
     await f.store.deleteDoc(f.store.doc(f.db, 'players', uid));
     await f.auth.deleteUser(user);
   });

@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { GameDef } from '../engine/types';
-import { NO_FILTERS, filtering, findGames, type Filters, type Mode } from '../games/finder';
+import { NO_FILTERS, byLikes, filtering, findGames, type Filters, type Mode } from '../games/finder';
+import { accountsEnabled, getFirebase } from '../account/account';
+import { likeCounts } from '../account/likes';
 import { LENGTH, LENGTH_LABEL, isNew, type Length } from '../games/meta';
 import { isLiked, likedIds, recentIds } from '../profile/stats';
 import { LikeButton, useMyStats } from './LikeButton';
@@ -73,7 +75,7 @@ function PublicRooms({ onEnter }: { onEnter: (code: string) => void }) {
   );
 }
 
-function GameCard({ g }: { g: GameDef }) {
+function GameCard({ g, likes }: { g: GameDef; likes?: number }) {
   const t = useT();
   const lang = useLang();
   const aka = otherName(g, lang);
@@ -93,6 +95,7 @@ function GameCard({ g }: { g: GameDef }) {
         <span className="row">
           <span className="chip">{players(t, g.minPlayers, g.maxPlayers)}</span>
           {LENGTH[g.id] && <span className="chip">{t(LENGTH_LABEL[LENGTH[g.id]])}</span>}
+          {likes !== undefined && <span className="chip like-count">♥ {likes}</span>}
           {g.onlineOnly && <span className="chip">{t('online')}</span>}
           {g.bot && <span className="chip">{t('bots')}</span>}
         </span>
@@ -213,8 +216,26 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
   const all = SECTIONS.flatMap((s) => s.ids.map((id) => byId.get(id)).filter((g): g is GameDef => !!g));
   const liked = (id: string) => isLiked(stats, id);
   const active = filtering(f);
-  const filterCount = (f.players !== null ? 1 : 0) + (f.mode !== 'any' ? 1 : 0) + (f.length !== null ? 1 : 0) + (f.liked ? 1 : 0) + (f.fresh ? 1 : 0);
-  const found = active ? findGames(all, f, liked) : all;
+  const filterCount = (f.players !== null ? 1 : 0) + (f.mode !== 'any' ? 1 : 0) + (f.length !== null ? 1 : 0) + (f.liked ? 1 : 0) + (f.fresh ? 1 : 0) + (f.sort !== 'default' ? 1 : 0);
+  // Everyone's like counts, loaded only when sorting by them
+  const [counts, setCounts] = useState<Record<string, number> | null>(null);
+  const [countsFailed, setCountsFailed] = useState(false);
+  useEffect(() => {
+    if (f.sort !== 'liked' || counts) return;
+    let live = true;
+    getFirebase()
+      .then(likeCounts)
+      .then((c) => live && setCounts(c))
+      .catch((e) => {
+        console.warn('Like counts failed', e);
+        if (live) setCountsFailed(true);
+      });
+    return () => {
+      live = false;
+    };
+  }, [f.sort, counts]);
+  const matched = active ? findGames(all, f, liked) : all;
+  const found = f.sort === 'liked' && counts ? byLikes(matched, counts) : matched;
   const pick = (id: string) => byId.get(id);
   const likedGames = likedIds(stats).map(pick).filter((g): g is GameDef => !!g && all.includes(g));
   const recent = recentIds(stats, 6).map(pick).filter((g): g is GameDef => !!g && all.includes(g));
@@ -271,6 +292,19 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
           ))}
         </div>
         <div className="row finder-chips">
+          {accountsEnabled() && (
+            <>
+              <span className="small muted">{t('Order')}:</span>
+              <button className={'chip-btn small-chip' + (f.sort === 'default' ? ' on' : '')} aria-pressed={f.sort === 'default'} onClick={() => update({ sort: 'default' })}>
+                {t('Best match')}
+              </button>
+              <button className={'chip-btn small-chip' + (f.sort === 'liked' ? ' on' : '')} aria-pressed={f.sort === 'liked'} onClick={() => update({ sort: 'liked' })}>
+                ♥ {t('Most liked')}
+              </button>
+            </>
+          )}
+        </div>
+        <div className="row finder-chips">
           <span className="small muted">{t('Length')}:</span>
           {([null, 'quick', 'medium', 'long'] as (Length | null)[]).map((l) => (
             <button key={String(l)} className={'chip-btn small-chip' + (f.length === l ? ' on' : '')} aria-pressed={f.length === l} onClick={() => update({ length: l })}>
@@ -297,11 +331,15 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
 
       {active ? (
         <section>
-          <h2 className="section-title">{found.length === 1 ? t('1 game') : t('{n} games', { n: found.length })}</h2>
+          <h2 className="section-title">
+            {found.length === 1 ? t('1 game') : t('{n} games', { n: found.length })}
+            {f.sort === 'liked' && <span className="lb-board"> · {countsFailed ? t('like counts unavailable') : counts ? t('most liked first') : t('Loading…')}</span>}
+          </h2>
+          {f.sort === 'liked' && counts && <p className="small muted">{t('Likes from signed-in players. Tap ♡ on a game to add yours.')}</p>}
           {found.length ? (
             <div className="game-grid">
               {found.map((g) => (
-                <GameCard key={g.id} g={g} />
+                <GameCard key={g.id} g={g} likes={f.sort === 'liked' && counts ? (counts[g.id] ?? 0) : undefined} />
               ))}
             </div>
           ) : (

@@ -3,7 +3,7 @@
 // (needs Java; the Firebase tools download the emulator the first time)
 import { readFileSync } from 'node:fs';
 import { assertFails, assertSucceeds, initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
 
 const env = await initializeTestEnvironment({
   projectId: 'demo-game-table',
@@ -139,6 +139,60 @@ await check('leaderboards: scores and fields are checked', async () => {
   await assertFails(setDoc(lb(A), entry(5, { email: 'a@b.c' })));
   await assertFails(setDoc(lb(A, 'Bad Board!'), entry(5)));
   await assertSucceeds(setDoc(lb(A, 'yilan~walls~90'), entry(5)));
+});
+
+// ---- likes and like counts
+const like = (uid, game = 'go') => {
+  const d = db(uid);
+  const b = writeBatch(d);
+  b.set(doc(d, 'likes', game, 'by', uid), { at: serverTimestamp() });
+  b.set(doc(d, 'likeCounts', game), { n: increment(1) }, { merge: true });
+  return b.commit();
+};
+const unlike = (uid, game = 'go') => {
+  const d = db(uid);
+  const b = writeBatch(d);
+  b.delete(doc(d, 'likes', game, 'by', uid));
+  b.set(doc(d, 'likeCounts', game), { n: increment(-1) }, { merge: true });
+  return b.commit();
+};
+const count = async (game = 'go') => (await getDoc(doc(db(null), 'likeCounts', game))).data()?.n;
+await check('likes: each player counts once; anyone can read the totals', async () => {
+  await assertSucceeds(like(A));
+  await assertSucceeds(like(B));
+  if ((await count()) !== 2) throw new Error('count should be 2');
+  await assertFails(like(A));
+  await assertSucceeds(unlike(A));
+  if ((await count()) !== 1) throw new Error('count should be 1');
+  await assertFails(unlike(A));
+  await assertSucceeds(getDocs(collection(db(null), 'likeCounts')));
+});
+await check('likes: the count can’t be changed on its own or by more than one', async () => {
+  await assertFails(setDoc(doc(db(C), 'likeCounts', 'go'), { n: 100 }));
+  await assertFails(updateDoc(doc(db(C), 'likeCounts', 'go'), { n: increment(1) }));
+  await assertFails(setDoc(doc(db(C), 'likes', 'go', 'by', C), { at: serverTimestamp() }));
+  const d = db(C);
+  const b = writeBatch(d);
+  b.set(doc(d, 'likes', 'go', 'by', C), { at: serverTimestamp() });
+  b.set(doc(d, 'likeCounts', 'go'), { n: increment(5) }, { merge: true });
+  await assertFails(b.commit());
+  // Signed out
+  const anon = db(null);
+  const b3 = writeBatch(anon);
+  b3.set(doc(anon, 'likes', 'go', 'by', 'nobody'), { at: serverTimestamp() });
+  b3.set(doc(anon, 'likeCounts', 'go'), { n: increment(1) }, { merge: true });
+  await assertFails(b3.commit());
+  // Someone else's like can't be removed
+  const e = db(C);
+  const b2 = writeBatch(e);
+  b2.delete(doc(e, 'likes', 'go', 'by', B));
+  b2.set(doc(e, 'likeCounts', 'go'), { n: increment(-1) }, { merge: true });
+  await assertFails(b2.commit());
+});
+await check('likes: a brand-new game starts at one', async () => {
+  await assertSucceeds(like(C, 'xox'));
+  if ((await count('xox')) !== 1) throw new Error('count should be 1');
+  await assertFails(getDoc(doc(db(A), 'likes', 'xox', 'by', C)));
 });
 
 await check('everything else is closed', async () => {

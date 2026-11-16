@@ -1386,4 +1386,10 @@ export const TR_MORE: Record<string, string> = {
   'This poll is closed.': 'Bu anket kapandı.',
   'Pick an answer.': 'Bir cevap seç.',
   'Pick one answer.': 'Tek bir cevap seç.',
+  'Order': 'Sıralama',
+  'Best match': 'En uygun',
+  'Most liked': 'En beğenilen',
+  'like counts unavailable': 'beğeni sayıları alınamadı',
+  'most liked first': 'en beğenilen önce',
+  'Likes from signed-in players. Tap ♡ on a game to add yours.': 'Giriş yapmış oyuncuların beğenileri. Seninkini eklemek için bir oyundaki ♡’ye dokun.',
 };

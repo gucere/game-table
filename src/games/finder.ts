@@ -16,10 +16,12 @@ export interface Filters {
   length: Length | null;
   /** Only games added recently */
   fresh: boolean;
+  /** 'liked': most liked first (by everyone's likes) */
+  sort: 'default' | 'liked';
 }
 
-export const NO_FILTERS: Filters = { q: '', players: null, mode: 'any', liked: false, length: null, fresh: false };
-export const filtering = (f: Filters) => !!f.q.trim() || f.players !== null || f.mode !== 'any' || f.liked || f.length !== null || f.fresh;
+export const NO_FILTERS: Filters = { q: '', players: null, mode: 'any', liked: false, length: null, fresh: false, sort: 'default' };
+export const filtering = (f: Filters) => !!f.q.trim() || f.players !== null || f.mode !== 'any' || f.liked || f.length !== null || f.fresh || f.sort !== 'default';
 
 /** Lowercase without accents, so "satranc" finds "Satranç" and "kizma" finds "Kızma" */
 export function fold(s: string): string {
@@ -88,6 +90,14 @@ export function fits(g: GameDef, f: Filters, liked: (id: string) => boolean): bo
   if (f.mode === 'device' && g.onlineOnly) return false;
   if (f.mode === 'online' && (g.maxPlayers < 2 || g.localOnly)) return false;
   return true;
+}
+
+/** Most liked first; ties keep the order they came in */
+export function byLikes(games: GameDef[], counts: Record<string, number>): GameDef[] {
+  return games
+    .map((g, i) => ({ g, i, n: counts[g.id] ?? 0 }))
+    .sort((a, b) => b.n - a.n || a.i - b.i)
+    .map((x) => x.g);
 }
 
 /** Games that match, best first (in their usual order when there's no search text) */

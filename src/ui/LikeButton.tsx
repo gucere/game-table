@@ -1,5 +1,8 @@
 import { useProfiles } from '../profile/profile';
-import { isLiked, toggleLike, useStats } from '../profile/stats';
+import { getStats, isLiked, toggleLike, useStats } from '../profile/stats';
+import { accountState, getFirebase } from '../account/account';
+import { setSharedLike } from '../account/likes';
+import { statsOwner } from '../profile/profile';
 import { useT } from '../i18n';
 
 /** Stats (and likes) of whoever is playing on this device right now */
@@ -22,6 +25,14 @@ export function LikeButton({ id, name, big }: { id: string; name: string; big?: 
         e.preventDefault();
         e.stopPropagation();
         toggleLike(id);
+        // Signed in (and playing as that account): the shared count follows
+        const acct = accountState();
+        if (acct.status === 'signed-in' && acct.uid && statsOwner() === 'acct_' + acct.uid) {
+          const uid = acct.uid;
+          void getFirebase()
+            .then((f) => setSharedLike(f, uid, id, isLiked(getStats(), id)))
+            .catch((e) => console.warn('Like count failed', e));
+        }
       }}
     >
       {liked ? '♥' : '♡'}

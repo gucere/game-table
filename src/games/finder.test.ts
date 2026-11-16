@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GAMES, getGame } from '.';
-import { NO_FILTERS, findGames, fold, score } from './finder';
+import { NO_FILTERS, byLikes, filtering, findGames, fold, score } from './finder';
 import { emptyStats, isLiked, likedIds, mergeStats } from '../profile/stats';
 import { ADDED, LENGTH, NEW_DAYS, isNew } from './meta';
 import { SECTIONS } from './sections';
@@ -71,5 +71,13 @@ describe('new badges and game lengths', () => {
     expect(quick.length).toBeGreaterThan(10);
     expect(quick.every((g) => LENGTH[g.id] === 'quick')).toBe(true);
     expect(findGames(GAMES, { ...NO_FILTERS, fresh: true }, none).every((g) => isNew(g.id))).toBe(true);
+  });
+});
+
+describe('most liked first', () => {
+  it('sorts by everyone’s likes, keeping the usual order for ties', () => {
+    const games = ['xox', 'go', 'satranc', 'dama'].map((id) => getGame(id)!);
+    expect(byLikes(games, { go: 5, dama: 9 }).map((g) => g.id)).toEqual(['dama', 'go', 'xox', 'satranc']);
+    expect(filtering({ ...NO_FILTERS, sort: 'liked' })).toBe(true);
   });
 });
