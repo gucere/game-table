@@ -2168,3 +2168,72 @@ button.game-card.public-room {
 .score-post label {
   justify-content: center;
 }
+
+/* Home: compact finder and sideways rows */
+.finder {
+  padding: 8px 10px;
+}
+.finder-toggle.on {
+  border-color: var(--accent);
+}
+.finder-panel {
+  padding-top: 4px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.finder-active {
+  justify-content: flex-end;
+  margin-top: -2px;
+}
+.row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.row-head .section-title {
+  margin: 0;
+  flex: 1;
+}
+.row-count {
+  font-weight: 500;
+  opacity: 0.7;
+}
+.row-arrows {
+  display: flex;
+  gap: 4px;
+}
+.game-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  padding: 2px 2px 10px;
+  margin: 0 -2px;
+  scrollbar-width: thin;
+}
+.game-strip > .game-card-wrap {
+  flex: 0 0 200px;
+  scroll-snap-align: start;
+}
+.game-strip .game-card .muted.small {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+@media (max-width: 560px) {
+  .finder-surprise-text {
+    display: none;
+  }
+  .row-arrows {
+    display: none;
+  }
+  .game-strip > .game-card-wrap {
+    flex-basis: 155px;
+  }
+  .game-strip {
+    gap: 10px;
+  }
+}

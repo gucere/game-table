@@ -102,6 +102,14 @@ export function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
+  // Other pages open at the top (after the home page has saved its place and gone);
+  // the home page puts you back where you were
+  const routeKey = JSON.stringify(route);
+  useEffect(() => {
+    if (route.page !== 'home') window.scrollTo(0, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeKey]);
+
   // Warn before closing the tab mid-session
   useEffect(() => {
     if (!session) return;

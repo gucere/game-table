@@ -1354,4 +1354,9 @@ export const TR_MORE: Record<string, string> = {
   'Couldn’t save to the leaderboard. Try again later.': 'Skor tablosuna kaydedilemedi. Daha sonra tekrar dene.',
   'Add {n} to the leaderboard': '{n} skorunu tabloya ekle',
   'Always add my best scores (your name and avatar are shown to everyone)': 'En iyi skorlarımı hep ekle (adın ve avatarın herkese görünür)',
+  'Filters': 'Filtreler',
+  'Scroll left': 'Sola kaydır',
+  'Scroll right': 'Sağa kaydır',
+  'See all': 'Tümünü gör',
+  'Show less': 'Daha az göster',
 };

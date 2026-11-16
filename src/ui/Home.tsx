@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { GameDef } from '../engine/types';
 import { NO_FILTERS, filtering, findGames, type Filters, type Mode } from '../games/finder';
 import { LENGTH, LENGTH_LABEL, isNew, type Length } from '../games/meta';
@@ -102,13 +102,50 @@ function GameCard({ g }: { g: GameDef }) {
   );
 }
 
+// Remembered while you look at a game and come back: page scroll, each row's sideways
+// scroll, and which sections are opened up with "See all"
+let pageScroll = 0;
+const rowScroll = new Map<string, number>();
+const openRows = new Set<string>();
+
 function Row({ title, games }: { title: string; games: GameDef[] }) {
   const t = useT();
+  const [all, setAll] = useState(openRows.has(title));
+  const strip = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = strip.current;
+    if (el && !all) el.scrollLeft = rowScroll.get(title) ?? 0;
+  }, [all, title]);
   if (!games.length) return null;
+  const nudge = (dir: number) => strip.current?.scrollBy({ left: dir * strip.current.clientWidth * 0.85, behavior: 'smooth' });
+  const toggle = () => {
+    if (all) openRows.delete(title);
+    else openRows.add(title);
+    setAll(!all);
+  };
   return (
-    <section>
-      <h2 className="section-title">{t(title)}</h2>
-      <div className="game-grid">
+    <section className="game-row-section">
+      <div className="row-head">
+        <h2 className="section-title">
+          {t(title)} <span className="row-count">{games.length}</span>
+        </h2>
+        {!all && games.length > 2 && (
+          <span className="row-arrows">
+            <button className="icon-btn" aria-label={t('Scroll left')} onClick={() => nudge(-1)}>
+              ‹
+            </button>
+            <button className="icon-btn" aria-label={t('Scroll right')} onClick={() => nudge(1)}>
+              ›
+            </button>
+          </span>
+        )}
+        {games.length > 2 && (
+          <button className="btn ghost small" onClick={toggle}>
+            {all ? t('Show less') : t('See all')}
+          </button>
+        )}
+      </div>
+      <div ref={strip} className={all ? 'game-grid' : 'game-strip'} onScroll={(e) => rowScroll.set(title, e.currentTarget.scrollLeft)}>
         {games.map((g) => (
           <GameCard key={g.id} g={g} />
         ))}
@@ -132,6 +169,41 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
   const byId = new Map(GAMES.map((g) => [g.id, g]));
   const stats = useMyStats();
   const [f, setF] = useState<Filters>(lastFilters);
+  const [showFilters, setShowFilters] = useState(false);
+  // The open filter panel folds away once you scroll on, so it never covers the games
+  const openedAt = useRef(0);
+  useEffect(() => {
+    if (!showFilters) return;
+    openedAt.current = window.scrollY;
+    const onScroll = () => {
+      if (Math.abs(window.scrollY - openedAt.current) > 160) setShowFilters(false);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [showFilters]);
+
+  // Coming back from a game: return to the same place on the page
+  useLayoutEffect(() => {
+    if (pageScroll) window.scrollTo(0, pageScroll);
+    const onScroll = () => {
+      pageScroll = window.scrollY;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      // Leaving the page: the page is still laid out here, so this is the real position
+      pageScroll = window.scrollY;
+    };
+  }, []);
+  // Keep the restored place once late content (fonts, pictures) has settled
+  useEffect(() => {
+    const target = pageScroll;
+    if (!target) return;
+    const id = requestAnimationFrame(() => {
+      if (Math.abs(window.scrollY - target) > 4) window.scrollTo(0, target);
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
   const update = (patch: Partial<Filters>) =>
     setF((x) => {
       lastFilters = { ...x, ...patch };
@@ -141,6 +213,7 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
   const all = SECTIONS.flatMap((s) => s.ids.map((id) => byId.get(id)).filter((g): g is GameDef => !!g));
   const liked = (id: string) => isLiked(stats, id);
   const active = filtering(f);
+  const filterCount = (f.players !== null ? 1 : 0) + (f.mode !== 'any' ? 1 : 0) + (f.length !== null ? 1 : 0) + (f.liked ? 1 : 0) + (f.fresh ? 1 : 0);
   const found = active ? findGames(all, f, liked) : all;
   const pick = (id: string) => byId.get(id);
   const likedGames = likedIds(stats).map(pick).filter((g): g is GameDef => !!g && all.includes(g));
@@ -163,18 +236,25 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
             aria-label={t('Search games')}
             onChange={(e) => update({ q: e.target.value })}
           />
+          <button className={'btn finder-toggle' + (showFilters ? ' on' : '')} aria-expanded={showFilters} onClick={() => setShowFilters((x) => !x)}>
+            ⚙ {t('Filters')}
+            {filterCount > 0 && <span className="chat-badge static">{filterCount}</span>}
+          </button>
           <button
-            className="btn"
+            className="btn finder-surprise"
             disabled={!found.length}
+            aria-label={t('Surprise me')}
             title={t('Open a random game from the ones shown')}
             onClick={() => {
               const g = found[Math.floor(Math.random() * found.length)];
               if (g) window.location.hash = `/game/${g.id}`;
             }}
           >
-            🎲 {t('Surprise me')}
+            🎲 <span className="finder-surprise-text">{t('Surprise me')}</span>
           </button>
         </div>
+        {showFilters && (
+          <div className="stack-sm finder-panel">
         <div className="row finder-chips">
           <span className="small muted">{t('Players')}:</span>
           {[null, 1, 2, 3, 4, 5, 6].map((n) => (
@@ -203,12 +283,16 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
           <button className={'chip-btn small-chip' + (f.fresh ? ' on' : '')} aria-pressed={f.fresh} onClick={() => update({ fresh: !f.fresh })}>
             ✨ {t('New')}
           </button>
-          {active && (
+        </div>
+          </div>
+        )}
+        {filterCount > 0 && (
+          <div className="row finder-active">
             <button className="btn ghost small" onClick={() => update(NO_FILTERS)}>
               ✕ {t('Clear')}
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </section>
 
       {active ? (
