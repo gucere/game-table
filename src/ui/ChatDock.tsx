@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { playSound } from './sound';
+import { PollCard, PollComposer, clearPollComposerRequest, pollComposerRequested } from './Polls';
 import type { ChatMsg, Session, SessionSnapshot } from '../engine/session';
 import type { Seat } from '../engine/types';
 import { useT } from '../i18n';
@@ -36,7 +37,11 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
   const game = getGame(snap.gameId);
   const chatAllowed = snap.phase !== 'playing' || !game?.canChat || !snap.views[me] || game.canChat(snap.views[me]);
   const lastId = chat.length ? chat[chat.length - 1].id : 0;
-  const [open, setOpen] = useState(false);
+  // The Poll tool opens the chat with the poll form ready
+  const [composing, setComposing] = useState(() => !!session.createPoll && pollComposerRequested());
+  useEffect(() => clearPollComposerRequest(), []);
+  const [open, setOpen] = useState(composing);
+  const polls = snap.polls ?? [];
   const [tab, setTab] = useState<'chat' | 'people'>('chat');
   const [emojiOpen, setEmojiOpen] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -128,7 +133,9 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
                 ) : (
                   <div key={m.id} className={'chat-msg' + (m.seat === me ? ' mine' : '')}>
                     <strong style={{ color: m.seat !== null ? `var(--p${m.seat})` : undefined }}>{m.seat === me ? t('You') : m.name}</strong>{' '}
-                    {m.attachment ? (
+                    {m.poll && polls.some((p) => p.id === m.poll) ? (
+                      <PollCard poll={polls.find((p) => p.id === m.poll)!} session={session} />
+                    ) : m.attachment ? (
                       attachments[m.attachment.id] ? (
                         attachments[m.attachment.id].preview ? (
                           <a href={attachments[m.attachment.id].url} target="_blank" rel="noreferrer" className="chat-image">
@@ -158,6 +165,7 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
               </p>
             )}
             {snap.fileError && <p className="small notice">{t(snap.fileError)}</p>}
+            {composing && <PollComposer session={session} onDone={() => setComposing(false)} />}
             {emojiOpen && (
               <div className="emoji-picker" role="dialog" aria-label={t('Emoji')}>
                 {EMOJI.map(([group, list]) => (
@@ -191,6 +199,11 @@ export function ChatDock({ session, snap }: { session: Session; snap: SessionSna
               <button type="button" className="icon-btn" aria-label={t('Emoji')} aria-expanded={emojiOpen} onClick={() => setEmojiOpen((o) => !o)} disabled={!chatAllowed}>
                 😀
               </button>
+              {session.createPoll && (
+                <button type="button" className="icon-btn" aria-label={t('Start a poll')} title={t('Start a poll')} aria-expanded={composing} onClick={() => setComposing((c) => !c)} disabled={!chatAllowed}>
+                  📊
+                </button>
+              )}
               {session.sendFile && (
                 <>
                   <button type="button" className="icon-btn" aria-label={t('Send a picture or file')} title={t('Send a picture or file (up to 8 MB)')} onClick={() => fileInput.current?.click()} disabled={!chatAllowed || !!snap.fileProgress}>

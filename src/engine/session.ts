@@ -1,6 +1,7 @@
 import type { GameOptions, GameResult, PlayerInfo, Seat } from './types';
 import type { FileMeta, LocalAttachment } from './attachments';
 import type { NightState } from './night';
+import type { PollView } from './polls';
 
 export interface ChatMsg {
   id: number;
@@ -12,6 +13,8 @@ export interface ChatMsg {
   time: number;
   system?: boolean;
   attachment?: FileMeta;
+  /** This message starts a poll (its id) */
+  poll?: string;
 }
 
 export interface VoteInfo {
@@ -97,6 +100,8 @@ export interface SessionSnapshot {
   night?: NightState | null;
   /** Players' own pictures by name (private rooms only) */
   pictures?: Record<string, string>;
+  /** Polls in this room, as this person sees them */
+  polls?: PollView[];
 }
 
 /** What the UI talks to, whether the game is local, hosted, or joined */
@@ -137,6 +142,10 @@ export interface Session {
   backToLobby?(): void;
   /** Online, after a game: ask for a rematch (majority starts it) */
   voteRematch?(): void;
+  /** Polls (online rooms) */
+  createPoll?(question: string, options: string[], multi: boolean, anonymous: boolean): void;
+  votePoll?(id: string, choices: number[]): void;
+  closePoll?(id: string): void;
   /** Game night (host / local only) */
   startNight?(queue: string[]): void;
   nextNight?(): void;

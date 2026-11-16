@@ -135,6 +135,9 @@ export class PublicLounge implements Session {
 
   submit = (seat: Seat, move: unknown) => this.inner?.submit(seat, move);
   sendChat = (text: string) => this.inner?.sendChat?.(text);
+  createPoll = (question: string, options: string[], multi: boolean, anonymous: boolean) => this.inner?.createPoll?.(question, options, multi, anonymous);
+  votePoll = (id: string, choices: number[]) => this.inner?.votePoll?.(id, choices);
+  closePoll = (id: string) => this.inner?.closePoll?.(id);
   startVote = (target: Seat) => this.inner?.startVote?.(target);
   castVote = (yes: boolean) => this.inner?.castVote?.(yes);
   react = (emoji: string) => this.inner?.react?.(emoji);

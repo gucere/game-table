@@ -333,6 +333,16 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
               <span className="chip">🔒 {t('private')}</span>
             </span>
           </a>
+          <a className="game-card" href="#/poll">
+            <span className="game-icon" aria-hidden>
+              📊
+            </span>
+            <span className="game-name">{t('Poll')}</span>
+            <span className="muted small">{t('Ask friends a question and watch the votes come in live.')}</span>
+            <span className="row">
+              <span className="chip">🔒 {t('private')}</span>
+            </span>
+          </a>
           <a className="game-card" href="#/dice">
             <span className="game-icon" aria-hidden>
               🎲

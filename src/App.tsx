@@ -15,6 +15,7 @@ import { ProfilePage } from './ui/ProfilePage';
 import { PrivacyPage } from './ui/PrivacyPage';
 import { FriendsPage } from './ui/FriendsPage';
 import { DicePage } from './ui/DicePage';
+import { PollPage } from './ui/PollPage';
 import { accountsEnabled } from './account/account';
 import { useSocial } from './account/social';
 import { Avatar, Toasts } from './ui/Avatar';
@@ -30,6 +31,7 @@ type Route =
   | { page: 'privacy' }
   | { page: 'friends' }
   | { page: 'dice' }
+  | { page: 'poll' }
   | { page: 'santa' }
   | { page: 'santa-reveal'; token: string }
   | { page: 'trivia'; token: string };
@@ -43,6 +45,7 @@ function parseHash(): Route {
   if (parts[0] === 'privacy') return { page: 'privacy' };
   if (parts[0] === 'friends') return { page: 'friends' };
   if (parts[0] === 'dice') return { page: 'dice' };
+  if (parts[0] === 'poll') return { page: 'poll' };
   if (parts[0] === 'trivia' && parts[1]) return { page: 'trivia', token: parts[1] };
   if (parts[0] === 'santa') return parts[1] === 'r' && parts[2] ? { page: 'santa-reveal', token: parts[2] } : { page: 'santa' };
   return { page: 'home' };
@@ -135,6 +138,7 @@ export function App() {
   else if (route.page === 'privacy') content = <PrivacyPage />;
   else if (route.page === 'friends') content = <FriendsPage />;
   else if (route.page === 'dice') content = <DicePage />;
+  else if (route.page === 'poll') content = <PollPage onStart={setSession} />;
   else if (route.page === 'santa') content = <SantaPage />;
   else if (route.page === 'santa-reveal') content = <SantaReveal token={route.token} />;
   else if (route.page === 'trivia') content = <TriviaImport token={route.token} />;

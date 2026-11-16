@@ -19,6 +19,7 @@ import { GameRunner } from './runner';
 import { Emitter, type ChatMsg, type Reaction, type Session, type SessionSnapshot, type VoiceState, type VoteInfo } from './session';
 import { defaultOptions, type GameOptions, type GameResult, type PlayerInfo, type Seat } from './types';
 import { newNight, nextNight, nightFits, scoreNight, type NightState } from './night';
+import { MAX_POLLS, makePoll, viewPoll, vote, type Poll, type PollView } from './polls';
 import { avatarById, isSafePicture, myLook } from '../profile/profile';
 
 const PREFIX = 'oyunmasasi-v1-';
@@ -79,6 +80,9 @@ export function clientId() {
 type ToHost =
   | { t: 'hello'; name: string; id?: string; avatar?: string; pic?: string }
   | { t: 'rematch' }
+  | { t: 'poll'; question: unknown; options: unknown; multi: unknown; anonymous: unknown }
+  | { t: 'pollvote'; id: string; choices: unknown }
+  | { t: 'pollclose'; id: string }
   | { t: 'move'; move: unknown }
   | { t: 'chat'; text: string }
   | { t: 'react'; emoji: string }
@@ -109,6 +113,7 @@ interface ClientState {
   deadlines?: Record<number, number>;
   rematch?: { votes: Seat[]; needed: number } | null;
   night?: NightState | null;
+  polls?: PollView[];
 }
 
 type ToClient =
@@ -205,6 +210,8 @@ export class HostSession implements Session {
   private pictures: Record<string, string> = {};
   private rematchVotes = new Set<Seat>();
   private night: NightState | null = null;
+  private polls: Poll[] = [];
+  private pollSeq = 0;
 
   constructor(gameId: string, hostName: string, restore: HostedRoom | null = null, opts: { code?: string; lounge?: boolean } = {}) {
     this.lounge = !!opts.lounge;
@@ -354,6 +361,16 @@ export class HostSession implements Session {
           return;
         case 'rematch':
           if (from >= 0) this.rematchFrom(from);
+          return;
+        case 'poll':
+          if (!this.allow(conn)) return;
+          if (from >= 0 || spec) this.pollFrom(from >= 0 ? from : null, from >= 0 ? this.seats[from].name : spec!.name, msg, conn);
+          return;
+        case 'pollvote':
+          if (from >= 0 || spec) this.pollVote(from >= 0 ? this.seats[from].name : spec!.name, String(msg.id), msg.choices, conn);
+          return;
+        case 'pollclose':
+          if (from >= 0 || spec) this.pollClose(from >= 0 ? this.seats[from].name : spec!.name, String(msg.id), false);
           return;
         case 'vote':
           if (from >= 0) this.voteFrom(from, !!msg.yes);
@@ -847,6 +864,7 @@ export class HostSession implements Session {
       rematch: this.rematchInfo(),
       night: this.night,
       pictures: this.pictures,
+      polls: this.pollViews(this.seats[0]?.name ?? this.hostName, true),
     };
     this.broadcast();
     this.save();
@@ -889,11 +907,11 @@ export class HostSession implements Session {
       night: this.night,
     };
     this.conns.forEach((conn, seat) => {
-      if (conn) this.send(conn, { t: 'state', state: { ...base, seat, spectate: null, view: r ? r.view(seat) : null } });
+      if (conn) this.send(conn, { t: 'state', state: { ...base, seat, spectate: null, view: r ? r.view(seat) : null, polls: this.pollViews(this.seats[seat]?.name ?? '', false) } });
     });
     for (const s of this.spectators) {
       const follow = Math.min(s.follow, this.seats.length - 1);
-      this.send(s.conn, { t: 'state', state: { ...base, seat: follow, spectate: follow, view: r ? r.view(follow) : null } });
+      this.send(s.conn, { t: 'state', state: { ...base, seat: follow, spectate: follow, view: r ? r.view(follow) : null, polls: this.pollViews(s.name, false) } });
     }
   }
 
@@ -986,6 +1004,57 @@ export class HostSession implements Session {
 
   voteRematch() {
     this.rematchFrom(0);
+  }
+
+  // ---- Polls
+
+  private pollFrom(seat: Seat | null, name: string, input: { question?: unknown; options?: unknown; multi?: unknown; anonymous?: unknown }, conn: DataConnection | null) {
+    const p = makePoll(`p${++this.pollSeq}`, name, input);
+    if (typeof p === 'string') {
+      if (conn) this.send(conn, { t: 'error', message: p });
+      else this.notice = p;
+      this.refresh();
+      return;
+    }
+    this.polls = [...this.polls, p].slice(-MAX_POLLS);
+    this.addChat({ seat, name, text: `📊 ${p.question}`, poll: p.id });
+    this.refresh();
+  }
+
+  private pollVote(name: string, id: string, choices: unknown, conn: DataConnection | null) {
+    const p = this.polls.find((x) => x.id === id);
+    if (!p) return;
+    const next = vote(p, name, choices);
+    if (typeof next === 'string') {
+      if (conn) this.send(conn, { t: 'error', message: next });
+      return;
+    }
+    this.polls = this.polls.map((x) => (x.id === id ? next : x));
+    this.refresh();
+  }
+
+  private pollClose(name: string, id: string, isHost: boolean) {
+    const p = this.polls.find((x) => x.id === id);
+    if (!p || p.closed || (p.by !== name && !isHost)) return;
+    this.polls = this.polls.map((x) => (x.id === id ? { ...x, closed: true } : x));
+    this.refresh();
+  }
+
+  private pollViews(name: string, isHost: boolean): PollView[] {
+    return this.polls.map((p) => viewPoll(p, name, isHost));
+  }
+
+  createPoll(question: string, options: string[], multi: boolean, anonymous: boolean) {
+    if (!this.allow('host')) return;
+    this.pollFrom(0, this.seats[0].name, { question, options, multi, anonymous }, null);
+  }
+
+  votePoll(id: string, choices: number[]) {
+    this.pollVote(this.seats[0].name, id, choices, null);
+  }
+
+  closePoll(id: string) {
+    this.pollClose(this.seats[0].name, id, true);
   }
 
   startNight(queue: string[]) {
@@ -1228,6 +1297,7 @@ export class ClientSession implements Session {
         deadlines: s.deadlines ?? {},
         rematch: s.rematch ?? null,
         night: s.night ?? null,
+        polls: Array.isArray(s.polls) ? s.polls : [],
       });
     } else if (msg.t === 'chat') {
       this.update({ chat: [...(this.snapshot.chat ?? []), msg.msg].slice(-CHAT_HISTORY) });
@@ -1266,6 +1336,18 @@ export class ClientSession implements Session {
 
   voteRematch() {
     this.sendToHost({ t: 'rematch' });
+  }
+
+  createPoll(question: string, options: string[], multi: boolean, anonymous: boolean) {
+    this.sendToHost({ t: 'poll', question, options, multi, anonymous });
+  }
+
+  votePoll(id: string, choices: number[]) {
+    this.sendToHost({ t: 'pollvote', id, choices });
+  }
+
+  closePoll(id: string) {
+    this.sendToHost({ t: 'pollclose', id });
   }
 
   sendChat(text: string) {
