@@ -1337,4 +1337,11 @@ export const TR_MORE: Record<string, string> = {
   'Dice and coin': 'Zar ve yazı tura',
   'For board games at home, deciding who goes first, or settling an argument. Every roll is fair.': 'Evdeki kutu oyunları, kimin başlayacağına karar vermek ya da bir tartışmayı bitirmek için. Her atış adil.',
   'Roll 1 to 10 dice with 4 to 100 sides, or flip a coin, for games at home.': 'Evdeki oyunlar için 4 ile 100 yüzlü 1–10 zar at ya da yazı tura at.',
+  // Trash: select then play
+  'Face-down card {n}': '{n}. kapalı kart',
+  'Flip and play': 'Aç ve oyna',
+  'Play {card}': '{card} oyna',
+  'Tap a card from your hand (equal or higher), then Play. Or pick up the pile.': 'Elinden (eşit ya da büyük) bir kart seç, sonra Oyna’ya bas. Ya da yığını al.',
+  'Your hand is empty: tap a face-up card, then Play.': 'Elin boş: açık kartlarından birini seç, sonra Oyna’ya bas.',
+  'Tap one of your face-down cards, then Flip and play. If it doesn’t fit, it’s shown and you pick up the pile.': 'Kapalı kartlarından birini seç, sonra Aç ve oyna’ya bas. Uymazsa gösterilir ve yığını alırsın.',
 };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { BoardProps, GameDef, Seat } from '../../engine/types';
 import { t as tx } from '../../i18n';
 import { cardLabel, rankLabel } from '../cards/cards';
@@ -7,6 +7,13 @@ import * as L from './logic';
 
 function Board({ view: v, seat, players, canMove, onMove }: BoardProps<L.TrashView, L.TrashMove>) {
   const [swapCard, setSwapCard] = useState<number | null>(null);
+  // Tap a card to pick it, then press Play: no more misclicks, and face-down cards are
+  // flipped on purpose (even when they may not fit)
+  type Pick = { from: 'hand'; card: number } | { from: 'up' | 'down'; slot: number };
+  const [sel, setSel] = useState<Pick | null>(null);
+  const same = (a: Pick | null, b: Pick) => !!a && a.from === b.from && (a.from === 'hand' ? a.card === (b as { card: number }).card : (a as { slot: number }).slot === (b as { slot: number }).slot);
+  const toggle = (p: Pick) => setSel((cur) => (same(cur, p) ? null : p));
+  useEffect(() => setSel(null), [v.turn, v.phase, v.pile.length, v.round]);
   const me = seat as Seat;
   const name = (s: number) => (s === me ? tx('You') : players[s].name);
   const others = [1, 2, 3].map((k) => ((me + k) % L.PLAYERS) as Seat);
@@ -39,16 +46,27 @@ function Board({ view: v, seat, players, canMove, onMove }: BoardProps<L.TrashVi
           const swapping = mine && v.phase === 'swap' && !v.ready[me] && swapCard !== null && up !== null;
           return (
             <div key={k} className="tp-slot">
-              {down && <PlayingCard back size="sm" onClick={canFlip ? () => onMove({ type: 'flip', slot: k }) : undefined} disabled={!canFlip} highlight={!!canFlip} />}
+              {down && (
+                <PlayingCard
+                  back
+                  size="sm"
+                  onClick={canFlip ? () => toggle({ from: 'down', slot: k }) : undefined}
+                  disabled={!canFlip}
+                  highlight={!!canFlip}
+                  selected={mine && same(sel, { from: 'down', slot: k })}
+                  title={canFlip ? tx('Face-down card {n}', { n: k + 1 }) : undefined}
+                />
+              )}
               {up !== null && (
                 <span className="tp-up">
                   <PlayingCard
                     card={up}
                     size="sm"
                     highlight={canUp || swapping}
+                    selected={mine && same(sel, { from: 'up', slot: k })}
                     onClick={
                       canUp
-                        ? () => onMove({ type: 'up', slot: k })
+                        ? () => toggle({ from: 'up', slot: k })
                         : swapping
                           ? () => {
                               onMove({ type: 'swap', card: swapCard!, slot: k });
@@ -121,7 +139,15 @@ function Board({ view: v, seat, players, canMove, onMove }: BoardProps<L.TrashVi
             {tx('You')} · 🏆 {v.wins[me]}
           </span>
           {v.phase === 'swap' && !v.ready[me] && <span className="small">{tx('Swap: tap a card in your hand, then one of your face-up cards. Press Ready when happy.')}</span>}
-          {myTurn && <span className="small">{z === 'hand' ? tx('Play one card from your hand, equal or higher, or pick up the pile.') : z === 'up' ? tx('Your hand is empty: play a face-up card.') : tx('Flip one of your face-down cards and hope!')}</span>}
+          {myTurn && (
+            <span className="small">
+              {z === 'hand'
+                ? tx('Tap a card from your hand (equal or higher), then Play. Or pick up the pile.')
+                : z === 'up'
+                  ? tx('Your hand is empty: tap a face-up card, then Play.')
+                  : tx('Tap one of your face-down cards, then Flip and play. If it doesn’t fit, it’s shown and you pick up the pile.')}
+            </span>
+          )}
         </div>
         <Area s={me} mine />
         <div className="hand hand-md">
@@ -132,15 +158,26 @@ function Board({ view: v, seat, players, canMove, onMove }: BoardProps<L.TrashVi
               <PlayingCard
                 key={c}
                 card={c}
-                selected={swapCard === c}
+                selected={swapCard === c || same(sel, { from: 'hand', card: c })}
                 dim={myTurn && z === 'hand' && !ok}
-                onClick={ok ? () => onMove({ type: 'play', card: c }) : swap ? () => setSwapCard(swapCard === c ? null : c) : undefined}
+                onClick={ok ? () => toggle({ from: 'hand', card: c }) : swap ? () => setSwapCard(swapCard === c ? null : c) : undefined}
                 disabled={!(ok || swap)}
               />
             );
           })}
         </div>
         <div className="action-bar">
+          {myTurn && sel && (
+            <button
+              className="btn primary"
+              onClick={() => {
+                onMove(sel.from === 'hand' ? { type: 'play', card: sel.card } : sel.from === 'up' ? { type: 'up', slot: sel.slot } : { type: 'flip', slot: sel.slot });
+                setSel(null);
+              }}
+            >
+              {sel.from === 'down' ? `🂠 ${tx('Flip and play')}` : `▶ ${tx('Play {card}', { card: cardLabel(sel.from === 'hand' ? sel.card : v.up[me][sel.slot]!) })}`}
+            </button>
+          )}
           {v.phase === 'swap' && !v.ready[me] && canMove && (
             <button className="btn primary" onClick={() => onMove({ type: 'ready' })}>
               ✓ {tx('Ready')}

@@ -34,6 +34,13 @@ export function PlayingCard({ card, back, size = 'md', selected, dim, highlight,
     (highlight ? ' highlight' : '') +
     (onClick && !disabled ? ' clickable' : '');
   if (back || card == null) {
+    // Face-down cards can be tapped too (e.g. flipping one blind)
+    if (onClick)
+      return (
+        <button className={`${cls} back back-${settings.cardBack}`} style={style} onClick={onClick} disabled={disabled} aria-label={title ?? tx('Face-down card')} title={title}>
+          <span className="back-inner" />
+        </button>
+      );
     return (
       <span className={`${cls} back back-${settings.cardBack}`} style={style} aria-label={tx('Face-down card')}>
         <span className="back-inner" />

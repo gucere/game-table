@@ -17,7 +17,7 @@ function Countdown({ deadline, offset }: { deadline: number; offset: number }) {
 /** A finished drawing, read-only */
 function Picture({ strokes }: { strokes: L.Stroke[] }) {
   return (
-    <div className="dg-canvas-wrap tp-picture">
+    <div className="dg-canvas-wrap phone-picture">
       <Canvas strokes={strokes} canDraw={false} onStroke={() => {}} color="#111111" size={4} />
     </div>
   );
@@ -31,7 +31,7 @@ function Draw({ text, onDone }: { text: string; onDone: (strokes: L.Stroke[]) =>
   const marks = useRef<number[]>([]);
   return (
     <div className="stack-sm">
-      <p className="tp-prompt">
+      <p className="phone-prompt">
         {tx('Draw this:')} <strong>{text}</strong>
       </p>
       <div className="dg-canvas-wrap" onPointerDownCapture={() => marks.current.push(strokes.length)}>
@@ -79,11 +79,11 @@ function Write({ v, onDone }: { v: L.PhoneView; onDone: (text: string) => void }
     >
       {guess ? (
         <>
-          <p className="tp-prompt">{tx('What is this a drawing of?')}</p>
+          <p className="phone-prompt">{tx('What is this a drawing of?')}</p>
           <Picture strokes={v.prompt?.strokes ?? []} />
         </>
       ) : (
-        <p className="tp-prompt">{tx('Write something for the next player to draw: a person, an animal, a funny scene…')}</p>
+        <p className="phone-prompt">{tx('Write something for the next player to draw: a person, an animal, a funny scene…')}</p>
       )}
       <div className="row">
         <input className="input grow" value={text} maxLength={L.MAX_TEXT} autoFocus placeholder={guess ? tx('Your guess') : tx('Your phrase')} onChange={(e) => setText(e.target.value)} />
@@ -113,11 +113,11 @@ function Reveal({ v, players, onNext }: { v: L.PhoneView; players: PlayerInfo[];
     <div className="stack-sm">
       <h3 className="center">{tx('{name}’s chain', { name: players[show.chain]?.name ?? '' })}</h3>
       {show.entries.map((e, i) => (
-        <div key={i} className="tp-entry">
+        <div key={i} className="phone-entry">
           <span className="small muted">
             {e.strokes ? tx('{name} drew:', { name: players[e.by]?.name ?? '' }) : i === 0 ? tx('{name} wrote:', { name: players[e.by]?.name ?? '' }) : tx('{name} guessed:', { name: players[e.by]?.name ?? '' })}
           </span>
-          {e.strokes ? <Picture strokes={e.strokes} /> : <p className="tp-text">{e.text}</p>}
+          {e.strokes ? <Picture strokes={e.strokes} /> : <p className="phone-text">{e.text}</p>}
         </div>
       ))}
       <div ref={end} />
@@ -133,7 +133,7 @@ function Board({ view: v, players, onMove, clockOffset }: BoardProps<L.PhoneView
   if (v.phase === 'reveal') return <Reveal v={v} players={players} onNext={() => onMove({ type: 'next' })} />;
   const label = v.kind === 'write' ? tx('Write') : v.kind === 'draw' ? tx('Draw') : tx('Guess');
   return (
-    <div className="stack-sm tp">
+    <div className="stack-sm phone">
       <div className="info-row">
         <span className="chip">{tx('Step {i} of {n}: {what}', { i: v.step + 1, n: v.n, what: label })}</span>
         <Countdown deadline={v.deadline} offset={clockOffset} />
