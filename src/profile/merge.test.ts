@@ -33,4 +33,12 @@ describe('account stats merge', () => {
     expect(s.achievements).toEqual({ 'first-win': 5 });
     expect(cleanStats(null)).toEqual(emptyStats());
   });
+
+  it('preferences like the home layout: the newest choice wins across devices', () => {
+    const a = { ...emptyStats(), prefs: { homeLayout: { v: 'list', at: 200 } } };
+    const b = { ...emptyStats(), prefs: { homeLayout: { v: 'tiles', at: 100 }, other: { v: 'x', at: 5 } } };
+    expect(mergeStats(a, b).prefs).toEqual({ homeLayout: { v: 'list', at: 200 }, other: { v: 'x', at: 5 } });
+    expect(mergeStats(b, a).prefs.homeLayout.v).toBe('list');
+    expect(cleanStats({ prefs: { homeLayout: { v: 'grid', at: 9 }, bad: { v: 42 } } }).prefs).toEqual({ homeLayout: { v: 'grid', at: 9 } });
+  });
 });

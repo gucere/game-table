@@ -34,6 +34,8 @@ export interface Stats {
   likes: Record<string, number>;
   /** Game id → when you last started it */
   opened: Record<string, number>;
+  /** Preferences that follow the profile (e.g. the home page layout); the newest wins */
+  prefs: Record<string, { v: string; at: number }>;
 }
 
 export interface FinishedGame {
@@ -90,7 +92,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 ];
 
 export function emptyStats(): Stats {
-  return { games: {}, streak: 0, bestStreak: 0, days: [], online: 0, hardWins: 0, bigTables: 0, nights: 0, hintsUsed: 0, achievements: {}, likes: {}, opened: {} };
+  return { games: {}, streak: 0, bestStreak: 0, days: [], online: 0, hardWins: 0, bigTables: 0, nights: 0, hintsUsed: 0, achievements: {}, likes: {}, opened: {}, prefs: {} };
 }
 
 const key = (owner: string) => 'oyun-masasi:stats:' + owner;
@@ -195,6 +197,12 @@ export function onStatsChange(fn: () => void) {
 
 const newest = (s: Stats) => Math.max(0, ...Object.values(s.games).map((g) => g.last));
 
+function mergePrefs(a: Stats['prefs'], b: Stats['prefs']) {
+  const out = { ...b };
+  for (const [k, v] of Object.entries(a)) if (!out[k] || v.at > out[k].at) out[k] = v;
+  return out;
+}
+
 /** The newer like / un-like wins for each game */
 function mergeLikes(a: Record<string, number>, b: Record<string, number>) {
   const out = { ...b };
@@ -233,6 +241,7 @@ export function mergeStats(a: Stats, b: Stats): Stats {
     hintsUsed: max('hintsUsed'),
     achievements,
     likes: mergeLikes(a.likes ?? {}, b.likes ?? {}),
+    prefs: mergePrefs(a.prefs ?? {}, b.prefs ?? {}),
     opened: Object.fromEntries([...new Set([...Object.keys(a.opened ?? {}), ...Object.keys(b.opened ?? {})])].map((k) => [k, Math.max(a.opened?.[k] ?? 0, b.opened?.[k] ?? 0)])),
   };
 }
@@ -252,6 +261,10 @@ export function cleanStats(raw: unknown): Stats {
   const ids = (o: unknown) => (o && typeof o === 'object' ? Object.entries(o as Record<string, unknown>).slice(0, 300) : []);
   for (const [k, v] of ids(r.likes)) if (typeof v === 'number' && Number.isFinite(v) && v !== 0) s.likes[k.slice(0, 40)] = Math.trunc(v);
   for (const [k, v] of ids(r.opened)) if (num(v)) s.opened[k.slice(0, 40)] = num(v);
+  for (const [k, v] of ids(r.prefs)) {
+    const p = v as { v?: unknown; at?: unknown };
+    if (p && typeof p.v === 'string' && p.v.length <= 40) s.prefs[k.slice(0, 40)] = { v: p.v, at: num(p.at) };
+  }
   if (Array.isArray(r.days)) s.days = r.days.filter((d) => typeof d === 'string' && /^\d{4}-\d\d-\d\d$/.test(d)).slice(-60);
   if (r.achievements && typeof r.achievements === 'object')
     for (const [k, t] of Object.entries(r.achievements)) if (ACHIEVEMENTS.some((a) => a.id === k)) s.achievements[k] = num(t) || Date.now();
@@ -261,7 +274,7 @@ export function cleanStats(raw: unknown): Stats {
 /** Clears stats and achievements; liked games stay */
 export function resetStats(owner = statsOwner()) {
   const old = getStats(owner);
-  write(owner, { ...emptyStats(), likes: old.likes ?? {}, opened: old.opened ?? {} });
+  write(owner, { ...emptyStats(), likes: old.likes ?? {}, opened: old.opened ?? {}, prefs: old.prefs ?? {} });
 }
 
 // ---- Liked and recently played games (kept with the stats, so they follow the profile and account)
@@ -274,6 +287,14 @@ export function toggleLike(id: string) {
   const now = Date.now();
   write(owner, { ...s, likes: { ...(s.likes ?? {}), [id]: isLiked(s, id) ? -now : now } });
 }
+
+export function setPref(key: string, value: string) {
+  const owner = statsOwner();
+  const s = getStats(owner);
+  write(owner, { ...s, prefs: { ...(s.prefs ?? {}), [key]: { v: value, at: Date.now() } } });
+}
+
+export const getPref = (s: Stats, key: string) => s.prefs?.[key]?.v;
 
 export function markOpened(id: string) {
   const owner = statsOwner();

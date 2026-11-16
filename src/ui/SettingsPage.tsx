@@ -2,10 +2,14 @@ import { LANGS, useT } from '../i18n';
 import { updateSettings, useSettings } from '../theme/settings';
 import { LookSections } from './LookSections';
 import { playSound } from './sound';
+import { useMyStats } from './LikeButton';
+import { getPref, setPref } from '../profile/stats';
+import { LAYOUTS } from './Home';
 
 export function SettingsPage() {
   const s = useSettings();
   const t = useT();
+  const stats = useMyStats();
   return (
     <div className="panel stack">
       <a href="#/" className="back">
@@ -32,6 +36,18 @@ export function SettingsPage() {
         <span>{t('Your name (used when you play online)')}</span>
         <input className="input" value={s.name} maxLength={20} placeholder={t('Player')} onChange={(e) => updateSettings({ name: e.target.value })} />
       </label>
+
+      <section className="stack-sm">
+        <h2 className="section-title">{t('Home page layout')}</h2>
+        <div className="row">
+          {LAYOUTS.map((l) => (
+            <button key={l.id} className={'btn' + ((getPref(stats, 'homeLayout') ?? 'rows') === l.id ? ' primary' : '')} onClick={() => setPref('homeLayout', l.id)}>
+              {l.icon} {t(l.name)}
+            </button>
+          ))}
+        </div>
+        <span className="small muted">{t('Saved with your profile. Signed in, it follows you to every device.')}</span>
+      </section>
 
       <section className="stack-sm">
         <h2 className="section-title">{t('Sound and vibration')}</h2>

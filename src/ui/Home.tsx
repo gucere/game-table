@@ -4,7 +4,7 @@ import { NO_FILTERS, byLikes, filtering, findGames, type Filters, type Mode } fr
 import { accountsEnabled, getFirebase } from '../account/account';
 import { likeCounts } from '../account/likes';
 import { LENGTH, LENGTH_LABEL, isNew, type Length } from '../games/meta';
-import { isLiked, likedIds, recentIds } from '../profile/stats';
+import { getPref, isLiked, likedIds, recentIds, setPref } from '../profile/stats';
 import { LikeButton, useMyStats } from './LikeButton';
 import { PUBLIC_ROOMS, acceptRules, rulesAccepted } from '../engine/lounge';
 import { GAMES, SECTIONS } from '../games';
@@ -111,7 +111,99 @@ let pageScroll = 0;
 const rowScroll = new Map<string, number>();
 const openRows = new Set<string>();
 
-function Row({ title, games }: { title: string; games: GameDef[] }) {
+export type Layout = 'rows' | 'grid' | 'list' | 'tiles';
+export const LAYOUTS: { id: Layout; icon: string; name: string }[] = [
+  { id: 'rows', icon: '⇆', name: 'Rows' },
+  { id: 'grid', icon: '▦', name: 'Grid' },
+  { id: 'list', icon: '☰', name: 'List' },
+  { id: 'tiles', icon: '◼', name: 'Tiles' },
+];
+const isLayout = (v: unknown): v is Layout => LAYOUTS.some((l) => l.id === v);
+
+/** One compact line: icon, name, players and length */
+function GameLine({ g, likes }: { g: GameDef; likes?: number }) {
+  const t = useT();
+  const lang = useLang();
+  const name = gameName(g, lang);
+  return (
+    <div className="game-line-wrap">
+      <a className="game-line" href={`#/game/${g.id}`}>
+        <span className="game-line-icon" aria-hidden>
+          {g.icon}
+        </span>
+        <span className="game-line-text">
+          <span className="game-line-name">
+            {name}
+            {isNew(g.id) && <span className="new-badge inline">✨ {t('New')}</span>}
+          </span>
+          <span className="small muted">
+            {players(t, g.minPlayers, g.maxPlayers)}
+            {LENGTH[g.id] ? ` · ${t(LENGTH_LABEL[LENGTH[g.id]])}` : ''}
+            {g.bot ? ` · ${t('bots')}` : ''}
+            {likes !== undefined ? ` · ♥ ${likes}` : ''}
+          </span>
+        </span>
+      </a>
+      <LikeButton id={g.id} name={name} />
+    </div>
+  );
+}
+
+/** A big icon with just the name */
+function GameTile({ g }: { g: GameDef }) {
+  const lang = useLang();
+  return (
+    <a className="game-tile" href={`#/game/${g.id}`} title={gameTagline(g, lang)}>
+      <span className="game-tile-icon" aria-hidden>
+        {g.icon}
+      </span>
+      <span className="game-tile-name">{gameName(g, lang)}</span>
+      {isNew(g.id) && <span className="tile-dot" aria-label="New" />}
+    </a>
+  );
+}
+
+/** A set of games drawn in the chosen layout (rows become a grid here) */
+function GameSet({ games, layout, likes }: { games: GameDef[]; layout: Layout; likes?: Record<string, number> }) {
+  if (layout === 'list')
+    return (
+      <div className="game-lines">
+        {games.map((g) => (
+          <GameLine key={g.id} g={g} likes={likes ? (likes[g.id] ?? 0) : undefined} />
+        ))}
+      </div>
+    );
+  if (layout === 'tiles')
+    return (
+      <div className="game-tiles">
+        {games.map((g) => (
+          <GameTile key={g.id} g={g} />
+        ))}
+      </div>
+    );
+  return (
+    <div className="game-grid">
+      {games.map((g) => (
+        <GameCard key={g.id} g={g} likes={likes ? (likes[g.id] ?? 0) : undefined} />
+      ))}
+    </div>
+  );
+}
+
+function LayoutPicker({ layout, onPick }: { layout: Layout; onPick: (l: Layout) => void }) {
+  const t = useT();
+  return (
+    <div className="layout-picker" role="radiogroup" aria-label={t('Layout')}>
+      {LAYOUTS.map((l) => (
+        <button key={l.id} role="radio" aria-checked={layout === l.id} className={'layout-btn' + (layout === l.id ? ' on' : '')} title={t(l.name)} onClick={() => onPick(l.id)}>
+          <span aria-hidden>{l.icon}</span> <span className="layout-name">{t(l.name)}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function Row({ title, games, layout }: { title: string; games: GameDef[]; layout: Layout }) {
   const t = useT();
   const [all, setAll] = useState(openRows.has(title));
   const strip = useRef<HTMLDivElement>(null);
@@ -120,6 +212,15 @@ function Row({ title, games }: { title: string; games: GameDef[] }) {
     if (el && !all) el.scrollLeft = rowScroll.get(title) ?? 0;
   }, [all, title]);
   if (!games.length) return null;
+  if (layout !== 'rows')
+    return (
+      <section>
+        <h2 className="section-title">
+          {t(title)} <span className="row-count">{games.length}</span>
+        </h2>
+        <GameSet games={games} layout={layout} />
+      </section>
+    );
   const nudge = (dir: number) => strip.current?.scrollBy({ left: dir * strip.current.clientWidth * 0.85, behavior: 'smooth' });
   const toggle = () => {
     if (all) openRows.delete(title);
@@ -171,6 +272,9 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
   const t = useT();
   const byId = new Map(GAMES.map((g) => [g.id, g]));
   const stats = useMyStats();
+  // The layout follows the profile (and the account, when signed in)
+  const pref = getPref(stats, 'homeLayout');
+  const layout: Layout = isLayout(pref) ? pref : 'rows';
   const [f, setF] = useState<Filters>(lastFilters);
   const [showFilters, setShowFilters] = useState(false);
   // The open filter panel folds away once you scroll on, so it never covers the games
@@ -243,7 +347,10 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
   return (
     <div className="stack-lg">
       <section className="hero">
-        <h1>{t('Pick a game')}</h1>
+        <div className="hero-top">
+          <h1>{t('Pick a game')}</h1>
+          <LayoutPicker layout={layout} onPick={(l) => setPref('homeLayout', l)} />
+        </div>
         <p className="muted">{t('Play alone against bots, pass one device around, or play online with friends straight from the browser, peer to peer.')}</p>
       </section>
 
@@ -337,21 +444,17 @@ export function Home({ onEnterPublic }: { onEnterPublic?: (code: string) => void
           </h2>
           {f.sort === 'liked' && counts && <p className="small muted">{t('Likes from signed-in players. Tap ♡ on a game to add yours.')}</p>}
           {found.length ? (
-            <div className="game-grid">
-              {found.map((g) => (
-                <GameCard key={g.id} g={g} likes={f.sort === 'liked' && counts ? (counts[g.id] ?? 0) : undefined} />
-              ))}
-            </div>
+            <GameSet games={found} layout={layout} likes={f.sort === 'liked' && counts ? counts : undefined} />
           ) : (
             <p className="muted">{f.liked && !likedGames.length ? t('No liked games yet. Tap ♡ on a game to like it.') : t('No games match. Try fewer filters or another word.')}</p>
           )}
         </section>
       ) : (
         <>
-          <Row title="♥ Liked" games={likedGames} />
-          <Row title="Recently played" games={recent} />
+          <Row title="♥ Liked" games={likedGames} layout={layout} />
+          <Row title="Recently played" games={recent} layout={layout} />
           {SECTIONS.map((sec) => (
-            <Row key={sec.title} title={sec.title} games={sec.ids.map(pick).filter((g): g is GameDef => !!g)} />
+            <Row key={sec.title} title={sec.title} games={sec.ids.map(pick).filter((g): g is GameDef => !!g)} layout={layout} />
           ))}
         </>
       )}

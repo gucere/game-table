@@ -1392,4 +1392,10 @@ export const TR_MORE: Record<string, string> = {
   'like counts unavailable': 'beğeni sayıları alınamadı',
   'most liked first': 'en beğenilen önce',
   'Likes from signed-in players. Tap ♡ on a game to add yours.': 'Giriş yapmış oyuncuların beğenileri. Seninkini eklemek için bir oyundaki ♡’ye dokun.',
+  'Rows': 'Satırlar',
+  'Grid': 'Izgara',
+  'List': 'Liste',
+  'Tiles': 'Kutucuklar',
+  'Home page layout': 'Ana sayfa görünümü',
+  'Saved with your profile. Signed in, it follows you to every device.': 'Profilinle kaydedilir. Giriş yaptıysan her cihazda seninle olur.',
 };
