@@ -97,7 +97,7 @@ Free, open-source classic games that run entirely in the browser.
 | Yalancı Zar | 2–6 | ✅ | Liar's dice: secret dice, rising bids, call “Liar!”; ones wild (optional), 3/5/6 dice each |
 | Kulaktan Kulağa Çizim | 3–10 | – | Online only. Write a phrase, the next player draws it, the next guesses the drawing… every chain passes through everyone and is revealed step by step at the end |
 | Solitaire · Sudoku · Mayın Tarlası (Minefield) | 1 | – | Klondike (draw 1/3, undo), generated sudokus with one solution, 3 sizes of minefield |
-| Birleştir · Yılan · Kelime Avı | 1 | – | Sliding merge puzzle, snake, word search (TR/EN) |
+| Birleştir · Yılan · Kelime Avı | 1 | – | Sliding merge puzzle; snake with five looks (garden, retro phone screen, seagulls chasing simit, a train, neon); word search (TR/EN) |
 | Zeka Küpü | 1 | – | The twisty puzzle cube in 3D, 2×2 to 7×7: drag stickers or use U D L R F B keys. "Solve it for me" on 2×2 and 3×3 (Kociemba's two-phase algorithm via [cubejs](https://github.com/ldez/cubejs), MIT). Ported from my own [cube solver](https://github.com/gucere/Rubik-s-Cube-Solver-s-) |
 | Uzay Savunması | 1 | – | Original arcade shooter: marching drone waves that speed up, a hive boss every fifth wave, power-ups; works with touch, mouse or keys |
 | Tuğla Kırma | 1 | – | Original brick-breaking arcade game: levels that speed up, tougher bricks, wide paddle / multi-ball / slow-ball power-ups |

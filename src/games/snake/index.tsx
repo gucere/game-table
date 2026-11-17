@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import type { BoardProps, GameDef, GameResult, Seat } from '../../engine/types';
 import * as S from './sim';
 import { t as tx } from '../../i18n';
+import { CELL, SKINS, skinById, type Skin } from './skins';
+import { useMyStats } from '../../ui/LikeButton';
+import { getPref, setPref } from '../../profile/stats';
 
 interface SnakeState {
   score: number | null;
@@ -26,71 +29,19 @@ const saveBest = (n: number) => {
   }
 };
 
-const CELL = 24;
 const KEYS: Record<string, S.Dir> = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right' };
 
-function draw(ctx: CanvasRenderingContext2D, s: S.Snake) {
-  const W = S.N * CELL;
-  // Grass with a soft checker
-  for (let y = 0; y < S.N; y++)
-    for (let x = 0; x < S.N; x++) {
-      ctx.fillStyle = (x + y) % 2 ? '#7cbf5a' : '#86c964';
-      ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
-    }
-  if (s.walls) {
-    ctx.strokeStyle = '#5a3b22';
-    ctx.lineWidth = 6;
-    ctx.strokeRect(3, 3, W - 6, W - 6);
-  }
-  // Food: a red apple; the bonus is a golden simit
-  const apple = s.food;
-  ctx.fillStyle = '#d62828';
-  ctx.beginPath();
-  ctx.arc(apple.x * CELL + CELL / 2, apple.y * CELL + CELL / 2 + 1, CELL * 0.36, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#2d6a1f';
-  ctx.fillRect(apple.x * CELL + CELL / 2 - 1, apple.y * CELL + 3, 3, 6);
-  if (s.bonus) {
-    const { x, y } = s.bonus.at;
-    ctx.strokeStyle = s.bonus.ticks < 12 && s.bonus.ticks % 2 ? '#f6d68b' : '#c8862a';
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.arc(x * CELL + CELL / 2, y * CELL + CELL / 2, CELL * 0.3, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.fillStyle = '#fff6';
-    for (let k = 0; k < 6; k++) ctx.fillRect(x * CELL + CELL / 2 + Math.cos(k) * 7, y * CELL + CELL / 2 + Math.sin(k) * 7, 2, 2);
-  }
-  // Snake: patterned body, darker head with eyes
-  s.body.forEach((b, i) => {
-    ctx.fillStyle = i === 0 ? '#1f5130' : i % 2 ? '#2e7d4f' : '#3a9a62';
-    const pad = i === 0 ? 1 : 2;
-    ctx.beginPath();
-    ctx.roundRect(b.x * CELL + pad, b.y * CELL + pad, CELL - pad * 2, CELL - pad * 2, 7);
-    ctx.fill();
-    if (i % 3 === 1) {
-      ctx.fillStyle = '#e9b949';
-      ctx.fillRect(b.x * CELL + CELL / 2 - 2, b.y * CELL + CELL / 2 - 2, 4, 4);
-    }
-  });
-  const h = s.body[0];
-  ctx.fillStyle = '#fff';
-  const ex = s.dir === 'left' ? -5 : s.dir === 'right' ? 5 : 0;
-  const ey = s.dir === 'up' ? -5 : s.dir === 'down' ? 5 : 0;
-  for (const side of [-1, 1]) {
-    const ox = ey ? side * 5 : ex;
-    const oy = ex ? side * 5 : ey;
-    ctx.beginPath();
-    ctx.arc(h.x * CELL + CELL / 2 + ox, h.y * CELL + CELL / 2 + oy, 3.2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  if (s.dead) {
-    ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.fillRect(0, 0, W, W);
-  }
-}
-
-function Game({ walls, speed, onDone }: { walls: boolean; speed: number; onDone: (n: number) => void }) {
+function Game({ walls, speed, skin, onDone }: { walls: boolean; speed: number; skin: Skin; onDone: (n: number) => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const look = useRef(skin);
+  look.current = skin;
+  const draw = (ctx: CanvasRenderingContext2D, s: S.Snake) => look.current.draw(ctx, s);
+  // A new look shows straight away, even while paused
+  useEffect(() => {
+    const ctx = ref.current?.getContext('2d');
+    if (ctx) draw(ctx, snake.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skin]);
   const snake = useRef(S.newSnake(walls, Math.random));
   const [score, setScore] = useState(0);
   const [started, setStarted] = useState(false);
@@ -180,9 +131,27 @@ function Game({ walls, speed, onDone }: { walls: boolean; speed: number; onDone:
   );
 }
 
+/** The game with its look picker; the chosen look is remembered with the profile */
+function Play({ walls, speed, onDone }: { walls: boolean; speed: number; onDone: (n: number) => void }) {
+  const stats = useMyStats();
+  const skin = skinById(getPref(stats, 'snakeSkin'));
+  return (
+    <div className="stack-sm center">
+      <div className="row center-row snake-skins" role="radiogroup" aria-label={tx('Look')}>
+        {SKINS.map((k) => (
+          <button key={k.id} role="radio" aria-checked={skin.id === k.id} className={'chip-btn small-chip' + (skin.id === k.id ? ' on' : '')} onClick={() => setPref('snakeSkin', k.id)}>
+            {k.icon} {tx(k.name)}
+          </button>
+        ))}
+      </div>
+      <Game walls={walls} speed={speed} skin={skin} onDone={onDone} />
+    </div>
+  );
+}
+
 function Board({ view: v, canMove, onMove }: BoardProps<SnakeState, SnakeMove>) {
   if (!canMove) return <p className="center muted">{v.score !== null ? tx('Score: {score}', { score: v.score }) : ''}</p>;
-  return <Game walls={v.walls} speed={v.speed} onDone={(n) => onMove({ type: 'score', n })} />;
+  return <Play walls={v.walls} speed={v.speed} onDone={(n) => onMove({ type: 'score', n })} />;
 }
 
 export const snake: GameDef<SnakeState, SnakeMove, SnakeState> = {

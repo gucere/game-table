@@ -1398,4 +1398,10 @@ export const TR_MORE: Record<string, string> = {
   'Tiles': 'Kutucuklar',
   'Home page layout': 'Ana sayfa görünümü',
   'Saved with your profile. Signed in, it follows you to every device.': 'Profilinle kaydedilir. Giriş yaptıysan her cihazda seninle olur.',
+  'Look': 'Görünüm',
+  'Garden': 'Bahçe',
+  'Retro phone': 'Tuşlu Telefon',
+  'Seagulls & simit': 'Martılar ve Simit',
+  'Train': 'Tren',
+  'Neon': 'Neon',
 };
